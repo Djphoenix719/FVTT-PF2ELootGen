@@ -1,7 +1,6 @@
 {
     "compilerOptions": {
       "target": "es2020",
-      "strictNullChecks": true,
       "alwaysStrict": true,
       "types": [
         "fvtt-types/src",

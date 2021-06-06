@@ -21,7 +21,6 @@ import SettingsApp from './SettingsApp';
 
 const Features = {};
 
-
 const MENU_KEY = 'SETTINGS_MENU';
 
 type IFeatureInputType = 'checkbox' | 'number' | 'text' | 'file';
@@ -67,11 +66,12 @@ export const ATTR_REOPEN_SHEET_REQUIRED: IFeatureAttribute = {
     title: 'Sheets must be closed and re-opened.',
 };
 
-export const FEATURES: IFeatureDefinition[] = [
-];
+export const FEATURES: IFeatureDefinition[] = [];
 
-export default class Settings {
+export default class ModuleSettings {
     public static readonly FEATURES = Features;
+
+    public static readonly LOOT_APP_INVENTORY = 'LOOT_APP_INVENTORY';
 
     /**
      * Retrieve a setting from the store.
@@ -104,7 +104,7 @@ export default class Settings {
      */
     public static onInit() {
         for (const feature of FEATURES) {
-            if (feature.onInit && Settings.get(feature.id)) {
+            if (feature.onInit && ModuleSettings.get(feature.id)) {
                 feature.onInit();
             }
         }
@@ -115,7 +115,7 @@ export default class Settings {
      */
     public static onSetup() {
         for (const feature of FEATURES) {
-            if (feature.onSetup && Settings.get(feature.id)) {
+            if (feature.onSetup && ModuleSettings.get(feature.id)) {
                 feature.onSetup();
             }
         }
@@ -126,7 +126,7 @@ export default class Settings {
      */
     public static onReady() {
         for (const feature of FEATURES) {
-            if (feature.onReady && Settings.get(feature.id)) {
+            if (feature.onReady && ModuleSettings.get(feature.id)) {
                 feature.onReady();
             }
         }
@@ -146,7 +146,7 @@ export default class Settings {
                 config: false,
                 restricted: true,
             };
-            Settings.reg(feature.id, enabled);
+            ModuleSettings.reg(feature.id, enabled);
 
             // Register any other settings values for a feature.
             for (const registration of feature.register) {
@@ -159,17 +159,23 @@ export default class Settings {
                     restricted: true,
                     onChange: registration.onChange,
                 };
-                Settings.reg(registration.name, setting);
+                ModuleSettings.reg(registration.name, setting);
             }
         }
 
         game.settings.registerMenu(MODULE_NAME, MENU_KEY, {
-            name: 'PF2E Toolbox Settings',
-            label: 'PF2E Toolbox Settings',
-            hint: 'Configure PF2E Toolbox enabled features and other options.',
+            name: 'PF2E Loot Generator Settings',
+            label: 'PF2E Loot Generator Settings',
+            hint: 'Configure PF2E Loot Generator enabled features and other options.',
             icon: 'fas fa-cogs',
             type: SettingsApp,
             restricted: true,
+        });
+
+        game.settings.register(MODULE_NAME, ModuleSettings.LOOT_APP_INVENTORY, {
+            name: 'Saved Inventory',
+            default: new Map(),
+            scope: 'world',
         });
     }
 }

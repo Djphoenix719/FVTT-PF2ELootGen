@@ -7,6 +7,10 @@ export async function registerHandlebarsTemplates() {
         `modules/${MODULE_NAME}/templates/settings-app/tabs/About.html`,
         `modules/${MODULE_NAME}/templates/settings-app/tabs/Features.html`,
         `modules/${MODULE_NAME}/templates/settings-app/tabs/License.html`,
+
+        `modules/${MODULE_NAME}/templates/loot-app/inventory.html`,
+        `modules/${MODULE_NAME}/templates/loot-app/consumables.html`,
+        `modules/${MODULE_NAME}/templates/loot-app/magic-items.html`,
     ];
     await loadTemplates(templatePaths);
 }

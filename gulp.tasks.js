@@ -129,6 +129,7 @@ async function buildJS() {
  */
 async function copyAssets() {
     gulp.src('module.json').pipe(gulp.dest(destFolder));
+    gulp.src('src/external/**/*').pipe(gulp.dest(path.resolve(destFolder, 'external')));
     gulp.src('src/templates/**/*').pipe(gulp.dest(path.resolve(destFolder, 'templates')));
     gulp.src('src/packs/**/*').pipe(gulp.dest(path.resolve(destFolder, 'packs')));
     gulp.src('LICENSE').pipe(gulp.dest(destFolder));

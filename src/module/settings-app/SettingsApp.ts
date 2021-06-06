@@ -15,7 +15,7 @@
  */
 
 import { MODULE_NAME } from '../Constants';
-import Settings, { ATTR_RELOAD_REQUIRED, FEATURES } from './Settings';
+import ModuleSettings, { ATTR_RELOAD_REQUIRED, FEATURES } from './ModuleSettings';
 
 export default class SettingsApp extends FormApplication {
     static get defaultOptions() {
@@ -56,7 +56,7 @@ export default class SettingsApp extends FormApplication {
             });
 
             for (const input of setting.inputs) {
-                input['value'] = Settings.get(input.name);
+                input['value'] = ModuleSettings.get(input.name);
             }
         }
         renderData['features'] = features;
@@ -67,8 +67,8 @@ export default class SettingsApp extends FormApplication {
     protected async _updateObject(event: Event, formData: any): Promise<void> {
         let shouldReload = false;
         for (const [key, newValue] of Object.entries(formData)) {
-            const oldValue = Settings.get(key);
-            await Settings.set(key, newValue);
+            const oldValue = ModuleSettings.get(key);
+            await ModuleSettings.set(key, newValue);
 
             if (oldValue !== newValue) {
                 const reloadRequired = FEATURES.find((feature) => feature.id === key)?.attributes?.includes(ATTR_RELOAD_REQUIRED) ?? false;

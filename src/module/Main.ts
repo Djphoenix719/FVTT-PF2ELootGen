@@ -14,23 +14,26 @@
  * limitations under the License.
  */
 
-import Settings from './settings-app/Settings';
+import ModuleSettings from './settings-app/ModuleSettings';
 import { registerHandlebarsHelpers, registerHandlebarsTemplates } from './Handlebars';
-import { getTable, permanentItemsTables, rollMany } from './data/Tables';
+import { extendLootSheet } from './loot-app/LootApp';
+import { MODULE_NAME } from './Constants';
 
-Hooks.on('init', Settings.registerAllSettings);
+Hooks.on('init', ModuleSettings.registerAllSettings);
 
-Hooks.on('init', Settings.onInit);
-Hooks.on('setup', Settings.onSetup);
-Hooks.on('ready', Settings.onReady);
+Hooks.on('init', ModuleSettings.onInit);
+Hooks.on('setup', ModuleSettings.onSetup);
+Hooks.on('ready', ModuleSettings.onReady);
 
 Hooks.on('setup', registerHandlebarsTemplates);
 Hooks.on('setup', registerHandlebarsHelpers);
 
 Hooks.on('ready', async () => {
-    for (let tableDef of permanentItemsTables) {
-        if (!tableDef.name.startsWith('10')) continue;
-        const table = await getTable(tableDef.id);
-        const results = await rollMany(table, 20);
-    }
+    const extendedSheet = extendLootSheet();
+    Actors.registerSheet(MODULE_NAME, extendedSheet, {
+        label: 'PF2E Loot Generator',
+        types: ['loot'],
+        makeDefault: false,
+    });
+    game.actors.getName('Lootboi').sheet.render(true);
 });

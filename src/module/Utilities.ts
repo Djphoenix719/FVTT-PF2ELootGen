@@ -1,7 +1,8 @@
-/* Copyright 2020 Andrew Cuccinello
- *
+/*
+ * Copyright 2021 Andrew Cuccinello
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
+ *
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -13,11 +14,13 @@
  * limitations under the License.
  */
 
-@import './settings-app/main';
-@import './loot-app/main';
-
-.clearfix {
-    content: '';
-    clear: both;
-    display: table;
-}
+/**
+ * Get an item with an id of itemId from the pack with id packId.
+ * @param packId
+ * @param itemId
+ */
+export const getItemFromPack = async (packId: string, itemId: string): Promise<Item> => {
+    const pack = await game.packs?.get(packId);
+    // @ts-ignore
+    return await pack.getDocument(itemId);
+};
