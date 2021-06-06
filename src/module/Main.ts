@@ -25,3 +25,4 @@ Hooks.on('ready', Settings.onReady);
 
 Hooks.on('setup', registerHandlebarsTemplates);
 Hooks.on('setup', registerHandlebarsHelpers);
+

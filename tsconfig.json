@@ -6,7 +6,8 @@
       "types": [
         "fvtt-types/src",
         "handlebars",
-        "pixi.js"
+        "pixi.js",
+        "reflect-metadata"
       ],
       "baseUrl": "src/module",
       "paths": { }
