@@ -77,7 +77,7 @@ export default class SettingsApp extends FormApplication {
         }
 
         if (shouldReload) {
-            if (confirm('PF2E Toolbox requires the Foundry page to be refreshed before new settings are applied. Refresh now?')) {
+            if (confirm('The Foundry window must be refreshed before some settings are applied. Refresh now?')) {
                 window.location = window.location;
             }
         }
