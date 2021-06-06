@@ -16,6 +16,7 @@
 
 import Settings from './settings-app/Settings';
 import { registerHandlebarsHelpers, registerHandlebarsTemplates } from './Handlebars';
+import { getTable, permanentItemsTables, rollMany } from './data/Tables';
 
 Hooks.on('init', Settings.registerAllSettings);
 
@@ -26,3 +27,10 @@ Hooks.on('ready', Settings.onReady);
 Hooks.on('setup', registerHandlebarsTemplates);
 Hooks.on('setup', registerHandlebarsHelpers);
 
+Hooks.on('ready', async () => {
+    for (let tableDef of permanentItemsTables) {
+        if (!tableDef.name.startsWith('10')) continue;
+        const table = await getTable(tableDef.id);
+        const results = await rollMany(table, 20);
+    }
+});
