@@ -10,7 +10,9 @@
         "reflect-metadata"
       ],
       "baseUrl": "src/module",
-      "paths": { }
+      "paths": { },
+      "moduleResolution": "Node",
+      "experimentalDecorators": true
     },
-    "exclude": ["fvtt-types/test-d"]
+  "exclude": ["fvtt-types/test-d"]
   }
