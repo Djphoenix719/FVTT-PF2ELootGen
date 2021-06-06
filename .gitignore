@@ -1,0 +1,6 @@
+*.swp
+.idea
+node_modules/*
+module/**/*.js
+foundryconfig.json
+old-data.ts
