@@ -115,83 +115,83 @@ export const consumableTables = [
 export const permanentItemsTables = [
     {
         id: 'JyDn13oc0MdLjpyw',
-        name: '1st-Level Permanent Items',
+        name: '1st-Level',
     },
     {
         id: 'q6hhGYSee35XxKE8',
-        name: '2nd-Level Permanent Items',
+        name: '2nd-Level',
     },
     {
         id: 'Ow2zoRUSX0s7JjMo',
-        name: '3rd-Level Permanent Items',
+        name: '3rd-Level',
     },
     {
         id: 'k0Al2PJni2NTtdIY',
-        name: '4th-Level Permanent Items',
+        name: '4th-Level',
     },
     {
         id: 'k5bG37570BbflxR2',
-        name: '5th-Level Permanent Items',
+        name: '5th-Level',
     },
     {
         id: '9xol7FdCfaU585WR',
-        name: '6th-Level Permanent Items',
+        name: '6th-Level',
     },
     {
         id: 'r8F8mI2BZU6nOMQB',
-        name: '7th-Level Permanent Items',
+        name: '7th-Level',
     },
     {
         id: 'QoEkRoteKJwHHVRd',
-        name: '8th-Level Permanent Items',
+        name: '8th-Level',
     },
     {
         id: 'AJOYeeeF3E8UC7KF',
-        name: '9th-Level Permanent Items',
+        name: '9th-Level',
     },
     {
         id: 'W0qudblot2Z9Vu86',
-        name: '10th-Level Permanent Items',
+        name: '10th-Level',
     },
     {
         id: 'ood552HB1onSdJFS',
-        name: '11th-Level Permanent Items',
+        name: '11th-Level',
     },
     {
         id: 'uzkmxRIn4CtzfP47',
-        name: '12th-Level Permanent Items',
+        name: '12th-Level',
     },
     {
         id: 'eo7kjM8xv6KD5h5q',
-        name: '13th-Level Permanent Items',
+        name: '13th-Level',
     },
     {
         id: 'cBpFoBUNSApkvP6L',
-        name: '14th-Level Permanent Items',
+        name: '14th-Level',
     },
     {
         id: 'X2QkgnYrda4mV5v3',
-        name: '15th-Level Permanent Items',
+        name: '15th-Level',
     },
     {
         id: 'J7XfeVrfUj72IkRY',
-        name: '16th-Level Permanent Items',
+        name: '16th-Level',
     },
     {
         id: '0jlGmwn6YGqsfG1q',
-        name: '17th-Level Permanent Items',
+        name: '17th-Level',
     },
     {
         id: '6FmhLLYH94xhucIs',
-        name: '18th-Level Permanent Items',
+        name: '18th-Level',
     },
     {
         id: 'gkdB45QC0u1WeiRA',
-        name: '19th-Level Permanent Items',
+        name: '19th-Level',
     },
     {
         id: 'NOkobOGi0nqsboHI',
-        name: '20th-Level Permanent Items',
+        name: '20th-Level',
     },
 ];
 

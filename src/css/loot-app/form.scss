@@ -15,6 +15,7 @@
  */
 
 .pf2e-lootgen.loot-app {
+    min-width: 700px;
     form {
         display: flex;
         flex-direction: row;
@@ -54,4 +55,12 @@ div.loot-app-features {
     display: flex;
     flex-direction: column;
     height: 100%;
+
+    .form-group {
+        margin: 0;
+    }
+    input[type='number'] {
+        text-align: right;
+        margin: 3px 5px;
+    }
 }

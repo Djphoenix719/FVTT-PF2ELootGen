@@ -1,3 +1,14 @@
-<div class="sidebar-features">
-    {{#each }}{{/each}}
+<div class="sidebar-feature">
+    {{> modules/pf2e-lootgen/templates/loot-app/rolltable-settings.html}}
+    <p>Select tables to roll from.</p>
+    {{#each @root.magicItemTables as |table|}}
+        <div class="form-group">
+            <label for="flags.pf2e-lootgen.magic-items.{{table.id}}">{{table.name}}</label>
+            <input
+                type="checkbox"
+                name="flags.pf2e-lootgen.magic-items.{{table.id}}"
+                {{checked table.enabled}}
+            >
+        </div>
+    {{/each}}
 </div>

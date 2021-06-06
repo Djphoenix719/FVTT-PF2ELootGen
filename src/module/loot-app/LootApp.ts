@@ -15,6 +15,7 @@
  */
 
 import { MODULE_NAME, PF2E_LOOT_SHEET_NAME } from '../Constants';
+import { permanentItemsTables } from '../data/Tables';
 export const extendLootSheet = () => {
     type ActorSheetConstructor = new (...args: any[]) => ActorSheet;
     const extendMe: ActorSheetConstructor = CONFIG.Actor.sheetClasses['loot'][`pf2e.${PF2E_LOOT_SHEET_NAME}`].cls;
@@ -37,6 +38,11 @@ export const extendLootSheet = () => {
 
         public getData(options?: Application.RenderOptions) {
             const data = super.getData(options);
+
+            data['magicItemTables'] = permanentItemsTables;
+            for (const table of data['magicItemTables']) {
+                table['enabled'] = this.actor.getFlag(MODULE_NAME, `magic-items.${table['id']}`) ?? false;
+            }
 
             console.warn(data);
 

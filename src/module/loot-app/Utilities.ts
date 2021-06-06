@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright 2021 Andrew Cuccinello
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,3 @@
  * limitations under the License.
  */
 
-div.ui-accordion {
-    .ui-accordion-content,
-    .ui-accordion-header {
-        padding: 0;
-    }
-
-    .ui-accordion-header {
-        border-bottom: 1px solid #782e22;
-    }
-    button.ui-accordion-header {
-        border-bottom: none;
-    }
-
-    div.ui-accordion-content-active {
-        flex: 1;
-    }
-}
