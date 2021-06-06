@@ -6,13 +6,10 @@
       "types": [
         "fvtt-types/src",
         "handlebars",
-        "pixi.js",
-        "reflect-metadata"
+        "pixi.js"
       ],
       "baseUrl": "src/module",
-      "paths": { },
-      "moduleResolution": "Node",
-      "experimentalDecorators": true
+      "paths": { }
     },
   "exclude": ["fvtt-types/test-d"]
   }
