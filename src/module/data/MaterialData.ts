@@ -26,6 +26,12 @@ export enum ShieldType {
     Buckler = 'buckler',
     Shield = 'shield',
 }
+export enum Rarity {
+    Common = 'common',
+    Uncommon = 'uncommon',
+    Rare = 'rare',
+    Unique = 'unique',
+}
 
 export interface IDurability {
     hardness: number;
@@ -63,15 +69,18 @@ export interface IPriceData {
 export interface ILevelData {
     level: number;
 }
+export interface IRarityData {
+    rarity: Rarity;
+}
 export interface ISpecialData {
     bulkModifier?: number;
 }
 
-const durability = (value: number): IDurability => {
+export const durability = (hardness: number): IDurability => {
     return {
-        hardness: value,
-        breakThreshold: value * 2,
-        hitPoints: value * 4,
+        hardness: hardness,
+        breakThreshold: hardness * 2,
+        hitPoints: hardness * 4,
     };
 };
 
@@ -79,7 +88,7 @@ export type IMaterial = Readonly<{
     slug: string;
     label: string;
     defaultGrade: EquipmentGrade;
-    items: ISpecialData &
+    items?: ISpecialData &
         {
             [TGrade in EquipmentGrade]?: IPriceData &
                 ILevelData & {
@@ -105,6 +114,10 @@ export type IMaterial = Readonly<{
             [TGrade in EquipmentGrade]?: IPriceData & ILevelData;
         };
 }>;
+
+// TODO: Descriptions w/ links for items, embed in description
+// TODO: Descriptions w/ links for weapons, embed in description
+// TODO: Descriptions w/ links for armors, embed in description
 
 export const MaterialCloth: IMaterial = {
     slug: 'cloth',
@@ -237,6 +250,30 @@ export const MaterialAdamantine: IMaterial = {
             structures: { hardness: 34, hitPoints: 136, breakThreshold: 68 },
         },
     },
+    armors: {
+        [EquipmentGrade.Standard]: {
+            level: 12,
+            basePrice: 1600,
+            bulkPrice: 160,
+        },
+        [EquipmentGrade.High]: {
+            level: 19,
+            basePrice: 32000,
+            bulkPrice: 3200,
+        },
+    },
+    weapons: {
+        [EquipmentGrade.Standard]: {
+            level: 11,
+            basePrice: 1400,
+            bulkPrice: 140,
+        },
+        [EquipmentGrade.High]: {
+            level: 17,
+            basePrice: 13000,
+            bulkPrice: 1350,
+        },
+    },
     shields: {},
 };
 export const MaterialColdIron: IMaterial = {
@@ -269,6 +306,40 @@ export const MaterialColdIron: IMaterial = {
             structures: { hardness: 28, hitPoints: 112, breakThreshold: 56 },
         },
     },
+    armors: {
+        [EquipmentGrade.Low]: {
+            level: 5,
+            basePrice: 140,
+            bulkPrice: 14,
+        },
+        [EquipmentGrade.Standard]: {
+            level: 11,
+            basePrice: 1200,
+            bulkPrice: 120,
+        },
+        [EquipmentGrade.High]: {
+            level: 18,
+            basePrice: 20000,
+            bulkPrice: 2000,
+        },
+    },
+    weapons: {
+        [EquipmentGrade.Low]: {
+            level: 2,
+            basePrice: 40,
+            bulkPrice: 4,
+        },
+        [EquipmentGrade.Standard]: {
+            level: 10,
+            basePrice: 880,
+            bulkPrice: 88,
+        },
+        [EquipmentGrade.High]: {
+            level: 16,
+            basePrice: 9000,
+            bulkPrice: 900,
+        },
+    },
 };
 export const MaterialDarkwood: IMaterial = {
     slug: 'darkwood',
@@ -292,6 +363,30 @@ export const MaterialDarkwood: IMaterial = {
             structures: { hardness: 20, hitPoints: 80, breakThreshold: 40 },
         },
     },
+    armors: {
+        [EquipmentGrade.Standard]: {
+            level: 12,
+            basePrice: 1600,
+            bulkPrice: 160,
+        },
+        [EquipmentGrade.High]: {
+            level: 19,
+            basePrice: 32000,
+            bulkPrice: 3200,
+        },
+    },
+    weapons: {
+        [EquipmentGrade.Standard]: {
+            level: 11,
+            basePrice: 1400,
+            bulkPrice: 140,
+        },
+        [EquipmentGrade.High]: {
+            level: 17,
+            basePrice: 13500,
+            bulkPrice: 1350,
+        },
+    },
 };
 export const MaterialDragonhide: IMaterial = {
     slug: 'dragonhide',
@@ -311,6 +406,21 @@ export const MaterialDragonhide: IMaterial = {
             bulkPrice: 6000,
             thinItems: { hardness: 8, hitPoints: 32, breakThreshold: 16 },
             items: { hardness: 11, hitPoints: 44, breakThreshold: 22 },
+        },
+    },
+    armors: {
+        // TODO: +1 circumstance bonus to your AC and saving throws
+        //  against attacks and spells that deal the corresponding
+        //  damage type
+        [EquipmentGrade.Standard]: {
+            level: 12,
+            basePrice: 1600,
+            bulkPrice: 160,
+        },
+        [EquipmentGrade.High]: {
+            level: 19,
+            basePrice: 32000,
+            bulkPrice: 3200,
         },
     },
 };
@@ -336,6 +446,31 @@ export const MaterialMithral: IMaterial = {
             structures: { hardness: 24, hitPoints: 96, breakThreshold: 48 },
         },
     },
+    armors: {
+        [EquipmentGrade.Standard]: {
+            level: 12,
+            basePrice: 1600,
+            bulkPrice: 160,
+        },
+        [EquipmentGrade.High]: {
+            level: 19,
+            basePrice: 32000,
+            bulkPrice: 3200,
+        },
+    },
+    weapons: {
+        // TODO: Bulk reduced by 1
+        [EquipmentGrade.Standard]: {
+            level: 11,
+            basePrice: 1400,
+            bulkPrice: 140,
+        },
+        [EquipmentGrade.High]: {
+            level: 17,
+            basePrice: 13500,
+            bulkPrice: 1350,
+        },
+    },
 };
 export const MaterialOrichalcum: IMaterial = {
     slug: 'orichalcum',
@@ -349,6 +484,22 @@ export const MaterialOrichalcum: IMaterial = {
             thinItems: { hardness: 16, hitPoints: 64, breakThreshold: 32 },
             items: { hardness: 18, hitPoints: 72, breakThreshold: 36 },
             structures: { hardness: 35, hitPoints: 140, breakThreshold: 70 },
+        },
+    },
+    armors: {
+        // TODO: +1 circumstance bonus to initiative rolls
+        [EquipmentGrade.High]: {
+            level: 20,
+            basePrice: 55000,
+            bulkPrice: 5500,
+        },
+    },
+    weapons: {
+        // TODO: Speed costs half the normal price
+        [EquipmentGrade.High]: {
+            level: 18,
+            basePrice: 22500,
+            bulkPrice: 2250,
         },
     },
 };
@@ -382,6 +533,40 @@ export const MaterialSilver: IMaterial = {
             structures: { hardness: 20, hitPoints: 80, breakThreshold: 40 },
         },
     },
+    armors: {
+        [EquipmentGrade.Low]: {
+            level: 5,
+            basePrice: 140,
+            bulkPrice: 14,
+        },
+        [EquipmentGrade.Standard]: {
+            level: 11,
+            basePrice: 1200,
+            bulkPrice: 120,
+        },
+        [EquipmentGrade.High]: {
+            level: 18,
+            basePrice: 20000,
+            bulkPrice: 2000,
+        },
+    },
+    weapons: {
+        [EquipmentGrade.Low]: {
+            level: 2,
+            basePrice: 40,
+            bulkPrice: 4,
+        },
+        [EquipmentGrade.Standard]: {
+            level: 10,
+            basePrice: 880,
+            bulkPrice: 88,
+        },
+        [EquipmentGrade.High]: {
+            level: 16,
+            basePrice: 9000,
+            bulkPrice: 900,
+        },
+    },
 };
 export const MaterialSovereignSteel: IMaterial = {
     slug: 'sovereignSteel',
@@ -405,6 +590,30 @@ export const MaterialSovereignSteel: IMaterial = {
             structures: { hardness: 28, hitPoints: 112, breakThreshold: 56 },
         },
     },
+    armors: {
+        [EquipmentGrade.Standard]: {
+            level: 13,
+            basePrice: 2400,
+            bulkPrice: 240,
+        },
+        [EquipmentGrade.Standard]: {
+            level: 20,
+            basePrice: 50000,
+            bulkPrice: 5000,
+        },
+    },
+    weapons: {
+        [EquipmentGrade.Standard]: {
+            level: 12,
+            basePrice: 1600,
+            bulkPrice: 160,
+        },
+        [EquipmentGrade.High]: {
+            level: 19,
+            basePrice: 32000,
+            bulkPrice: 3200,
+        },
+    },
 };
 export const MaterialWarpglass: IMaterial = {
     slug: 'warpglass',
@@ -420,7 +629,13 @@ export const MaterialWarpglass: IMaterial = {
             structures: { hardness: 24, hitPoints: 96, breakThreshold: 48 },
         },
     },
-    weapons: {},
+    weapons: {
+        [EquipmentGrade.High]: {
+            level: 17,
+            basePrice: 14000,
+            bulkPrice: 1400,
+        },
+    },
 };
 
 export const MaterialData: IMaterialMap = {
