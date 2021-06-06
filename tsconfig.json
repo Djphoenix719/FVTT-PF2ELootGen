@@ -1,12 +1,15 @@
 {
     "compilerOptions": {
-      "target": "es2017",
+      "target": "es2020",
       "strictNullChecks": true,
       "alwaysStrict": true,
       "types": [
-        "fvtt-types/src/types"
+        "fvtt-types/src",
+        "handlebars",
+        "pixi.js"
       ],
-      "baseUrl": "src/pdfoundry",
+      "baseUrl": "src/module",
       "paths": { }
-    }
+    },
+    "exclude": ["fvtt-types/test-d"]
   }

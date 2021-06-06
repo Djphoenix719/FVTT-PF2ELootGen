@@ -1,19 +1,10 @@
 {
-    "name": "pf2e-toolbox",
-    "title": "PF2E Toolbox",
-    "description": "A collection of utilities I made mostly for myself, but may be useful to others to run games in PF2E.",
-    "version": "1.7.4",
+    "name": "pf2e-lootgen",
+    "title": "PF2E Loot Generator",
+    "description": "A loot generator/utility for the PF2E system in Foundry VTT. May eventually become system agnostic.",
+    "version": "0.0.0",
     "author": "Andrew Cuccinello [DJ#1982]",
-    "packs": [
-        {
-            "label": "PF2E Toolbox: Macros",
-            "entity": "Macro",
-            "name": "pf2e-toolbox-macros",
-            "path": "packs/pf2e-toolbox-macros.db",
-            "system": "pf2e",
-            "package": "pf2e-toolbox"
-        }
-    ],
+    "packs": [],
     "esmodules": ["./bundle.js"],
     "styles": ["./bundle.css"],
     "socket": true,
