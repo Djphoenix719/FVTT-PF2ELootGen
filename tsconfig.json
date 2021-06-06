@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+      "target": "es2017",
+      "strictNullChecks": true,
+      "alwaysStrict": true,
+      "types": [
+        "foundry-pc-types"
+      ],
+      "baseUrl": "src/pdfoundry",
+      "paths": { }
+    }
+  }
