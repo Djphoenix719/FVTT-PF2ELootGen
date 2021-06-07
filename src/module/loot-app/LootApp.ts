@@ -15,7 +15,7 @@
  */
 
 import { MODULE_NAME, PF2E_LOOT_SHEET_NAME } from '../Constants';
-import { consumableTables, permanentItemsTables } from '../data/Tables';
+import { consumableTables, permanentItemsTables } from './data/Tables';
 export const extendLootSheet = () => {
     type ActorSheetConstructor = new (...args: any[]) => ActorSheet;
     const extendMe: ActorSheetConstructor = CONFIG.Actor.sheetClasses['loot'][`pf2e.${PF2E_LOOT_SHEET_NAME}`].cls;
