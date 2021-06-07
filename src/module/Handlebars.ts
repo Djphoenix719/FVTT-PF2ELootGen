@@ -9,10 +9,11 @@ export async function registerHandlebarsTemplates() {
         `modules/${MODULE_NAME}/templates/settings-app/tabs/License.html`,
 
         `modules/${MODULE_NAME}/templates/loot-app/inventory.html`,
-        `modules/${MODULE_NAME}/templates/loot-app/consumables.html`,
-        `modules/${MODULE_NAME}/templates/loot-app/magic-items.html`,
-        `modules/${MODULE_NAME}/templates/loot-app/rolltable-settings.html`,
+        `modules/${MODULE_NAME}/templates/loot-app/tabs/consumables/index.html`,
+        `modules/${MODULE_NAME}/templates/loot-app/tabs/magic-items/index.html`,
+        `modules/${MODULE_NAME}/templates/loot-app/partials/table-list.html`,
     ];
+    await Handlebars.registerPartial('table-list', '{{> modules/pf2e-lootgen/templates/loot-app/table-list.html }}');
     await loadTemplates(templatePaths);
 }
 
@@ -46,6 +47,14 @@ export function registerHandlebarsHelpers() {
             return options.fn(this);
         } else {
             return options.inverse(this);
+        }
+    });
+
+    Handlebars.registerHelper('default', function (obj, def) {
+        if (obj === undefined) {
+            return def;
+        } else {
+            return obj;
         }
     });
 

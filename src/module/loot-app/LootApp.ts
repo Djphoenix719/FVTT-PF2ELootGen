@@ -15,7 +15,7 @@
  */
 
 import { MODULE_NAME, PF2E_LOOT_SHEET_NAME } from '../Constants';
-import { permanentItemsTables } from '../data/Tables';
+import { consumableTables, permanentItemsTables } from '../data/Tables';
 export const extendLootSheet = () => {
     type ActorSheetConstructor = new (...args: any[]) => ActorSheet;
     const extendMe: ActorSheetConstructor = CONFIG.Actor.sheetClasses['loot'][`pf2e.${PF2E_LOOT_SHEET_NAME}`].cls;
@@ -39,9 +39,18 @@ export const extendLootSheet = () => {
         public getData(options?: Application.RenderOptions) {
             const data = super.getData(options);
 
+            // TODO: Extract to some sort of helper.
+            // TODO: Key should be defined somewhere, rather than relying on duplication of typing.
             data['magicItemTables'] = permanentItemsTables;
             for (const table of data['magicItemTables']) {
                 table['enabled'] = this.actor.getFlag(MODULE_NAME, `magic-items.${table['id']}`) ?? false;
+            }
+
+            // TODO: Extract to some sort of helper.
+            // TODO: Key should be defined somewhere, rather than relying on duplication of typing.
+            data['consumablesTables'] = consumableTables;
+            for (const table of data['consumablesTables']) {
+                table['enabled'] = this.actor.getFlag(MODULE_NAME, `consumables.${table['id']}`) ?? false;
             }
 
             console.warn(data);

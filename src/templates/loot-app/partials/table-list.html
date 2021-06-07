@@ -1,0 +1,9 @@
+{{#each tables as |table|}}
+    <div class="form-group">
+        <label for="flags.pf2e-lootgen.{{../key}}.{{table.id}}">{{table.name}}</label>
+        <input type="checkbox"
+               name="flags.pf2e-lootgen.{{../key}}.{{table.id}}"
+               {{checked table.enabled}}
+        >
+    </div>
+{{/each}}

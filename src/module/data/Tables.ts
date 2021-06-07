@@ -33,83 +33,83 @@ export const rollMany = async (table: RollTable, count: number): Promise<Entity[
 export const consumableTables = [
     {
         id: 'tlX5PLwar8b1tmiQ',
-        name: '1st-Level Consumables Items',
+        name: '1st-Level',
     },
     {
         id: 'g30jZWCJEiK1RlIa',
-        name: '2nd-Level Consumables Items',
+        name: '2nd-Level',
     },
     {
         id: 'mDPLoPYwuPo3o0Wj',
-        name: '3rd-Level Consumables Items',
+        name: '3rd-Level',
     },
     {
         id: '0WpkRFm8SyfwVCP6',
-        name: '4th-Level Consumables Items',
+        name: '4th-Level',
     },
     {
         id: 'zRyuNslbOzN9oW5u',
-        name: '5th-Level Consumables Items',
+        name: '5th-Level',
     },
     {
         id: 'A68C9O0vtWbFXbfS',
-        name: '6th-Level Consumables Items',
+        name: '6th-Level',
     },
     {
         id: 'E9ZNupg1p4yLpfrd',
-        name: '7th-Level Consumables Items',
+        name: '7th-Level',
     },
     {
         id: 'UmJGUUgN9TQtFQDI',
-        name: '8th-Level Consumables Items',
+        name: '8th-Level',
     },
     {
         id: 'XAJFTpuo8qrcW30P',
-        name: '9th-Level Consumables Items',
+        name: '9th-Level',
     },
     {
         id: 'AIBvZzHidUXxZfEF',
-        name: '10th-Level Consumables Items',
+        name: '10th-Level',
     },
     {
         id: 'Ca7vD8PZtMPqVuHu',
-        name: '11th-Level Consumables Items',
+        name: '11th-Level',
     },
     {
         id: '5HHqLskEnfjxpkCO',
-        name: '12th-Level Consumables Items',
+        name: '12th-Level',
     },
     {
         id: 'awfTQvkm7NrRjRaQ',
-        name: '13th-Level Consumables Items',
+        name: '13th-Level',
     },
     {
         id: 'Vhuuy0vFJV5tYldR',
-        name: '14th-Level Consumables Items',
+        name: '14th-Level',
     },
     {
         id: 'Af7beeFZhtvDAZaM',
-        name: '15th-Level Consumables Items',
+        name: '15th-Level',
     },
     {
         id: 'aomFSKgGl52z7tdX',
-        name: '16th-Level Consumables Items',
+        name: '16th-Level',
     },
     {
         id: 'YyQkwd1PksU1Lno4',
-        name: '17th-Level Consumables Items',
+        name: '17th-Level',
     },
     {
         id: 'PSs31Xj5RfszMbAe',
-        name: '18th-Level Consumables Items',
+        name: '18th-Level',
     },
     {
         id: 'pH85KVl31VBdENuy',
-        name: '19th-Level Consumables Items',
+        name: '19th-Level',
     },
     {
         id: 'nusyoQjLs0ZxifRd',
-        name: '20th-Level Consumable Items',
+        name: '20th-Level',
     },
 ];
 export const permanentItemsTables = [

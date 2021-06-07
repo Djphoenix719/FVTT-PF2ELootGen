@@ -1,4 +1,17 @@
 <form class="pf2e-lootgen loot-app" autocomplete="off">
+    <!-- HEADER -->
+    <div class="sheet-header">
+        {{#if owner}}
+            <h1 class="charname">
+                <input name="name" type="text" value="{{actor.name}}" placeholder="{{localize "PF2E.loot.LootNamePlaceholder"}}" />
+            </h1>
+        {{else}}
+            <h1 class="charname">{{actor.name}}</h1>
+        {{/if}}
+        <div class="traits-bar">
+            <span class="trait">{{data.lootSheetType}}</span>
+        </div>
+    </div>
     <!--
       ~ Copyright 2021 Andrew Cuccinello
       ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,15 +27,14 @@
       ~ See the License for the specific language governing permissions and
       ~ limitations under the License.
       -->
-    <div class="loot-app-sidebar">
-        <div class="loot-app-features" id="loot-app-features">
-            <h4 class="feature-header">Roll: Magic Items</h4>
-            {{> modules/pf2e-lootgen/templates/loot-app/magic-items.html }}
-            <h4 class="feature-header">Roll: Consumables</h4>
-            {{> modules/pf2e-lootgen/templates/loot-app/consumables.html }}
-            <button type="submit">Save & Close</button>
-        </div>
-    </div>
+    <nav class="sheet-tabs tabs loot-app-nav" data-group="primary">
+        <a class="item" data-tab="loot-config" title="Loot Config"><i class="fas fa-cog"></i></a>
+        <a class="item active" data-tab="treasure" title="Treasure"><i class="fas fa-coins"></i></a>
+        <a class="item" data-tab="magic-items" title="Magic Items"><i class="fas fa-shield-alt"></i></a>
+        <a class="item" data-tab="consumables" title="Consumables"><i class="fas fa-wine-bottle"></i></a>
+        <a class="item" data-tab="scrolls" title="Scrolls [WIP]"><i class="fas fa-scroll"></i></a>
+        <a class="item" data-tab="create" title="Create Item"><i class="fas fa-plus-square"></i></a>
+    </nav>
 
     <div id="loot-app-inventory" class="loot-app-inventory loot-app-column">
         {{> modules/pf2e-lootgen/templates/loot-app/inventory.html }}
