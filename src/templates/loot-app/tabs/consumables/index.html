@@ -1,8 +1,6 @@
-<div class="sidebar-tab">
-    <div class="form-group">
-        <label for="flags.pf2e-lootgen.settings.consumables-count">Roll Count</label>
-        <input name="flags.pf2e-lootgen.settings.consumables-count" type="number"
-               value="{{default actor.flags.pf2e-lootgen.settings.consumables-count 1}}" min="1">
-    </div>
-    {{> table-list tables=consumablesTables key="consumables"}}
+<div class="form-group">
+    <label for="flags.pf2e-lootgen.settings.consumables-count">Roll Count</label>
+    <input name="flags.pf2e-lootgen.settings.consumables-count" type="number"
+           value="{{default actor.flags.pf2e-lootgen.settings.consumables-count 1}}" min="1">
 </div>
+{{> table-list tables=consumablesTables key="consumables"}}

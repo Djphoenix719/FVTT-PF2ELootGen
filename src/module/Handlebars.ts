@@ -8,12 +8,18 @@ export async function registerHandlebarsTemplates() {
         `modules/${MODULE_NAME}/templates/settings-app/tabs/Features.html`,
         `modules/${MODULE_NAME}/templates/settings-app/tabs/License.html`,
 
+        `modules/${MODULE_NAME}/templates/loot-app/partials/loot-profile.html`,
+
         `modules/${MODULE_NAME}/templates/loot-app/inventory.html`,
+        `modules/${MODULE_NAME}/templates/loot-app/sidebar.html`,
         `modules/${MODULE_NAME}/templates/loot-app/tabs/consumables/index.html`,
         `modules/${MODULE_NAME}/templates/loot-app/tabs/magic-items/index.html`,
+        `modules/${MODULE_NAME}/templates/loot-app/tabs/config/index.html`,
+        `modules/${MODULE_NAME}/templates/loot-app/tabs/treasure/index.html`,
+        `modules/${MODULE_NAME}/templates/loot-app/tabs/scrolls/index.html`,
         `modules/${MODULE_NAME}/templates/loot-app/partials/table-list.html`,
     ];
-    await Handlebars.registerPartial('table-list', '{{> modules/pf2e-lootgen/templates/loot-app/table-list.html }}');
+    await Handlebars.registerPartial('table-list', '{{> modules/pf2e-lootgen/templates/loot-app/partials/table-list.html }}');
     await loadTemplates(templatePaths);
 }
 

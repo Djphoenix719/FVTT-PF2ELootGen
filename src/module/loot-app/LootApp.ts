@@ -25,6 +25,14 @@ export const extendLootSheet = () => {
             const options = super.defaultOptions;
             options.classes = options.classes ?? [];
             options.classes = [...options.classes, 'pf2e-lootgen', 'loot-app'];
+            options.tabs = [
+                ...options.tabs,
+                {
+                    navSelector: '.loot-app-nav',
+                    contentSelector: '.loot-app-content',
+                    initial: 'loot-config',
+                },
+            ];
             return options;
         }
 
@@ -56,16 +64,6 @@ export const extendLootSheet = () => {
             console.warn(data);
 
             return data;
-        }
-
-        public activateListeners(html: JQuery) {
-            super.activateListeners(html);
-
-            // @ts-ignore
-            html.find('#loot-app-features').accordion({
-                heightStyle: 'fill',
-                animate: false,
-            });
         }
     }
     return LootApp;

@@ -1,0 +1,10 @@
+<img class="actor-icon" src="{{actor.img}}" title="{{actor.name}}" data-edit="img" />
+{{#if owner}}
+    {{editor content=data.details.description.value
+             target="data.details.description.value"
+             button=true
+             user=user
+             editable=editable}}
+{{else}}
+    <div class="description">{{{enrichHTML data.details.description.value}}}</div>
+{{/if}}
