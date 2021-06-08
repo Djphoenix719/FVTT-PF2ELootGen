@@ -14,22 +14,6 @@
  * limitations under the License.
  */
 
-/**
- * Load a RollTable from a compendium pack by id.
- * @param tableId
- * @param packId
- */
-export const getTable = async (tableId: string, packId: string = 'pf2e.rollable-tables'): Promise<RollTable> => {
-    const compendium = game?.packs?.get(packId);
-    // @ts-ignore
-    return await compendium?.getDocument(tableId);
-};
-
-export const rollMany = async (table: RollTable, count: number): Promise<Entity[]> => {
-    // @ts-ignore
-    return await table.drawMany(count);
-};
-
 export interface ITableDef {
     id: string;
     packId: string;

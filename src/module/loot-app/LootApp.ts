@@ -14,14 +14,22 @@
  * limitations under the License.
  */
 
+import { buildRollTableMessage } from './Utilities';
+
 export enum TableType {
     Treasure = 'treasure',
     Permanent = 'permanent',
     Consumable = 'consumable',
 }
 
+export interface RollResult {
+    roll: Roll;
+    tableResult: any;
+}
+
 import { MODULE_NAME, PF2E_LOOT_SHEET_NAME } from '../Constants';
-import { consumableTables, getTable, ITableDef, permanentTables, treasureTables } from './data/Tables';
+import { consumableTables, ITableDef, permanentTables, treasureTables } from './data/Tables';
+import { getItemFromPack, getTableFromPack } from '../Utilities';
 export const extendLootSheet = () => {
     type ActorSheetConstructor = new (...args: any[]) => ActorSheet;
     const extendMe: ActorSheetConstructor = CONFIG.Actor.sheetClasses['loot'][`pf2e.${PF2E_LOOT_SHEET_NAME}`].cls;
@@ -74,23 +82,28 @@ export const extendLootSheet = () => {
             return this.actor.getFlag(MODULE_NAME, `settings.${category}.${key}`);
         }
 
-        private async rollTables(event: JQuery.ClickEvent, type: TableType) {
-            console.warn(`rolling ${type}`);
+        private async rollTable(event: JQuery.ClickEvent, tableId: string, packId: string) {
+            const table = await getTableFromPack(tableId, packId);
+            // TODO: Display settings
+            // @ts-ignore
+            await table.draw({ displayChat: true });
+        }
 
-            let tables: ITableDef[];
+        private async rollTables(event: JQuery.ClickEvent, type: TableType) {
+            let allTables: ITableDef[];
             switch (type) {
                 case TableType.Treasure:
-                    tables = treasureTables;
+                    allTables = treasureTables;
                     break;
                 case TableType.Permanent:
-                    tables = permanentTables;
+                    allTables = permanentTables;
                     break;
                 case TableType.Consumable:
-                    tables = consumableTables;
+                    allTables = consumableTables;
                     break;
             }
 
-            const enabled = tables.map((table) => this.getTableRenderData(table)).filter((data) => data.enabled);
+            const enabled = allTables.map((table) => this.getTableRenderData(table)).filter((data) => data.enabled);
             if (enabled.length === 0) return;
 
             let weightTotal = 0;
@@ -99,7 +112,7 @@ export const extendLootSheet = () => {
                 table.weight = weightTotal;
             }
 
-            const choose = () => {
+            const chooseOne = () => {
                 let choice = enabled[0];
                 const random = Math.random() * weightTotal;
                 for (let i = 1; i < enabled.length; i++) {
@@ -109,18 +122,23 @@ export const extendLootSheet = () => {
                 return choice;
             };
 
-            let results: object[] = [];
+            const rollResults: Roll[] = [];
+            const tableResults: any[] = [];
             let count = this.getSetting(type, 'count') as number;
             while (count > 0) {
-                let choice = choose();
-                const table = await getTable(choice.id, choice.packId);
+                let choice = chooseOne();
+                const table = (await getTableFromPack(choice.id, choice.packId)) as RollTable;
                 // @ts-ignore
-                const choices = (await table.draw({ displayChat: false })).results;
-                results.push(...choices);
+                const draw = await table.roll({ roll: null, recursive: true });
+                rollResults.push(draw.roll);
+                tableResults.push(...draw.results);
+
                 count -= 1;
             }
 
-            console.warn(results);
+            console.warn(tableResults);
+
+            await buildRollTableMessage(rollResults, tableResults);
         }
 
         public getData(options?: Application.RenderOptions) {
@@ -142,6 +160,12 @@ export const extendLootSheet = () => {
             html.find('button.roll-tables').on('click', async (event) => {
                 const type = $(event.currentTarget).data('type') as TableType;
                 await this.rollTables(event, type);
+            });
+            html.find('.tables-row i.fa-dice-d20').on('click', async (event) => {
+                const element = $(event.currentTarget).closest('.tables-row');
+                const tableId = element.data('table-id') as string;
+                const packId = element.data('pack-id') as string;
+                await this.rollTable(event, tableId, packId);
             });
         }
     }

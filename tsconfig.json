@@ -1,6 +1,9 @@
 {
     "compilerOptions": {
       "target": "es2020",
+      "strict": false,
+      "strictBindCallApply": true,
+      "strictNullChecks": false,
       "alwaysStrict": true,
       "types": [
         "fvtt-types/src",

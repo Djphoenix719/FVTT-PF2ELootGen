@@ -19,8 +19,17 @@
  * @param packId
  * @param itemId
  */
-export const getItemFromPack = async (packId: string, itemId: string): Promise<Item> => {
+export const getItemFromPack = async (packId: string, itemId: string): Promise<any> => {
     const pack = await game.packs?.get(packId);
     // @ts-ignore
     return await pack.getDocument(itemId);
+};
+
+/**
+ * Load a RollTable from a compendium pack by id.
+ * @param tableId
+ * @param packId
+ */
+export const getTableFromPack = async (tableId: string, packId: string = 'pf2e.rollable-tables'): Promise<RollTable> => {
+    return await getItemFromPack(packId, tableId);
 };
