@@ -1,0 +1,6 @@
+<div class="form-group">
+    <label for="flags.pf2e-lootgen.settings.treasure-count">Roll Count</label>
+    <input name="flags.pf2e-lootgen.settings.treasure-count" type="number"
+           value="{{default actor.flags.pf2e-lootgen.settings.treasure-count 1}}" min="1">
+</div>
+{{> table-list tables=treasureTables}}

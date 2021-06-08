@@ -57,7 +57,7 @@ export function registerHandlebarsHelpers() {
     });
 
     Handlebars.registerHelper('default', function (obj, def) {
-        if (obj === undefined) {
+        if (obj === undefined || obj === null) {
             return def;
         } else {
             return obj;

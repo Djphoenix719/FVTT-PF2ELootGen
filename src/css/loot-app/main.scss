@@ -14,4 +14,27 @@
  * limitations under the License.
  */
 
+.loot-app-content {
+    .tables-row {
+        display: flex;
+        flex-direction: column;
+    }
 
+    .tables-row .table-settings {
+        display: flex;
+    }
+
+    .form-group {
+        margin: 0;
+        label {
+            line-height: 1em;
+        }
+        input {
+            text-align: right;
+            margin: 1px 3px;
+        }
+    }
+    .tables-row:nth-child(2n) {
+        background: rgba(0, 0, 0, 0.1);
+    }
+}

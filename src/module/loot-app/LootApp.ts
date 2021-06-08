@@ -15,7 +15,7 @@
  */
 
 import { MODULE_NAME, PF2E_LOOT_SHEET_NAME } from '../Constants';
-import { consumableTables, permanentItemsTables } from './data/Tables';
+import { consumableTables, permanentItemsTables, treasureTables } from './data/Tables';
 export const extendLootSheet = () => {
     type ActorSheetConstructor = new (...args: any[]) => ActorSheet;
     const extendMe: ActorSheetConstructor = CONFIG.Actor.sheetClasses['loot'][`pf2e.${PF2E_LOOT_SHEET_NAME}`].cls;
@@ -30,7 +30,7 @@ export const extendLootSheet = () => {
                 {
                     navSelector: '.loot-app-nav',
                     contentSelector: '.loot-app-content',
-                    initial: 'loot-config',
+                    initial: 'treasure',
                 },
             ];
             return options;
@@ -44,24 +44,33 @@ export const extendLootSheet = () => {
             return `modules/${MODULE_NAME}/templates/loot-app/index.html`;
         }
 
+        private getTableRenderData(name: string, id: string) {
+            const getParam = function (actor: Actor, key: string): any {
+                return actor.getFlag(MODULE_NAME, `${id}.${key}`);
+            };
+
+            const enabled: boolean = getParam(this.actor, 'enabled') ?? false;
+            const weight: number = getParam(this.actor, 'weight') ?? 1;
+
+            return {
+                id,
+                name,
+                enabled,
+                weight,
+            };
+        }
+
         public getData(options?: Application.RenderOptions) {
             const data = super.getData(options);
 
             // TODO: Extract to some sort of helper.
             // TODO: Key should be defined somewhere, rather than relying on duplication of typing.
-            data['magicItemTables'] = permanentItemsTables;
-            for (const table of data['magicItemTables']) {
-                table['enabled'] = this.actor.getFlag(MODULE_NAME, `magic-items.${table['id']}`) ?? false;
-            }
-
-            // TODO: Extract to some sort of helper.
-            // TODO: Key should be defined somewhere, rather than relying on duplication of typing.
-            data['consumablesTables'] = consumableTables;
-            for (const table of data['consumablesTables']) {
-                table['enabled'] = this.actor.getFlag(MODULE_NAME, `consumables.${table['id']}`) ?? false;
-            }
+            data['magicItemTables'] = permanentItemsTables.map((table) => this.getTableRenderData(table.name, table.id));
+            data['consumablesTables'] = consumableTables.map((table) => this.getTableRenderData(table.name, table.id));
+            data['treasureTables'] = treasureTables.map((table) => this.getTableRenderData(table.name, table.id));
 
             console.warn(data);
+            console.warn(data['actor'].flags['pf2e-lootgen']);
 
             return data;
         }
