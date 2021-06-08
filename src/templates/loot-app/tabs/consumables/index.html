@@ -1,4 +1,11 @@
 <header class="tab-header">
+    <div class="form-group">
+        <label for="flags.pf2e-lootgen.settings.consumable.count"># of Items</label>
+        <input type="number"
+               min="1"
+               name="flags.pf2e-lootgen.settings.consumable.count"
+               value="{{default actor.flags.pf2e-lootgen.settings.consumable.count 1}}">
+    </div>
     <button class="roll-tables" data-type="consumable">Roll!</button>
 </header>
-{{> table-list tables=consumablesTables}}
+{{> table-list tables=consumableTables}}

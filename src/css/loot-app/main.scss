@@ -17,8 +17,6 @@
 form.loot-app {
     section.sheet-sidebar {
         padding-right: 5px;
-        position: relative;
-        overflow-y: auto;
     }
 
     nav.sheet-tabs {
@@ -26,6 +24,7 @@ form.loot-app {
         position: sticky;
 
         background: url(/systems/pf2e/assets/sheet/parchment.webp) repeat;
+        z-index: 1;
     }
 
     header.tab-header {
@@ -34,14 +33,22 @@ form.loot-app {
         background: url(/systems/pf2e/assets/sheet/parchment.webp) repeat;
 
         margin-bottom: 4px;
+        z-index: 1;
     }
 
     button.roll-tables {
         line-height: 1em;
     }
 
-    section.sheet-sidebar.sidebar.sidebar-loot {
+    .sheet-sidebar.sidebar.sidebar-loot {
         width: 220px;
+    }
+
+    .loot-app-options {
+        position: absolute;
+        background: url(/systems/pf2e/assets/sheet/parchment.webp) repeat;
+        left: -50%;
+        right: 100%;
     }
 
     .tab input[type='checkbox'] {

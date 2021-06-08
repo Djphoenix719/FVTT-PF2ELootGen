@@ -1,4 +1,11 @@
 <header class="tab-header">
+    <div class="form-group">
+        <label for="flags.pf2e-lootgen.settings.permanent.count"># of Items</label>
+        <input type="number"
+               min="1"
+               name="flags.pf2e-lootgen.settings.permanent.count"
+               value="{{default actor.flags.pf2e-lootgen.settings.permanent.count 1}}">
+    </div>
     <button class="roll-tables" data-type="permanent">Roll!</button>
 </header>
 {{> table-list tables=permanentTables}}

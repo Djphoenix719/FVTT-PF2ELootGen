@@ -70,6 +70,10 @@ export const extendLootSheet = () => {
             };
         }
 
+        private getSetting(category: TableType, key: string) {
+            return this.actor.getFlag(MODULE_NAME, `settings.${category}.${key}`);
+        }
+
         private async rollTables(event: JQuery.ClickEvent, type: TableType) {
             console.warn(`rolling ${type}`);
 
@@ -105,8 +109,8 @@ export const extendLootSheet = () => {
                 return choice;
             };
 
-            let count = 1;
             let results: object[] = [];
+            let count = this.getSetting(type, 'count') as number;
             while (count > 0) {
                 let choice = choose();
                 const table = await getTable(choice.id, choice.packId);
@@ -123,7 +127,7 @@ export const extendLootSheet = () => {
             const data = super.getData(options);
 
             data['permanentTables'] = permanentTables.map(this.getTableRenderData.bind(this));
-            data['consumablesTables'] = consumableTables.map(this.getTableRenderData.bind(this));
+            data['consumableTables'] = consumableTables.map(this.getTableRenderData.bind(this));
             data['treasureTables'] = treasureTables.map(this.getTableRenderData.bind(this));
 
             console.warn(data);
