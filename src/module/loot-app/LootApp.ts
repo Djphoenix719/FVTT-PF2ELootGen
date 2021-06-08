@@ -14,6 +14,12 @@
  * limitations under the License.
  */
 
+export enum TableType {
+    Treasure = 'treasure',
+    Permanent = 'permanent',
+    Consumable = 'consumable',
+}
+
 import { MODULE_NAME, PF2E_LOOT_SHEET_NAME } from '../Constants';
 import { consumableTables, permanentItemsTables, treasureTables } from './data/Tables';
 export const extendLootSheet = () => {
@@ -44,6 +50,12 @@ export const extendLootSheet = () => {
             return `modules/${MODULE_NAME}/templates/loot-app/index.html`;
         }
 
+        /**
+         * Fetch and package data needed to render a table row in the sheet.
+         * @param name Nam of the table to include.
+         * @param id Id of the table to lookup in flags.
+         * @private
+         */
         private getTableRenderData(name: string, id: string) {
             const getParam = function (actor: Actor, key: string): any {
                 return actor.getFlag(MODULE_NAME, `${id}.${key}`);
@@ -60,11 +72,14 @@ export const extendLootSheet = () => {
             };
         }
 
+        private static async rollTables(event: JQuery.ClickEvent, type: TableType) {
+            console.warn(event);
+            console.warn(type);
+        }
+
         public getData(options?: Application.RenderOptions) {
             const data = super.getData(options);
 
-            // TODO: Extract to some sort of helper.
-            // TODO: Key should be defined somewhere, rather than relying on duplication of typing.
             data['magicItemTables'] = permanentItemsTables.map((table) => this.getTableRenderData(table.name, table.id));
             data['consumablesTables'] = consumableTables.map((table) => this.getTableRenderData(table.name, table.id));
             data['treasureTables'] = treasureTables.map((table) => this.getTableRenderData(table.name, table.id));
@@ -73,6 +88,13 @@ export const extendLootSheet = () => {
             console.warn(data['actor'].flags['pf2e-lootgen']);
 
             return data;
+        }
+
+        public activateListeners(html: JQuery) {
+            super.activateListeners(html);
+
+            $('#roll-treasure').on('click', (event) => LootApp.rollTables(event, TableType.Treasure));
+            $('#roll-magic-items').on('click', (event) => LootApp.rollTables(event, TableType.Permanent));
         }
     }
     return LootApp;

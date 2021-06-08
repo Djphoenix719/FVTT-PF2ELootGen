@@ -1,7 +1,7 @@
 <section class="sheet-sidebar sidebar sidebar-loot">
 
     <nav class="sheet-tabs tabs loot-app-nav" data-group="primary">
-        <a class="item" data-tab="loot-config" title="Loot Config"><i class="fas fa-cog"></i></a>
+        <a class="item" data-tab="loot-gm" title="Loot Profile"><i class="fas fa-user"></i></i></a>
         <a class="item" data-tab="treasure" title="Treasure"><i class="fas fa-coins"></i></a>
         <a class="item" data-tab="magic-items" title="Magic Items"><i class="fas fa-shield-alt"></i></a>
         <a class="item" data-tab="consumables" title="Consumables"><i class="fas fa-wine-bottle"></i></a>
@@ -11,8 +11,8 @@
 
     {{#if user.isGM}}
         <div class="loot-app-content sheet-content-loot">
-            <div class="tab loot-config" data-group="primary" data-tab="loot-config">
-                {{> modules/pf2e-lootgen/templates/loot-app/tabs/config/index.html}}
+            <div class="tab loot-gm" data-group="primary" data-tab="loot-gm">
+                {{> modules/pf2e-lootgen/templates/loot-app/tabs/gm-settings/index.html}}
             </div>
             <div class="tab treasure" data-group="primary" data-tab="treasure">
                 {{> modules/pf2e-lootgen/templates/loot-app/tabs/treasure/index.html }}

@@ -1,21 +1,27 @@
 {{#each tables as |table|}}
     <div class="tables-row">
-        <div class="form-group">
-            <label for="flags.pf2e-lootgen.{{table.id}}.enabled">{{table.name}}</label>
-            <input title="Include This Table?"
-                   type="checkbox"
-                   id="flags.pf2e-lootgen.{{table.id}}.enabled"
-                   name="flags.pf2e-lootgen.{{table.id}}.enabled"
-                   {{checked table.enabled}}
-            >
-        </div>
-        <div class="form-group">
-            <i title="Weight" class="fas fa-weight-hanging"></i>
-            <input title="Weight" type="number"
-                   id="flags.pf2e-lootgen.{{table.id}}.weight"
-                   name="flags.pf2e-lootgen.{{table.id}}.weight"
-                   value="{{table.weight}}"
-            >
-        </div>
+        <section class="header">
+            <div class="form-group">
+                <i class="fas fa-dice-d20"></i>
+                <label for="flags.pf2e-lootgen.{{table.id}}.enabled">{{table.name}}</label>
+                <input title="Include This Table?"
+                       type="checkbox"
+                       id="flags.pf2e-lootgen.{{table.id}}.enabled"
+                       name="flags.pf2e-lootgen.{{table.id}}.enabled"
+                    {{checked table.enabled}}
+                >
+            </div>
+        </section>
+        <section class="settings">
+            <div class="form-group" title="Weight">
+                <i class="fas fa-weight-hanging"></i>
+                <input type="number"
+                       step="0.25"
+                       id="flags.pf2e-lootgen.{{table.id}}.weight"
+                       name="flags.pf2e-lootgen.{{table.id}}.weight"
+                       value="{{table.weight}}"
+                >
+            </div>
+        </section>
     </div>
 {{/each}}

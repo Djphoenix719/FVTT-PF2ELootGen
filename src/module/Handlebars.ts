@@ -14,7 +14,7 @@ export async function registerHandlebarsTemplates() {
         `modules/${MODULE_NAME}/templates/loot-app/sidebar.html`,
         `modules/${MODULE_NAME}/templates/loot-app/tabs/consumables/index.html`,
         `modules/${MODULE_NAME}/templates/loot-app/tabs/magic-items/index.html`,
-        `modules/${MODULE_NAME}/templates/loot-app/tabs/config/index.html`,
+        `modules/${MODULE_NAME}/templates/loot-app/tabs/gm-settings/index.html`,
         `modules/${MODULE_NAME}/templates/loot-app/tabs/treasure/index.html`,
         `modules/${MODULE_NAME}/templates/loot-app/tabs/scrolls/index.html`,
         `modules/${MODULE_NAME}/templates/loot-app/partials/table-list.html`,

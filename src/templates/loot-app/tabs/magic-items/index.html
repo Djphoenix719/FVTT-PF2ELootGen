@@ -1,6 +1,4 @@
-<div class="form-group">
-    <label for="flags.pf2e-lootgen.settings.magic-items-count">Roll Count</label>
-    <input name="flags.pf2e-lootgen.settings.magic-items-count" type="number"
-           value="{{default actor.flags.pf2e-lootgen.settings.magic-items-count 1}}" min="1">
-</div>
+<header class="tab-header">
+    <button class="roll-button" id="roll-treasure">Roll!</button>
+</header>
 {{> table-list tables=magicItemTables}}

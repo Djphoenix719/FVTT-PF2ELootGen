@@ -14,27 +14,104 @@
  * limitations under the License.
  */
 
-.loot-app-content {
-    .tables-row {
-        display: flex;
-        flex-direction: column;
+form.loot-app {
+    section.sheet-sidebar {
+        padding-right: 5px;
+        position: relative;
+        overflow-y: auto;
     }
 
-    .tables-row .table-settings {
-        display: flex;
+    nav.sheet-tabs {
+        top: 4px;
+        position: sticky;
+
+        background: url(/systems/pf2e/assets/sheet/parchment.webp) repeat;
     }
 
-    .form-group {
-        margin: 0;
-        label {
-            line-height: 1em;
+    header.tab-header {
+        top: 38px;
+        position: sticky;
+        background: url(/systems/pf2e/assets/sheet/parchment.webp) repeat;
+
+        margin-bottom: 4px;
+    }
+
+    button.roll-button {
+        line-height: 1em;
+    }
+
+    section.sheet-sidebar.sidebar.sidebar-loot {
+        width: 220px;
+    }
+
+    .tab input[type='checkbox'] {
+        width: 13px;
+        height: 13px;
+        flex: 0 0 13px;
+    }
+
+    .loot-app-content {
+        .form-group {
+            margin: 0;
+            label {
+                line-height: 1em;
+            }
+            input {
+                text-align: right;
+                margin: 0;
+            }
         }
-        input {
-            text-align: right;
-            margin: 1px 3px;
+        section.header {
+            i {
+                padding: 0 2px;
+                flex: 0;
+
+                &:hover {
+                    cursor: pointer;
+                    -webkit-animation-name: spin;
+                    -webkit-animation-duration: 1000ms;
+                    -webkit-animation-iteration-count: infinite;
+                    -webkit-animation-timing-function: linear;
+                    -moz-animation-name: spin;
+                    -moz-animation-duration: 1000ms;
+                    -moz-animation-iteration-count: infinite;
+                    -moz-animation-timing-function: linear;
+                }
+            }
+        }
+        section.settings {
+            i {
+                padding: 0 2px;
+                flex: 0;
+            }
+            input {
+                flex: 1;
+            }
         }
     }
-    .tables-row:nth-child(2n) {
-        background: rgba(0, 0, 0, 0.1);
+}
+
+@-moz-keyframes spin {
+    from {
+        -moz-transform: rotate(0deg);
+    }
+    to {
+        -moz-transform: rotate(360deg);
+    }
+}
+@-webkit-keyframes spin {
+    from {
+        -webkit-transform: rotate(0deg);
+    }
+    to {
+        -webkit-transform: rotate(360deg);
+    }
+}
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
     }
 }
