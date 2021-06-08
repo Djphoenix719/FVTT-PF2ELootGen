@@ -21,7 +21,7 @@ export enum TableType {
 }
 
 import { MODULE_NAME, PF2E_LOOT_SHEET_NAME } from '../Constants';
-import { consumableTables, ITableDef, permanentTables, treasureTables } from './data/Tables';
+import { consumableTables, getTable, ITableDef, permanentTables, treasureTables } from './data/Tables';
 export const extendLootSheet = () => {
     type ActorSheetConstructor = new (...args: any[]) => ActorSheet;
     const extendMe: ActorSheetConstructor = CONFIG.Actor.sheetClasses['loot'][`pf2e.${PF2E_LOOT_SHEET_NAME}`].cls;
@@ -70,9 +70,53 @@ export const extendLootSheet = () => {
             };
         }
 
-        private static async rollTables(event: JQuery.ClickEvent, type: TableType) {
-            console.warn(event);
-            console.warn(type);
+        private async rollTables(event: JQuery.ClickEvent, type: TableType) {
+            console.warn(`rolling ${type}`);
+
+            let tables: ITableDef[];
+            switch (type) {
+                case TableType.Treasure:
+                    tables = treasureTables;
+                    break;
+                case TableType.Permanent:
+                    tables = permanentTables;
+                    break;
+                case TableType.Consumable:
+                    tables = consumableTables;
+                    break;
+            }
+
+            const enabled = tables.map((table) => this.getTableRenderData(table)).filter((data) => data.enabled);
+            if (enabled.length === 0) return;
+
+            let weightTotal = 0;
+            for (const table of enabled) {
+                weightTotal += table.weight;
+                table.weight = weightTotal;
+            }
+
+            const choose = () => {
+                let choice = enabled[0];
+                const random = Math.random() * weightTotal;
+                for (let i = 1; i < enabled.length; i++) {
+                    if (random < choice.weight) break;
+                    choice = enabled[i];
+                }
+                return choice;
+            };
+
+            let count = 1;
+            let results: object[] = [];
+            while (count > 0) {
+                let choice = choose();
+                const table = await getTable(choice.id, choice.packId);
+                // @ts-ignore
+                const choices = (await table.draw({ displayChat: false })).results;
+                results.push(...choices);
+                count -= 1;
+            }
+
+            console.warn(results);
         }
 
         public getData(options?: Application.RenderOptions) {
@@ -91,9 +135,10 @@ export const extendLootSheet = () => {
         public activateListeners(html: JQuery) {
             super.activateListeners(html);
 
-            $('#roll-treasure').on('click', (event) => LootApp.rollTables(event, TableType.Treasure));
-            $('#roll-permanent').on('click', (event) => LootApp.rollTables(event, TableType.Permanent));
-            $('#roll-consumable').on('click', (event) => LootApp.rollTables(event, TableType.Consumable));
+            html.find('button.roll-tables').on('click', async (event) => {
+                const type = $(event.currentTarget).data('type') as TableType;
+                await this.rollTables(event, type);
+            });
         }
     }
     return LootApp;
