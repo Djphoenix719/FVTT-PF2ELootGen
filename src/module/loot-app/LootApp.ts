@@ -21,7 +21,7 @@ export enum TableType {
 }
 
 import { MODULE_NAME, PF2E_LOOT_SHEET_NAME } from '../Constants';
-import { consumableTables, permanentItemsTables, treasureTables } from './data/Tables';
+import { consumableTables, ITableDef, permanentTables, treasureTables } from './data/Tables';
 export const extendLootSheet = () => {
     type ActorSheetConstructor = new (...args: any[]) => ActorSheet;
     const extendMe: ActorSheetConstructor = CONFIG.Actor.sheetClasses['loot'][`pf2e.${PF2E_LOOT_SHEET_NAME}`].cls;
@@ -52,21 +52,19 @@ export const extendLootSheet = () => {
 
         /**
          * Fetch and package data needed to render a table row in the sheet.
-         * @param name Nam of the table to include.
-         * @param id Id of the table to lookup in flags.
+         * @param table Table definition object
          * @private
          */
-        private getTableRenderData(name: string, id: string) {
+        private getTableRenderData(table: ITableDef) {
             const getParam = function (actor: Actor, key: string): any {
-                return actor.getFlag(MODULE_NAME, `${id}.${key}`);
+                return actor.getFlag(MODULE_NAME, `${table.id}.${key}`);
             };
 
             const enabled: boolean = getParam(this.actor, 'enabled') ?? false;
             const weight: number = getParam(this.actor, 'weight') ?? 1;
 
             return {
-                id,
-                name,
+                ...table,
                 enabled,
                 weight,
             };
@@ -80,9 +78,9 @@ export const extendLootSheet = () => {
         public getData(options?: Application.RenderOptions) {
             const data = super.getData(options);
 
-            data['magicItemTables'] = permanentItemsTables.map((table) => this.getTableRenderData(table.name, table.id));
-            data['consumablesTables'] = consumableTables.map((table) => this.getTableRenderData(table.name, table.id));
-            data['treasureTables'] = treasureTables.map((table) => this.getTableRenderData(table.name, table.id));
+            data['permanentTables'] = permanentTables.map(this.getTableRenderData.bind(this));
+            data['consumablesTables'] = consumableTables.map(this.getTableRenderData.bind(this));
+            data['treasureTables'] = treasureTables.map(this.getTableRenderData.bind(this));
 
             console.warn(data);
             console.warn(data['actor'].flags['pf2e-lootgen']);
@@ -94,7 +92,8 @@ export const extendLootSheet = () => {
             super.activateListeners(html);
 
             $('#roll-treasure').on('click', (event) => LootApp.rollTables(event, TableType.Treasure));
-            $('#roll-magic-items').on('click', (event) => LootApp.rollTables(event, TableType.Permanent));
+            $('#roll-permanent').on('click', (event) => LootApp.rollTables(event, TableType.Permanent));
+            $('#roll-consumable').on('click', (event) => LootApp.rollTables(event, TableType.Consumable));
         }
     }
     return LootApp;
