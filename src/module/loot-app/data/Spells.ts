@@ -14,6 +14,17 @@
  * limitations under the License.
  */
 
+export enum SpellSchool {
+    Abjuration = 'abjuration',
+    Conjuration = 'conjuration',
+    Divination = 'divination',
+    Enchantment = 'enchantment',
+    Evocation = 'evocation',
+    Illusion = 'illusion',
+    Necromancy = 'necromancy',
+    Transmutation = 'transmutation',
+}
+
 export interface IPackDef {
     id: string;
     name: string;
@@ -25,15 +36,27 @@ export const SPELL_PACKS: IPackDef[] = [
     },
 ];
 
-export const SCROLL_TEMPLATE_SLUGS: Record<number, string> = {
-    1: 'scroll-of-1st-level',
-    2: 'scroll-of-2nd-level',
-    3: 'scroll-of-3rd-level',
-    4: 'scroll-of-4th-level',
-    5: 'scroll-of-5th-level',
-    6: 'scroll-of-6th-level',
-    7: 'scroll-of-7th-level',
-    8: 'scroll-of-8th-level',
-    9: 'scroll-of-9th-level',
-    0: 'scroll-of-10th-level',
+const SCROLL_TEMPLATE_ID = {
+    1: 'RjuupS9xyXDLgyIr',
+    2: 'Y7UD64foDbDMV9sx',
+    3: 'ZmefGBXGJF3CFDbn',
+    4: 'QSQZJ5BC3DeHv153',
+    5: 'tjLvRWklAylFhBHQ',
+    6: '4sGIy77COooxhQuC',
+    7: 'fomEZZ4MxVVK3uVu',
+    8: 'iPki3yuoucnj7bIt',
+    9: 'cFHomF3tty8Wi1e5',
+    10: 'o1XIHJ4MJyroAHfF',
+};
+
+const WAND_TEMPLATE_ID = {
+    1: 'UJWiN0K3jqVjxvKk',
+    2: 'vJZ49cgi8szuQXAD',
+    3: 'wrDmWkGxmwzYtfiA',
+    4: 'Sn7v9SsbEDMUIwrO',
+    5: '5BF7zMnrPYzyigCs',
+    6: 'kiXh4SUWKr166ZeM',
+    7: 'nmXPj9zuMRQBNT60',
+    8: 'Qs8RgNH6thRPv2jt',
+    9: 'Fgv722039TVM5JTc',
 };

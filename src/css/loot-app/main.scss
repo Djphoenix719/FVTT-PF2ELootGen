@@ -112,6 +112,17 @@ form.loot-app {
     }
 }
 
+form.loot-app .scrolls {
+    div.config .buttons {
+        button.roll-both {
+            flex: 3;
+        }
+        button i {
+            margin: 0;
+        }
+    }
+}
+
 @-moz-keyframes spin {
     from {
         -moz-transform: rotate(0deg);

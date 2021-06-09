@@ -14,7 +14,17 @@
  * limitations under the License.
  */
 
-import { drawFromTables, getTableSettings, mergeExistingStacks, mergeStacks, rollTreasureValues, TableData, TableDrawResult, tablesOfType } from './Utilities';
+import {
+    drawFromTables,
+    getSchoolSettings,
+    getTableSettings,
+    mergeExistingStacks,
+    mergeStacks,
+    rollTreasureValues,
+    TableData,
+    TableDrawResult,
+    tablesOfType,
+} from './Utilities';
 import { ITableDef, rollableTableDefs } from './data/Tables';
 import { MODULE_NAME, PF2E_LOOT_SHEET_NAME } from '../Constants';
 import { permanentTables } from './data/tables/Permanent';
@@ -23,6 +33,7 @@ import { treasureTables } from './data/tables/Treasure';
 import { TABLE_WEIGHT_MAX, TABLE_WEIGHT_MIN } from './Settings';
 import ModuleSettings, { FEATURE_ALLOW_MERGING } from '../settings-app/ModuleSettings';
 import { ItemData } from '../../types/Items';
+import { SpellSchool } from './data/Spells';
 
 export enum TableType {
     Treasure = 'treasure',
@@ -68,6 +79,8 @@ export const extendLootSheet = () => {
                 minValue: TABLE_WEIGHT_MIN,
                 maxValue: TABLE_WEIGHT_MAX,
             };
+
+            data['spellSchools'] = Object.keys(SpellSchool).map((school) => getSchoolSettings(this.actor, school as SpellSchool));
 
             data['permanentTables'] = permanentTables.map((table) => getTableSettings(this.actor, table));
             data['consumableTables'] = consumableTables.map((table) => getTableSettings(this.actor, table));

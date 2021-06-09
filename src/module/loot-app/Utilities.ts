@@ -23,6 +23,7 @@ import { treasureTables } from './data/tables/Treasure';
 import { permanentTables } from './data/tables/Permanent';
 import { consumableTables } from './data/tables/Consumable';
 import { TABLE_WEIGHT_DEFAULT } from './Settings';
+import { SpellSchool } from './data/Spells';
 
 // Helper function for distinct values of an array.
 const distinct = (value: any, index: number, array: any[]) => {
@@ -64,6 +65,26 @@ export function getTableSettings(actor: Actor, table: ITableDef) {
     };
 }
 export type TableData = ReturnType<typeof getTableSettings>;
+
+/**
+ * Fetch and package data needed to render spell school selection in the scrolls box.
+ * @param actor Actor to fetch from.
+ * @param school School to fetch for.
+ */
+export function getSchoolSettings(actor: Actor, school: SpellSchool) {
+    const getParam = function (key: string): any {
+        return actor.getFlag(MODULE_NAME, `settings.scroll.${school}.${key}`);
+    };
+
+    const enabled: boolean = getParam('enabled') ?? true;
+
+    return {
+        id: school,
+        name: school.capitalize(),
+        enabled,
+    };
+}
+export type SchoolData = ReturnType<typeof getSchoolSettings>;
 
 export interface TableDrawOptions {
     displayChat?: boolean;
