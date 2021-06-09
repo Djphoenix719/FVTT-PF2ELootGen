@@ -23,18 +23,18 @@
                     <label for="{{input.name}}">{{input.label}}</label>
 
                     {{#ifeq input.type "checkbox"}}
-                        <input type="checkbox" name="{{input.name}}" {{checked input.value}}>
+                        <input type="checkbox" id="{{input.name}}" name="{{input.name}}" {{checked input.value}}>
                     {{/ifeq}}
                     {{#ifeq input.type "number"}}
-                        <input type="number" name="{{input.name}}" value="{{input.value}}"
+                        <input type="number" id="{{input.name}}" name="{{input.name}}" value="{{input.value}}"
                                {{#if input.min}}min="{{input.min}}"{{/if}}
                                {{#if input.max}}max="{{input.max}}"{{/if}}>
                     {{/ifeq}}
                     {{#ifeq input.type "text"}}
-                        <input type="text" name="{{input.name}}" value="{{input.value}}">
+                        <input type="text" id="{{input.name}}" name="{{input.name}}" value="{{input.value}}">
                     {{/ifeq}}
                     {{#ifeq input.type "file"}}
-                        <input type="text" name="{{input.name}}" value="{{input.value}}">
+                        <input type="text" id="{{input.name}}" name="{{input.name}}" value="{{input.value}}">
                         {{filePicker target=input.name type="image"}}
                     {{/ifeq}}
 

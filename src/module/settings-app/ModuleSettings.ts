@@ -49,6 +49,7 @@ interface IFeatureDefinition {
     title: string;
     attributes?: IFeatureAttribute[];
     description: string;
+    default?: boolean;
     inputs: IFeatureInput[];
     register: IFeatureRegistration[];
     help?: string;
@@ -66,12 +67,27 @@ export const ATTR_REOPEN_SHEET_REQUIRED: IFeatureAttribute = {
     title: 'Sheets must be closed and re-opened.',
 };
 
-export const FEATURES: IFeatureDefinition[] = [];
+export const FEATURE_ALLOW_MERGING = 'allow-merging';
+export const FEATURES: IFeatureDefinition[] = [
+    {
+        id: FEATURE_ALLOW_MERGING,
+        title: 'Merge When Generating',
+        attributes: [],
+        // TODO: Localization
+        description:
+            'If this setting is enabled, PF2E Lootgen will attempt to merge generated items into' +
+            ' existing stacks on the actor. If this setting is disabled, new stacks will still merge but not' +
+            ' merge with existing items.',
+        inputs: [],
+        register: [],
+        help:
+            'PF2E Lootgen will not check for modifications on existing items, so if you expect to change' +
+            ' them this may result in improper treasure values, item descriptions, etc. for generated items.',
+    },
+];
 
 export default class ModuleSettings {
     public static readonly FEATURES = Features;
-
-    public static readonly LOOT_APP_INVENTORY = 'LOOT_APP_INVENTORY';
 
     /**
      * Retrieve a setting from the store.
@@ -142,7 +158,7 @@ export default class ModuleSettings {
                 name: feature.id,
                 scope: 'world',
                 type: Boolean,
-                default: false,
+                default: feature.default ?? false,
                 config: false,
                 restricted: true,
             };
@@ -170,12 +186,6 @@ export default class ModuleSettings {
             icon: 'fas fa-cogs',
             type: SettingsApp,
             restricted: true,
-        });
-
-        game.settings.register(MODULE_NAME, ModuleSettings.LOOT_APP_INVENTORY, {
-            name: 'Saved Inventory',
-            default: new Map(),
-            scope: 'world',
         });
     }
 }
