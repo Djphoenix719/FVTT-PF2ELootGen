@@ -6,6 +6,7 @@
       "strictNullChecks": false,
       "alwaysStrict": true,
       "types": [
+        "src/types",
         "fvtt-types/src",
         "handlebars",
         "pixi.js"
