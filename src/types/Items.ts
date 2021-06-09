@@ -18,7 +18,8 @@ export interface ItemData extends Entity.Data {
     data: {
         slug: string;
         stackGroup: { value: string };
-        value: { value: number };
+        value?: { value: number };
+        price?: { value: string };
         weight: { value: string | number };
         quantity: { value: number };
     };

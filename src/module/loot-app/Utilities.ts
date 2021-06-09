@@ -110,7 +110,6 @@ export async function drawFromTables(count: number, tables: TableData[], options
     if (options.displayChat) {
         await buildRollTableMessage(results);
     }
-    console.warn(results);
     return results;
 }
 
@@ -194,7 +193,7 @@ export function mergeStacks(itemDatas: ItemData[], options?: MergeStacksOptions)
     // a pseudo-hash to use for comparison instead
     let getSlug: (i: ItemData) => string;
     if (options.compareValues) {
-        getSlug = (i) => `${i.data.slug}-${i.data.value.value}`;
+        getSlug = (i) => `${i.data.slug}-${i.data.value?.value ?? i.data.price?.value}`;
     } else {
         getSlug = (i) => i.data.slug;
     }

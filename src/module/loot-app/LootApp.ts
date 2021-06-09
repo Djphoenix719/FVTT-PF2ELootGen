@@ -78,6 +78,7 @@ export const extendLootSheet = () => {
          */
         private async createItemsFromDraw(results: TableDrawResult[]) {
             let itemDatas = results.map((d) => d.itemData);
+            // TODO: Option to allow merging with existing stacks
             itemDatas = mergeStacks(itemDatas);
             itemDatas.sort((a, b) => a.data.slug.localeCompare(b.data.slug));
 
