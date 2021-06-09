@@ -1,0 +1,14 @@
+<!-- TODO: Localization -->
+<div class="tab-container" data-type="scroll">
+    <div class="config">
+        {{> modules/pf2e-lootgen/templates/loot-app/partials/table-buttons.html }}
+        <div class="form-group">
+            <label for="flags.pf2e-lootgen.settings.scroll.count">Count</label>
+            <input type="number"
+                   min="1"
+                   name="flags.pf2e-lootgen.settings.scroll.count"
+                   value="{{default actor.flags.pf2e-lootgen.settings.scroll.count 1}}">
+        </div>
+    </div>
+
+</div>

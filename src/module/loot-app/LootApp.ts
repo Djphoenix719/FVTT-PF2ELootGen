@@ -47,7 +47,7 @@ export const extendLootSheet = () => {
                 {
                     navSelector: '.loot-app-nav',
                     contentSelector: '.loot-app-content',
-                    initial: 'treasure',
+                    initial: 'scrolls',
                 },
             ];
             return options;
