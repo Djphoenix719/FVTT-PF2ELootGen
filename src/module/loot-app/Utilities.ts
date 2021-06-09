@@ -196,6 +196,58 @@ export interface MergeStacksOptions {
 }
 
 /**
+ * Get a function that correctly fetches a slug from an item data given the options.
+ * @param options
+ */
+const getSlugFunction = (options: MergeStacksOptions) => {
+    // Our slugs are human readable unique ids, in our case when we want to
+    // compare the values as well we can append the value to the slug and get
+    // a pseudo-hash to use for comparison instead
+    let getSlug: (i: ItemData) => string;
+    if (options.compareValues) {
+        getSlug = (i) => `${i.data.slug}-${i.data.value?.value ?? i.data.price?.value}`;
+    } else {
+        getSlug = (i) => i.data.slug;
+    }
+    return getSlug;
+};
+
+/**
+ *  * Takes two sets of itemDatas, and attempts to merge all the new datas into the old datas.
+ * Returns an array of items that were unable to be merges
+ * @param oldDatas
+ * @param newDatas
+ * @param options
+ * @returns [merged, remaining]
+ *  merged: The successfully merged old + new items
+ *  remaining: items that could not be merged.
+ */
+export function mergeExistingStacks(oldDatas: ItemData[], newDatas: ItemData[], options?: MergeStacksOptions) {
+    if (options === undefined) {
+        options = { compareValues: true };
+    }
+
+    const getSlug = getSlugFunction(options);
+
+    oldDatas = duplicate(oldDatas) as ItemData[];
+    newDatas = duplicate(newDatas) as ItemData[];
+
+    const oldSlugs = oldDatas.map(getSlug);
+    const newSlugs = newDatas.map(getSlug);
+
+    for (let i = newSlugs.length - 1; i >= 0; i--) {
+        const index = oldSlugs.indexOf(newSlugs[i]);
+        if (index === -1) continue;
+        mergeItem(oldDatas[index], newDatas[i]);
+        newDatas.splice(i, 1);
+    }
+
+    newDatas = mergeStacks(newDatas, options);
+
+    return [oldDatas, newDatas];
+}
+
+/**
  * Merge an array of item datas into a set of stacked items of the same slug
  *  and optionally also compare and do not merge items based on provided options.
  * @param itemDatas
@@ -208,15 +260,10 @@ export function mergeStacks(itemDatas: ItemData[], options?: MergeStacksOptions)
 
     itemDatas = duplicate(itemDatas) as ItemData[];
 
-    // Our slugs are human readable unique ids, in our case when we want to
-    // compare the values as well we can append the value to the slug and get
-    // a pseudo-hash to use for comparison instead
-    let getSlug: (i: ItemData) => string;
-    if (options.compareValues) {
-        getSlug = (i) => `${i.data.slug}-${i.data.value?.value ?? i.data.price?.value}`;
-    } else {
-        getSlug = (i) => i.data.slug;
-    }
+    console.warn('mergeStacks: itemDatas');
+    console.warn(itemDatas);
+
+    const getSlug = getSlugFunction(options);
 
     let allSlugs: string[] = itemDatas.map(getSlug);
     const unqSlugs = allSlugs.filter(distinct);
@@ -226,11 +273,20 @@ export function mergeStacks(itemDatas: ItemData[], options?: MergeStacksOptions)
         for (let i = itemDatas.length - 1; i > first; i--) {
             const itemData = itemDatas[i];
             if (getSlug(itemData) !== slug) continue;
-            itemDatas[first].data.quantity.value += itemData.data.quantity.value;
+            mergeItem(itemDatas[first], itemData);
             itemDatas.splice(i, 1);
             allSlugs.splice(i, 1);
         }
     }
 
     return itemDatas;
+}
+
+/**
+ * Merge item a IN PLACE by incrementing it's quantity by item b's quantity.
+ * @param a The target item
+ * @param b The item to increase the target by
+ */
+export function mergeItem(a: ItemData, b: ItemData) {
+    a.data.quantity.value += b.data.quantity.value;
 }

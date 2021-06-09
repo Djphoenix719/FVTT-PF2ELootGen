@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-import { drawFromTables, getTableSettings, mergeStacks, rollTreasureValues, TableData, TableDrawResult, tablesOfType } from './Utilities';
+import { drawFromTables, getTableSettings, mergeExistingStacks, mergeStacks, rollTreasureValues, TableData, TableDrawResult, tablesOfType } from './Utilities';
 import { ITableDef, rollableTableDefs } from './data/Tables';
 import { MODULE_NAME, PF2E_LOOT_SHEET_NAME } from '../Constants';
 import { permanentTables } from './data/tables/Permanent';
 import { consumableTables } from './data/tables/Consumable';
 import { treasureTables } from './data/tables/Treasure';
 import { TABLE_WEIGHT_MAX, TABLE_WEIGHT_MIN } from './Settings';
+import ModuleSettings, { FEATURE_ALLOW_MERGING } from '../settings-app/ModuleSettings';
+import { ItemData } from '../../types/Items';
 
 export enum TableType {
     Treasure = 'treasure',
@@ -83,13 +85,21 @@ export const extendLootSheet = () => {
          * @private
          */
         private async createItemsFromDraw(results: TableDrawResult[]) {
-            let itemDatas = results.map((d) => d.itemData);
-            // TODO: Option to allow merging with existing stacks
-            itemDatas = mergeStacks(itemDatas);
-            itemDatas.sort((a, b) => a.data.slug.localeCompare(b.data.slug));
+            let itemsToCreate = results.map((d) => d.itemData);
+            let itemsToUpdate: ItemData[];
+            if (ModuleSettings.get(FEATURE_ALLOW_MERGING)) {
+                const existing = this.actor.data.items.map((item) => item.data);
+                [itemsToUpdate, itemsToCreate] = mergeExistingStacks(existing, itemsToCreate);
+            } else {
+                itemsToCreate = mergeStacks(itemsToCreate);
+            }
+
+            itemsToCreate.sort((a, b) => a.data.slug.localeCompare(b.data.slug));
 
             // @ts-ignore
-            await this.actor.createEmbeddedDocuments('Item', itemDatas);
+            await this.actor.updateEmbeddedDocuments('Item', itemsToUpdate);
+            // @ts-ignore
+            await this.actor.createEmbeddedDocuments('Item', itemsToCreate);
         }
 
         /**
