@@ -22,6 +22,7 @@ import { TableType } from './LootApp';
 import { treasureTables } from './data/tables/Treasure';
 import { permanentTables } from './data/tables/Permanent';
 import { consumableTables } from './data/tables/Consumable';
+import { TABLE_WEIGHT_DEFAULT } from './Settings';
 
 // Helper function for distinct values of an array.
 const distinct = (value: any, index: number, array: any[]) => {
@@ -54,7 +55,7 @@ export function getTableSettings(actor: Actor, table: ITableDef) {
     };
 
     const enabled: boolean = getParam('enabled') ?? true;
-    const weight: number = getParam('weight') ?? 100;
+    const weight: number = getParam('weight') ?? TABLE_WEIGHT_DEFAULT;
 
     return {
         ...table,

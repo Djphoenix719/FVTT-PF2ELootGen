@@ -1,3 +1,4 @@
+<!-- TODO: Localization -->
 <div class="info">
     <p>Adjust weights and enabled tables, sliders to the right are 10x more likely to occur than those to the left.</p>
 </div>
@@ -19,8 +20,8 @@
             <section class="settings">
                 <input type="range"
                        title="Weight"
-                       min="0"
-                       max="10"
+                       min="{{@root.tableSettings.minValue}}"
+                       max="{{@root.tableSettings.maxValue}}"
                        step="0.25"
                        id="flags.pf2e-lootgen.{{table.id}}.weight"
                        name="flags.pf2e-lootgen.{{table.id}}.weight"

@@ -15,11 +15,12 @@
  */
 
 import { drawFromTables, getTableSettings, mergeStacks, rollTreasureValues, TableData, TableDrawResult, tablesOfType } from './Utilities';
-import { isTreasureTableDef, ITableDef, rollableTableDefs } from './data/Tables';
+import { ITableDef, rollableTableDefs } from './data/Tables';
 import { MODULE_NAME, PF2E_LOOT_SHEET_NAME } from '../Constants';
 import { permanentTables } from './data/tables/Permanent';
 import { consumableTables } from './data/tables/Consumable';
 import { treasureTables } from './data/tables/Treasure';
+import { TABLE_WEIGHT_MAX, TABLE_WEIGHT_MIN } from './Settings';
 
 export enum TableType {
     Treasure = 'treasure',
@@ -60,6 +61,11 @@ export const extendLootSheet = () => {
 
         public getData(options?: Application.RenderOptions) {
             const data = super.getData(options);
+
+            data['tableSettings'] = {
+                minValue: TABLE_WEIGHT_MIN,
+                maxValue: TABLE_WEIGHT_MAX,
+            };
 
             data['permanentTables'] = permanentTables.map((table) => getTableSettings(this.actor, table));
             data['consumableTables'] = consumableTables.map((table) => getTableSettings(this.actor, table));
