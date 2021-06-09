@@ -11,19 +11,19 @@
 
     {{#if user.isGM}}
         <div class="loot-app-content sheet-content-loot">
-            <div class="tab loot-gm" data-group="primary" data-tab="loot-gm">
+            <div class="tab loot-app-tab loot-gm" data-group="primary" data-tab="loot-gm">
                 {{> modules/pf2e-lootgen/templates/loot-app/tabs/gm-settings/index.html}}
             </div>
-            <div class="tab treasure" data-group="primary" data-tab="treasure">
+            <div class="tab loot-app-tab treasure" data-group="primary" data-tab="treasure">
                 {{> modules/pf2e-lootgen/templates/loot-app/tabs/treasure/index.html }}
             </div>
-            <div class="tab permanent" data-group="primary" data-tab="permanent">
+            <div class="tab loot-app-tab permanent" data-group="primary" data-tab="permanent">
                 {{> modules/pf2e-lootgen/templates/loot-app/tabs/permanent/index.html }}
             </div>
-            <div class="tab consumables" data-group="primary" data-tab="consumables">
+            <div class="tab loot-app-tab consumables" data-group="primary" data-tab="consumables">
                 {{> modules/pf2e-lootgen/templates/loot-app/tabs/consumables/index.html }}
             </div>
-            <div class="tab consumables" data-group="primary" data-tab="scrolls">
+            <div class="tab loot-app-tab consumables" data-group="primary" data-tab="scrolls">
                 {{> modules/pf2e-lootgen/templates/loot-app/tabs/scrolls/index.html }}
             </div>
         </div>

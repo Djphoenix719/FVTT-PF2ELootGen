@@ -33,7 +33,7 @@ form.loot-app {
     }
 
     header.tab-header {
-        top: 38px;
+        top: 34px;
         position: sticky;
         background: url(/systems/pf2e/assets/sheet/parchment.webp) repeat;
 
@@ -55,8 +55,33 @@ form.loot-app {
         flex: 0 0 13px;
     }
 
-    .loot-app-content {
-        .form-group {
+    .loot-app-tab {
+        p {
+            text-align: justify;
+        }
+        .config {
+            button,
+            label,
+            input {
+                line-height: 1em;
+            }
+            .form-group {
+                input {
+                    text-align: right;
+                    margin: 0;
+                }
+            }
+            .buttons {
+                display: flex;
+                button {
+                    flex: 1;
+                }
+                button.roll {
+                    flex: 4;
+                }
+            }
+        }
+        .weights .form-group {
             margin: 0;
             label {
                 line-height: 1em;
@@ -82,17 +107,6 @@ form.loot-app {
                     -moz-animation-iteration-count: infinite;
                     -moz-animation-timing-function: linear;
                 }
-            }
-        }
-        section.header {
-        }
-        section.settings {
-            i {
-                padding: 0 2px;
-                flex: 0;
-            }
-            input {
-                flex: 1;
             }
         }
     }

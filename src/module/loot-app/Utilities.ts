@@ -18,11 +18,30 @@ import { isTreasureTableDef, ITableDef, ITreasureTableDef } from './data/Tables'
 import { getItemFromPack, getTableFromPack } from '../Utilities';
 import { MODULE_NAME } from '../Constants';
 import { ItemData } from '../../types/Items';
+import { TableType } from './LootApp';
+import { treasureTables } from './data/tables/Treasure';
+import { permanentTables } from './data/tables/Permanent';
+import { consumableTables } from './data/tables/Consumable';
 
 // Helper function for distinct values of an array.
 const distinct = (value: any, index: number, array: any[]) => {
     return array.indexOf(value) === index;
 };
+
+/**
+ * Return the correct table map for the given table type.
+ * @param type
+ */
+export function tablesOfType(type: TableType): ITableDef[] {
+    switch (type) {
+        case TableType.Treasure:
+            return treasureTables;
+        case TableType.Permanent:
+            return permanentTables;
+        case TableType.Consumable:
+            return consumableTables;
+    }
+}
 
 /**
  * Fetch and package data needed to render a table row in the sheet.
@@ -68,7 +87,6 @@ export async function drawFromTables(count: number, tables: TableData[], options
         displayChat: true,
     };
 
-    console.warn(tables);
     if (tables.length === 0) return [];
     tables = duplicate(tables) as TableData[];
 

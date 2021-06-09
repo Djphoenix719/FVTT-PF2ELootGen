@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { drawFromTables, getTableSettings, mergeStacks, rollTreasureValues, TableDrawResult } from './Utilities';
+import { drawFromTables, getTableSettings, mergeStacks, rollTreasureValues, TableData, TableDrawResult, tablesOfType } from './Utilities';
 import { isTreasureTableDef, ITableDef, rollableTableDefs } from './data/Tables';
 import { MODULE_NAME, PF2E_LOOT_SHEET_NAME } from '../Constants';
 import { permanentTables } from './data/tables/Permanent';
@@ -99,21 +99,21 @@ export const extendLootSheet = () => {
         public activateListeners(html: JQuery) {
             super.activateListeners(html);
 
+            const getContainer = (event: JQuery.ClickEvent) => {
+                const element = $(event.currentTarget);
+                const container = element.closest('.tab-container');
+                return { element, container };
+            };
+
             // group roll button
-            html.find('button.roll-tables').on('click', async (event) => {
-                const type = $(event.currentTarget).data('type') as TableType;
-                let tablesDefs: ITableDef[];
-                switch (type) {
-                    case TableType.Treasure:
-                        tablesDefs = treasureTables;
-                        break;
-                    case TableType.Permanent:
-                        tablesDefs = permanentTables;
-                        break;
-                    case TableType.Consumable:
-                        tablesDefs = consumableTables;
-                        break;
-                }
+            html.find('.buttons .roll').on('click', async (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                const { container } = getContainer(event);
+                const type = container.data('type') as TableType;
+
+                let tablesDefs: ITableDef[] = tablesOfType(type);
 
                 const tables = tablesDefs.map((table) => getTableSettings(this.actor, table)).filter((table) => table.enabled);
                 let results = await drawFromTables(this.getLootAppSetting<number>(type, LootAppSetting.Count), tables);
@@ -121,8 +121,53 @@ export const extendLootSheet = () => {
 
                 await this.createItemsFromDraw(results);
             });
+
+            /**
+             * Set all the table values for a specific key in an entire tab
+             */
+            const setTableSettings = async (type: TableType, key: keyof Omit<TableData, keyof ITableDef>, value: any) => {
+                await this.actor.update(
+                    tablesOfType(type).reduce((prev, curr) => {
+                        return mergeObject(prev, {
+                            [`flags.${MODULE_NAME}.${curr.id}.${key}`]: value,
+                        });
+                    }, {}),
+                );
+            };
+
+            // check-all button
+            html.find('.buttons .check-all').on('click', async (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                const { container } = getContainer(event);
+                const type = container.data('type') as TableType;
+                await setTableSettings(type, 'enabled', true);
+            });
+            // check-none button
+            html.find('.buttons .check-none').on('click', async (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                const { container } = getContainer(event);
+                const type = container.data('type') as TableType;
+                await setTableSettings(type, 'enabled', false);
+            });
+            // reset button
+            html.find('.buttons .reset').on('click', async (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                const { container } = getContainer(event);
+                const type = container.data('type') as TableType;
+                await setTableSettings(type, 'weight', 100);
+            });
+
             // quick roll button
-            html.find('.tables-row i.fa-dice-d20').on('click', async (event) => {
+            html.find('.weights i.fa-dice-d20').on('click', async (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
                 const element = $(event.currentTarget).closest('.tables-row');
                 const tableId = element.data('table-id') as string;
                 const table = rollableTableDefs.find((table) => table.id === tableId);
@@ -131,11 +176,6 @@ export const extendLootSheet = () => {
                 results = await rollTreasureValues(results);
 
                 await this.createItemsFromDraw(results);
-            });
-
-            // adjust sliders
-            html.find('button.scale-sliders').on('change', (event) => {
-                const element = $(event.currentTarget).closest('.tables-row');
             });
         }
     }

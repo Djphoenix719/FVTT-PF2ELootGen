@@ -1,11 +1,19 @@
-<header class="tab-header">
-    <div class="form-group">
-        <label for="flags.pf2e-lootgen.settings.consumable.count"># of Items</label>
-        <input type="number"
-               min="1"
-               name="flags.pf2e-lootgen.settings.consumable.count"
-               value="{{default actor.flags.pf2e-lootgen.settings.consumable.count 1}}">
+<div class="tab-container" data-type="consumable">
+    <div class="config">
+        <div class="buttons">
+            <button class="roll" title="Roll"><i class="fas fa-dice-d20"></i></button>
+            <button class="check-all" title="All Tables"><i class="fas fa-check-square"></i></button>
+            <button class="check-none" title="No Tables"><i class="far fa-check-square"></i></button>
+            <button class="reset" title="Reset"><i class="fas fa-undo"></i></button>
+        </div>
+        <div class="form-group">
+            <label for="flags.pf2e-lootgen.settings.consumable.count">Count</label>
+            <input type="number"
+                   min="1"
+                   name="flags.pf2e-lootgen.settings.consumable.count"
+                   value="{{default actor.flags.pf2e-lootgen.settings.consumable.count 1}}">
+        </div>
     </div>
-    <button class="roll-tables" data-type="consumable">Roll!</button>
-</header>
-{{> table-list tables=consumableTables}}
+
+    {{> table-list tables=consumableTables type="consumable"}}
+</div>

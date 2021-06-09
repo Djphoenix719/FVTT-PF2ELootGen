@@ -1,28 +1,32 @@
-<p>Adjust weights and enabled tables, sliders to the right are 10x more likely to occur than those to the left.</p>
-{{#each tables as |table|}}
-    <div class="tables-row" data-table-id="{{table.id}}" data-pack-id="{{table.packId}}">
-        <section class="header">
-            <div class="form-group">
-                <i class="fas fa-dice-d20"></i>
-                <label for="flags.pf2e-lootgen.{{table.id}}.enabled">{{table.name}}</label>
-                <input title="Include This Table?"
-                       type="checkbox"
-                       id="flags.pf2e-lootgen.{{table.id}}.enabled"
-                       name="flags.pf2e-lootgen.{{table.id}}.enabled"
-                       {{checked table.enabled}}
+<div class="info">
+    <p>Adjust weights and enabled tables, sliders to the right are 10x more likely to occur than those to the left.</p>
+</div>
+<div class="weights">
+    {{#each tables as |table|}}
+        <div class="tables-row" data-table-id="{{table.id}}" data-pack-id="{{table.packId}}">
+            <section class="header">
+                <div class="form-group">
+                    <i class="fas fa-dice-d20"></i>
+                    <label for="flags.pf2e-lootgen.{{table.id}}.enabled">{{table.name}}</label>
+                    <input title="Include This Table?"
+                           type="checkbox"
+                           id="flags.pf2e-lootgen.{{table.id}}.enabled"
+                           name="flags.pf2e-lootgen.{{table.id}}.enabled"
+                        {{checked table.enabled}}
+                    >
+                </div>
+            </section>
+            <section class="settings">
+                <input type="range"
+                       title="Weight"
+                       min="0"
+                       max="10"
+                       step="0.25"
+                       id="flags.pf2e-lootgen.{{table.id}}.weight"
+                       name="flags.pf2e-lootgen.{{table.id}}.weight"
+                       value="{{table.weight}}"
                 >
-            </div>
-        </section>
-        <section class="settings">
-            <input type="range"
-                   title="Weight"
-                   min="0"
-                   max="10"
-                   step="0.25"
-                   id="flags.pf2e-lootgen.{{table.id}}.weight"
-                   name="flags.pf2e-lootgen.{{table.id}}.weight"
-                   value="{{table.weight}}"
-            >
-        </section>
-    </div>
-{{/each}}
+            </section>
+        </div>
+    {{/each}}
+</div>
