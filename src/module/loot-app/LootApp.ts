@@ -79,6 +79,7 @@ export const extendLootSheet = () => {
         private async createItemsFromDraw(results: TableDrawResult[]) {
             let itemDatas = results.map((d) => d.itemData);
             itemDatas = mergeStacks(itemDatas);
+            itemDatas.sort((a, b) => a.data.slug.localeCompare(b.data.slug));
 
             // @ts-ignore
             await this.actor.createEmbeddedDocuments('Item', itemDatas);
