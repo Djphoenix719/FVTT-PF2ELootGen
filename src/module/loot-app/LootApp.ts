@@ -102,8 +102,17 @@ export const extendLootSheet = () => {
             return this.actor.getFlag(MODULE_NAME, `settings.${type}.${key}`) as T;
         }
 
-        public activateListeners(html: JQuery) {
+        public async activateListeners(html: JQuery) {
             super.activateListeners(html);
+
+            // Since all our data is derived from the form, for simplicity of code if the
+            //  data has never been set, e.g. the user has never interacted with the form,
+            //  we will submit the form to get a default set of data stored on the server.
+            //  This is done in activateListeners so we can ensure we get the proper HTML
+            //  to derive the form data from.
+            if (!this.actor.getFlag(MODULE_NAME, 'settings')) {
+                await this._updateObject(new Event('submit'), this._getSubmitData());
+            }
 
             const getContainer = (event: JQuery.ClickEvent) => {
                 const element = $(event.currentTarget);
