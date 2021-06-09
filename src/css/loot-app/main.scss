@@ -49,13 +49,6 @@ form.loot-app {
         width: 220px;
     }
 
-    .loot-app-options {
-        position: absolute;
-        background: url(/systems/pf2e/assets/sheet/parchment.webp) repeat;
-        left: -50%;
-        right: 100%;
-    }
-
     .tab input[type='checkbox'] {
         width: 13px;
         height: 13px;
@@ -72,14 +65,14 @@ form.loot-app {
                 text-align: right;
                 margin: 0;
             }
-        }
-        section.header {
             i {
-                padding: 0 2px;
+                color: var(--light);
+                margin-right: 4px;
                 flex: 0;
 
                 &:hover {
                     cursor: pointer;
+                    color: var(--primary);
                     -webkit-animation-name: spin;
                     -webkit-animation-duration: 1000ms;
                     -webkit-animation-iteration-count: infinite;
@@ -90,6 +83,8 @@ form.loot-app {
                     -moz-animation-timing-function: linear;
                 }
             }
+        }
+        section.header {
         }
         section.settings {
             i {

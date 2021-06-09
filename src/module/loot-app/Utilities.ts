@@ -34,8 +34,8 @@ export function getTableSettings(actor: Actor, table: ITableDef) {
         return actor.getFlag(MODULE_NAME, `${table.id}.${key}`);
     };
 
-    const enabled: boolean = getParam('enabled') ?? false;
-    const weight: number = getParam('weight') ?? 1;
+    const enabled: boolean = getParam('enabled') ?? true;
+    const weight: number = getParam('weight') ?? 100;
 
     return {
         ...table,
@@ -68,6 +68,7 @@ export async function drawFromTables(count: number, tables: TableData[], options
         displayChat: true,
     };
 
+    console.warn(tables);
     if (tables.length === 0) return [];
     tables = duplicate(tables) as TableData[];
 

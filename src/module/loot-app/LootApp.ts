@@ -99,6 +99,7 @@ export const extendLootSheet = () => {
         public activateListeners(html: JQuery) {
             super.activateListeners(html);
 
+            // group roll button
             html.find('button.roll-tables').on('click', async (event) => {
                 const type = $(event.currentTarget).data('type') as TableType;
                 let tablesDefs: ITableDef[];
@@ -130,6 +131,11 @@ export const extendLootSheet = () => {
                 results = await rollTreasureValues(results);
 
                 await this.createItemsFromDraw(results);
+            });
+
+            // adjust sliders
+            html.find('button.scale-sliders').on('change', (event) => {
+                const element = $(event.currentTarget).closest('.tables-row');
             });
         }
     }

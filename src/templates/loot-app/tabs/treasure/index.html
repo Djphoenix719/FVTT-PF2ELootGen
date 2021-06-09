@@ -1,8 +1,9 @@
 <header class="tab-header">
     <div class="form-group">
-        <label for="flags.pf2e-lootgen.settings.treasure.count"># of Items</label>
-        <input type="number"
+        <label for="flags.pf2e-lootgen.settings.treasure.count">Count: {{default actor.flags.pf2e-lootgen.settings.treasure.count 1}}</label>
+        <input type="range"
                min="1"
+               max="100"
                name="flags.pf2e-lootgen.settings.treasure.count"
                value="{{default actor.flags.pf2e-lootgen.settings.treasure.count 1}}">
     </div>
