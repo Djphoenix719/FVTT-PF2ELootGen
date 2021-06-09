@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Data contained in this file is part of the Open Gaming License, and not subject to the above copyright.
+
 export type Bulk = 'L' | number;
 export type IMaterialMap = Record<string, IMaterial>;
 
@@ -638,7 +640,7 @@ export const MaterialWarpglass: IMaterial = {
     },
 };
 
-export const MaterialData: IMaterialMap = {
+export const Materials: IMaterialMap = {
     cloth: MaterialCloth,
     leather: MaterialLeather,
     metal: MaterialMetal,

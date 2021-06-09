@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { drawFromTables, getTableSettings, rollTreasureValues } from './Utilities';
-import { rollableTableDefs } from './data/Tables';
+import { drawFromTables, getTableSettings, mergeStacks, rollTreasureValues, TableDrawResult } from './Utilities';
+import { isTreasureTableDef, ITableDef, rollableTableDefs } from './data/Tables';
 import { MODULE_NAME, PF2E_LOOT_SHEET_NAME } from '../Constants';
 import { permanentTables } from './data/tables/Permanent';
 import { consumableTables } from './data/tables/Consumable';
@@ -25,6 +25,9 @@ export enum TableType {
     Treasure = 'treasure',
     Permanent = 'permanent',
     Consumable = 'consumable',
+}
+export enum LootAppSetting {
+    Count = 'count',
 }
 
 export const extendLootSheet = () => {
@@ -68,30 +71,63 @@ export const extendLootSheet = () => {
             return data;
         }
 
+        /**
+         * Create a group of items from a draw result
+         * @param results
+         * @private
+         */
+        private async createItemsFromDraw(results: TableDrawResult[]) {
+            let itemDatas = results.map((d) => d.itemData);
+            itemDatas = mergeStacks(itemDatas);
+
+            // @ts-ignore
+            await this.actor.createEmbeddedDocuments('Item', itemDatas);
+        }
+
+        /**
+         * Helper function to retrieve certain settings from the flags store.
+         * @param type The type of the setting, since these settings are duplicated over the three generator types.
+         * @param key The setting key.
+         * @private
+         */
+        private getLootAppSetting<T = any>(type: TableType, key: LootAppSetting): T {
+            return this.actor.getFlag(MODULE_NAME, `settings.${type}.${key}`) as T;
+        }
+
         public activateListeners(html: JQuery) {
             super.activateListeners(html);
 
             html.find('button.roll-tables').on('click', async (event) => {
                 const type = $(event.currentTarget).data('type') as TableType;
-                // await this.rollTables(event, type);
+                let tablesDefs: ITableDef[];
+                switch (type) {
+                    case TableType.Treasure:
+                        tablesDefs = treasureTables;
+                        break;
+                    case TableType.Permanent:
+                        tablesDefs = permanentTables;
+                        break;
+                    case TableType.Consumable:
+                        tablesDefs = consumableTables;
+                        break;
+                }
+
+                const tables = tablesDefs.map((table) => getTableSettings(this.actor, table)).filter((table) => table.enabled);
+                let results = await drawFromTables(this.getLootAppSetting<number>(type, LootAppSetting.Count), tables);
+                results = await rollTreasureValues(results);
+
+                await this.createItemsFromDraw(results);
             });
+            // quick roll button
             html.find('.tables-row i.fa-dice-d20').on('click', async (event) => {
                 const element = $(event.currentTarget).closest('.tables-row');
                 const tableId = element.data('table-id') as string;
                 const table = rollableTableDefs.find((table) => table.id === tableId);
 
-                let drawm = await drawFromTables(1, [getTableSettings(this.actor, table)]);
-                drawm = await rollTreasureValues(drawm);
+                let results = await drawFromTables(1, [getTableSettings(this.actor, table)]);
+                results = await rollTreasureValues(results);
 
-                // TODO: Treasure values are not correct (I think?)
-
-                // @ts-ignore
-                this.actor.createEmbeddedDocuments(
-                    // @ts-ignore
-                    'Item',
-                    // @ts-ignore
-                    drawm.map((d) => d.itemData),
-                );
+                await this.createItemsFromDraw(results);
             });
         }
     }

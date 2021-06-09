@@ -17,6 +17,12 @@
 import { isTreasureTableDef, ITableDef, ITreasureTableDef } from './data/Tables';
 import { getItemFromPack, getTableFromPack } from '../Utilities';
 import { MODULE_NAME } from '../Constants';
+import { ItemData } from '../../types/Items';
+
+// Helper function for distinct values of an array.
+const distinct = (value: any, index: number, array: any[]) => {
+    return array.indexOf(value) === index;
+};
 
 /**
  * Fetch and package data needed to render a table row in the sheet.
@@ -47,16 +53,23 @@ export interface TableDrawResult {
     collection: string;
     resultId: string;
     tableId: string;
-    itemData: Entity.Data;
+    itemData: ItemData;
     def: TableData;
 }
+
+/**
+ * Draw a series of items from a group of weighted tables
+ * @param count The number of items to draw
+ * @param tables The tables and their draw weights
+ * @param options
+ */
 export async function drawFromTables(count: number, tables: TableData[], options?: TableDrawOptions): Promise<TableDrawResult[]> {
     options = options ?? {
         displayChat: true,
     };
 
-    tables = duplicate(tables) as TableData[];
     if (tables.length === 0) return [];
+    tables = duplicate(tables) as TableData[];
 
     let weightTotal = 0;
     for (const table of tables) {
@@ -101,11 +114,11 @@ export async function drawFromTables(count: number, tables: TableData[], options
     return results;
 }
 
+/**
+ * Build a rollable table results message
+ * @param results
+ */
 export async function buildRollTableMessage(results: TableDrawResult[]) {
-    const distinct = (value: any, index: number, array: any[]) => {
-        return array.indexOf(value) === index;
-    };
-
     const pool = PoolTerm.fromRolls(results.map((r) => r.roll));
     const roll = Roll.fromTerms([pool]);
     const uniqueTables = results.map((result) => result.tableId).filter(distinct);
@@ -135,20 +148,70 @@ export async function buildRollTableMessage(results: TableDrawResult[]) {
     return ChatMessage.create(messageData, {});
 }
 
+/**
+ * Roll and modify item data for the values of a treasure item
+ * @param results The results to modify
+ */
 export async function rollTreasureValues(results: TableDrawResult[]) {
     const rollValue = async (table: TableDrawResult): Promise<number> => {
-        if (isTreasureTableDef(table.def)) {
-            // @ts-ignore
-            const roll = await new Roll((table.def as ITreasureTableDef).value).roll({ async: true });
-            return roll.total;
-        }
-        throw new Error('Unable to roll a treasure value with no defined roll.');
+        // @ts-ignore
+        const roll = await new Roll((table.def as ITreasureTableDef).value).roll({ async: true });
+        return roll.total;
     };
 
     results = duplicate(results) as TableDrawResult[];
     for (const result of results) {
-        result.itemData['data']['value']['value'] = await rollValue(result);
+        if (isTreasureTableDef(result.def)) {
+            result.itemData['data']['value']['value'] = await rollValue(result);
+        }
     }
 
     return results;
+}
+
+export interface MergeStacksOptions {
+    /**
+     * Should values be compared when determining uniqueness?
+     */
+    compareValues?: boolean;
+}
+
+/**
+ * Merge an array of item datas into a set of stacked items of the same slug
+ *  and optionally also compare and do not merge items based on provided options.
+ * @param itemDatas
+ * @param options
+ */
+export function mergeStacks(itemDatas: ItemData[], options?: MergeStacksOptions) {
+    if (options === undefined) {
+        options = { compareValues: true };
+    }
+
+    itemDatas = duplicate(itemDatas) as ItemData[];
+
+    // Our slugs are human readable unique ids, in our case when we want to
+    // compare the values as well we can append the value to the slug and get
+    // a pseudo-hash to use for comparison instead
+    let getSlug: (i: ItemData) => string;
+    if (options.compareValues) {
+        getSlug = (i) => `${i.data.slug}-${i.data.value.value}`;
+    } else {
+        getSlug = (i) => i.data.slug;
+    }
+
+    let allSlugs: string[] = itemDatas.map(getSlug);
+    const unqSlugs = allSlugs.filter(distinct);
+    for (const slug of unqSlugs) {
+        // we'll keep the first item in the array, and discard the rest
+        const first = allSlugs.indexOf(slug);
+        for (let i = itemDatas.length - 1; i > first; i--) {
+            const itemData = itemDatas[i];
+            if (getSlug(itemData) !== slug) continue;
+            itemDatas[first].data.quantity.value += itemData.data.quantity.value;
+            itemDatas.splice(i, 1);
+            allSlugs.splice(i, 1);
+        }
+    }
+
+    return itemDatas;
 }
