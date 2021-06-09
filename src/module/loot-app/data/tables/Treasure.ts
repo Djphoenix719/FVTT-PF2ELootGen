@@ -35,7 +35,7 @@ export const semipreciousStonesTables: ITreasureTableDef[] = [
         id: 'P3HzJtS2iUUWMedJ',
         packId: 'pf2e.rollable-tables',
         name: 'Greater Semiprecious Stones',
-        value: '1d4*50',
+        value: '1d4*5',
     },
 ];
 export const preciousStonesTables: ITreasureTableDef[] = [
@@ -43,19 +43,19 @@ export const preciousStonesTables: ITreasureTableDef[] = [
         id: 'ZCYAQplm6zORj6eN',
         packId: 'pf2e.rollable-tables',
         name: 'Lesser Precious Stones',
-        value: '1d4*50*10',
+        value: '1d4*50',
     },
     {
         id: 'wCXPh3nft3qWuxro',
         packId: 'pf2e.rollable-tables',
         name: 'Moderate Precious Stones',
-        value: '1d4*100*10',
+        value: '1d4*100',
     },
     {
         id: 'teZCrF2SOghusarb',
         packId: 'pf2e.rollable-tables',
         name: 'Greater Precious Stones',
-        value: '1d4*500*10',
+        value: '1d4*500',
     },
 ];
 export const artTreasureTables: ITreasureTableDef[] = [
@@ -63,31 +63,31 @@ export const artTreasureTables: ITreasureTableDef[] = [
         id: 'ME37cisDz8J2m0H7',
         packId: 'pf2e.rollable-tables',
         name: 'Minor Art Object',
-        value: '1d4*1*10',
+        value: '1d4*1',
     },
     {
         id: 'zyXbnTnUGs7tWR5j',
         packId: 'pf2e.rollable-tables',
         name: 'Lesser Art Object',
-        value: '1d4*10*10',
+        value: '1d4*10',
     },
     {
         id: 'bCD07W38YjbnyVoZ',
         packId: 'pf2e.rollable-tables',
         name: 'Moderate Art Object',
-        value: '1d4*25*10',
+        value: '1d4*25',
     },
     {
         id: 'qmxGfxkMp9vCOtNQ',
         packId: 'pf2e.rollable-tables',
         name: 'Greater Art Object',
-        value: '1d4*250*10',
+        value: '1d4*250',
     },
     {
         id: 'hTBTUf9dmhDkpIo8',
         packId: 'pf2e.rollable-tables',
         name: 'Major Art Object',
-        value: '1d4*1000*10',
+        value: '1d4*1000',
     },
 ];
 export const treasureTables = [...semipreciousStonesTables, ...preciousStonesTables, ...artTreasureTables];

@@ -34,5 +34,4 @@ export function isTreasureTableDef(table: object): table is ITreasureTableDef {
     return isTableDef(table) && table.hasOwnProperty('value');
 }
 
-// All prices in silver, converted to GP at runtime
 export const rollableTableDefs = [...consumableTables, ...permanentTables, ...treasureTables];
