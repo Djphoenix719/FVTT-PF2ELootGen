@@ -17,7 +17,6 @@
 import {
     drawFromTables,
     getSchoolSettings,
-    getSpellSettings,
     getTableSettings,
     mergeExistingStacks,
     mergeStacks,
@@ -40,6 +39,7 @@ export enum TableType {
     Treasure = 'treasure',
     Permanent = 'permanent',
     Consumable = 'consumable',
+    Scroll = 'scroll',
 }
 export enum LootAppSetting {
     Count = 'count',
@@ -66,7 +66,7 @@ export const extendLootSheet = () => {
         }
 
         get title(): string {
-            return 'PF2E Loot Gen';
+            return 'PF2E Loot Generator';
         }
 
         get template(): string {
@@ -87,7 +87,7 @@ export const extendLootSheet = () => {
             data['consumableTables'] = consumableTables.map((table) => getTableSettings(this.actor, table));
             data['treasureTables'] = treasureTables.map((table) => getTableSettings(this.actor, table));
 
-            data['spellLevels'] = spellLevelTables.map((table) => getSpellSettings(this.actor, table));
+            data['spellLevels'] = spellLevelTables.map((table) => getTableSettings(this.actor, table));
 
             console.warn(data);
             console.warn(data['actor'].flags['pf2e-lootgen']);

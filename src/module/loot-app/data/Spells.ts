@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import { ITableDef } from './Tables';
+
 export enum SpellSchool {
     Abjuration = 'abjuration',
     Conjuration = 'conjuration',
@@ -61,19 +63,16 @@ export const wandTemplateIds = {
     8: 'Qs8RgNH6thRPv2jt',
     9: 'Fgv722039TVM5JTc',
 };
-export interface ISpellDef {
-    id: string;
-    name: string;
-}
-export const spellLevelTables = [
-    { id: 'spell-level-1', name: '1st Level' },
-    { id: 'spell-level-2', name: '2nd Level' },
-    { id: 'spell-level-3', name: '3rd Level' },
-    { id: 'spell-level-4', name: '4th Level' },
-    { id: 'spell-level-5', name: '5th Level' },
-    { id: 'spell-level-6', name: '6th Level' },
-    { id: 'spell-level-7', name: '7th Level' },
-    { id: 'spell-level-8', name: '8th Level' },
-    { id: 'spell-level-9', name: '9th Level' },
-    { id: 'spell-level-10', name: '10th Level' },
+
+export const spellLevelTables: ITableDef[] = [
+    { id: 'spell-level-1', packId: 'pf2e.rollable-tables', name: '1st Level' },
+    { id: 'spell-level-2', packId: 'pf2e.rollable-tables', name: '2nd Level' },
+    { id: 'spell-level-3', packId: 'pf2e.rollable-tables', name: '3rd Level' },
+    { id: 'spell-level-4', packId: 'pf2e.rollable-tables', name: '4th Level' },
+    { id: 'spell-level-5', packId: 'pf2e.rollable-tables', name: '5th Level' },
+    { id: 'spell-level-6', packId: 'pf2e.rollable-tables', name: '6th Level' },
+    { id: 'spell-level-7', packId: 'pf2e.rollable-tables', name: '7th Level' },
+    { id: 'spell-level-8', packId: 'pf2e.rollable-tables', name: '8th Level' },
+    { id: 'spell-level-9', packId: 'pf2e.rollable-tables', name: '9th Level' },
+    { id: 'spell-level-10', packId: 'pf2e.rollable-tables', name: '10th Level' },
 ];
