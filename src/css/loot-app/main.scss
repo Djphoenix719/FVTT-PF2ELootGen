@@ -24,27 +24,6 @@ form.loot-app {
         padding-right: 5px;
     }
 
-    nav.sheet-tabs {
-        top: 4px;
-        position: sticky;
-
-        background: url(/systems/pf2e/assets/sheet/parchment.webp) repeat;
-        z-index: 1;
-    }
-
-    header.tab-header {
-        top: 34px;
-        position: sticky;
-        background: url(/systems/pf2e/assets/sheet/parchment.webp) repeat;
-
-        margin-bottom: 4px;
-        z-index: 1;
-    }
-
-    button.roll-tables {
-        line-height: 1em;
-    }
-
     .sheet-sidebar.sidebar.sidebar-loot {
         width: 220px;
     }
@@ -59,25 +38,21 @@ form.loot-app {
         p {
             text-align: justify;
         }
+
+        button,
+        label,
+        input {
+            line-height: 1em;
+        }
+
         .config {
-            button,
-            label,
-            input {
-                line-height: 1em;
+            label {
+                font-weight: bold;
             }
             .form-group {
                 input {
                     text-align: right;
                     margin: 0;
-                }
-            }
-            .buttons {
-                display: flex;
-                button {
-                    flex: 1;
-                }
-                button.roll {
-                    flex: 4;
                 }
             }
         }
@@ -112,9 +87,38 @@ form.loot-app {
     }
 }
 
+form.loot-app {
+    nav.sheet-tabs {
+        top: 4px;
+        position: sticky;
+        background: url(/systems/pf2e/assets/sheet/parchment.webp) repeat;
+        z-index: 1;
+    }
+    div.buttons {
+        top: 38px;
+        position: sticky;
+        background: url(/systems/pf2e/assets/sheet/parchment.webp) repeat;
+        z-index: 1;
+
+        display: flex;
+
+        button {
+            flex: 1;
+            i {
+                margin: 0;
+            }
+        }
+        button.roll {
+            flex: 4;
+        }
+    }
+}
+
 form.loot-app .scrolls {
-    div.config .buttons {
+    .buttons {
         button.roll-both {
+            padding-left: 0;
+            padding-right: 0;
             flex: 3;
         }
         button i {

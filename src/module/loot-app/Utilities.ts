@@ -23,7 +23,7 @@ import { treasureTables } from './data/tables/Treasure';
 import { permanentTables } from './data/tables/Permanent';
 import { consumableTables } from './data/tables/Consumable';
 import { TABLE_WEIGHT_DEFAULT } from './Settings';
-import { SpellSchool } from './data/Spells';
+import { ISpellDef, SCROLL_TEMPLATE_PACK_ID, SpellSchool } from './data/Spells';
 
 // Helper function for distinct values of an array.
 const distinct = (value: any, index: number, array: any[]) => {
@@ -35,6 +35,7 @@ const distinct = (value: any, index: number, array: any[]) => {
  * @param type
  */
 export function tablesOfType(type: TableType): ITableDef[] {
+    console.warn(type);
     switch (type) {
         case TableType.Treasure:
             return treasureTables;
@@ -85,6 +86,21 @@ export function getSchoolSettings(actor: Actor, school: SpellSchool) {
     };
 }
 export type SchoolData = ReturnType<typeof getSchoolSettings>;
+
+export function getSpellSettings(actor: Actor, def: ISpellDef) {
+    const getParam = function (key: string): any {
+        return actor.getFlag(MODULE_NAME, `settings.scroll.${def.id}.${key}`);
+    };
+
+    const enabled: boolean = getParam('enabled') ?? true;
+    const weight: number = getParam('weight') ?? TABLE_WEIGHT_DEFAULT;
+
+    return {
+        ...def,
+        enabled,
+        weight,
+    };
+}
 
 export interface TableDrawOptions {
     displayChat?: boolean;
@@ -310,4 +326,23 @@ export function mergeStacks(itemDatas: ItemData[], options?: MergeStacksOptions)
  */
 export function mergeItem(a: ItemData, b: ItemData) {
     a.data.quantity.value += b.data.quantity.value;
+}
+
+export async function createItemFromSpell(spellData: ItemData, templateId: string, level?: string) {
+    level = level ?? spellData.data.level.value;
+
+    // @ts-ignore
+    const templateObject = await game.packs.get(SCROLL_TEMPLATE_PACK_ID)?.getDocument(templateId);
+    console.warn(templateObject);
+
+    // const consumableData = consumable.toObject();
+    // consumableData.data.traits.value.push(...spellData.data.traditions.value);
+    // consumableData.name = getNameForSpellConsumable(type, spellData.name, heightenedLevel);
+    // const description = consumableData.data.description.value;
+    // consumableData.data.description.value = `@Compendium[pf2e.spells-srd.${spellData._id}]{${spellData.name}}\n<hr/>${description}`;
+    // consumableData.data.spell = {
+    //     data: duplicate(spellData),
+    //     heightenedLevel: heightenedLevel,
+    // };
+    // return consumableData;
 }

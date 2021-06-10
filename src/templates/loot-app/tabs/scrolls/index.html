@@ -1,14 +1,14 @@
 <!-- TODO: Localization -->
 <div class="tab-container" data-type="scroll">
+    <div class="buttons">
+        <button class="roll-scroll" title="Scrolls"><i class="fas fa-scroll"></i></button>
+        <button class="roll-wand" title="Wands"><i class="fas fa-magic"></i></button>
+        <button class="roll-both" title="Scroll or Wand"><i class="fas fa-scroll"></i><i class="fas fa-magic"></i></button>
+        <button class="check-all" title="All Tables"><i class="fas fa-check-square"></i></button>
+        <button class="check-none" title="No Tables"><i class="far fa-check-square"></i></button>
+        <button class="reset" title="Reset"><i class="fas fa-undo"></i></button>
+    </div>
     <div class="config">
-        <div class="buttons">
-            <button class="roll-scroll" title="Scrolls"><i class="fas fa-scroll"></i></button>
-            <button class="roll-wand" title="Wands"><i class="fas fa-magic"></i></button>
-            <button class="roll-both" title="Scroll or Wand"><i class="fas fa-scroll"></i><i class="fas fa-magic"></i></button>
-            <button class="check-all" title="All Tables"><i class="fas fa-check-square"></i></button>
-            <button class="check-none" title="No Tables"><i class="far fa-check-square"></i></button>
-            <button class="reset" title="Reset"><i class="fas fa-undo"></i></button>
-        </div>
         <div class="form-group">
             <label for="flags.pf2e-lootgen.settings.scroll.count">Count</label>
             <input type="number"
@@ -29,5 +29,7 @@
             </div>
         {{/each}}
     </div>
+
+    {{> table-list tables=spellLevels type="spells"}}
 
 </div>

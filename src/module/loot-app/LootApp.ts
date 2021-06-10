@@ -17,6 +17,7 @@
 import {
     drawFromTables,
     getSchoolSettings,
+    getSpellSettings,
     getTableSettings,
     mergeExistingStacks,
     mergeStacks,
@@ -33,7 +34,7 @@ import { treasureTables } from './data/tables/Treasure';
 import { TABLE_WEIGHT_MAX, TABLE_WEIGHT_MIN } from './Settings';
 import ModuleSettings, { FEATURE_ALLOW_MERGING } from '../settings-app/ModuleSettings';
 import { ItemData } from '../../types/Items';
-import { SpellSchool } from './data/Spells';
+import { spellLevelTables, SpellSchool } from './data/Spells';
 
 export enum TableType {
     Treasure = 'treasure',
@@ -85,6 +86,8 @@ export const extendLootSheet = () => {
             data['permanentTables'] = permanentTables.map((table) => getTableSettings(this.actor, table));
             data['consumableTables'] = consumableTables.map((table) => getTableSettings(this.actor, table));
             data['treasureTables'] = treasureTables.map((table) => getTableSettings(this.actor, table));
+
+            data['spellLevels'] = spellLevelTables.map((table) => getSpellSettings(this.actor, table));
 
             console.warn(data);
             console.warn(data['actor'].flags['pf2e-lootgen']);

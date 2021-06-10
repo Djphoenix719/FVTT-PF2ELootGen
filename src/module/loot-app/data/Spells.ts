@@ -36,7 +36,9 @@ export const SPELL_PACKS: IPackDef[] = [
     },
 ];
 
-const SCROLL_TEMPLATE_ID = {
+export const SCROLL_TEMPLATE_PACK_ID = 'pf2e.equipment-srd';
+
+export const scrollTemplateIds = {
     1: 'RjuupS9xyXDLgyIr',
     2: 'Y7UD64foDbDMV9sx',
     3: 'ZmefGBXGJF3CFDbn',
@@ -48,8 +50,7 @@ const SCROLL_TEMPLATE_ID = {
     9: 'cFHomF3tty8Wi1e5',
     10: 'o1XIHJ4MJyroAHfF',
 };
-
-const WAND_TEMPLATE_ID = {
+export const wandTemplateIds = {
     1: 'UJWiN0K3jqVjxvKk',
     2: 'vJZ49cgi8szuQXAD',
     3: 'wrDmWkGxmwzYtfiA',
@@ -60,3 +61,19 @@ const WAND_TEMPLATE_ID = {
     8: 'Qs8RgNH6thRPv2jt',
     9: 'Fgv722039TVM5JTc',
 };
+export interface ISpellDef {
+    id: string;
+    name: string;
+}
+export const spellLevelTables = [
+    { id: 'spell-level-1', name: '1st Level' },
+    { id: 'spell-level-2', name: '2nd Level' },
+    { id: 'spell-level-3', name: '3rd Level' },
+    { id: 'spell-level-4', name: '4th Level' },
+    { id: 'spell-level-5', name: '5th Level' },
+    { id: 'spell-level-6', name: '6th Level' },
+    { id: 'spell-level-7', name: '7th Level' },
+    { id: 'spell-level-8', name: '8th Level' },
+    { id: 'spell-level-9', name: '9th Level' },
+    { id: 'spell-level-10', name: '10th Level' },
+];
