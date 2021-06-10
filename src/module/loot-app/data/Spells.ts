@@ -27,13 +27,10 @@ export enum SpellSchool {
     Transmutation = 'transmutation',
 }
 
-export interface IPackDef {
-    id: string;
-    name: string;
-}
-export const SPELL_PACKS: IPackDef[] = [
+export const spellSourceTables: ITableDef[] = [
     {
         id: 'pf2e.spells-srd',
+        packId: 'pf2e.spells-srd',
         name: 'SRD Spells',
     },
 ];
@@ -65,14 +62,14 @@ export const wandTemplateIds = {
 };
 
 export const spellLevelTables: ITableDef[] = [
-    { id: 'spell-level-1', packId: 'pf2e.rollable-tables', name: '1st Level' },
-    { id: 'spell-level-2', packId: 'pf2e.rollable-tables', name: '2nd Level' },
-    { id: 'spell-level-3', packId: 'pf2e.rollable-tables', name: '3rd Level' },
-    { id: 'spell-level-4', packId: 'pf2e.rollable-tables', name: '4th Level' },
-    { id: 'spell-level-5', packId: 'pf2e.rollable-tables', name: '5th Level' },
-    { id: 'spell-level-6', packId: 'pf2e.rollable-tables', name: '6th Level' },
-    { id: 'spell-level-7', packId: 'pf2e.rollable-tables', name: '7th Level' },
-    { id: 'spell-level-8', packId: 'pf2e.rollable-tables', name: '8th Level' },
-    { id: 'spell-level-9', packId: 'pf2e.rollable-tables', name: '9th Level' },
-    { id: 'spell-level-10', packId: 'pf2e.rollable-tables', name: '10th Level' },
+    { id: 'spell-level-1', packId: 'pf2e.spells-srd', name: '1st Level' },
+    { id: 'spell-level-2', packId: 'pf2e.spells-srd', name: '2nd Level' },
+    { id: 'spell-level-3', packId: 'pf2e.spells-srd', name: '3rd Level' },
+    { id: 'spell-level-4', packId: 'pf2e.spells-srd', name: '4th Level' },
+    { id: 'spell-level-5', packId: 'pf2e.spells-srd', name: '5th Level' },
+    { id: 'spell-level-6', packId: 'pf2e.spells-srd', name: '6th Level' },
+    { id: 'spell-level-7', packId: 'pf2e.spells-srd', name: '7th Level' },
+    { id: 'spell-level-8', packId: 'pf2e.spells-srd', name: '8th Level' },
+    { id: 'spell-level-9', packId: 'pf2e.spells-srd', name: '9th Level' },
+    { id: 'spell-level-10', packId: 'pf2e.spells-srd', name: '10th Level' },
 ];

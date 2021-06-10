@@ -107,9 +107,11 @@ export interface TableDrawResult {
  * @param options
  */
 export async function drawFromTables(count: number, tables: TableData[], options?: TableDrawOptions): Promise<TableDrawResult[]> {
-    options = options ?? {
-        displayChat: true,
-    };
+    if (options === undefined) {
+        options = {
+            displayChat: true,
+        };
+    }
 
     if (tables.length === 0) return [];
     tables = duplicate(tables) as TableData[];
@@ -154,6 +156,71 @@ export async function drawFromTables(count: number, tables: TableData[], options
         await buildRollTableMessage(results);
     }
     return results;
+}
+
+export type EnabledSchools = {
+    [TSchool in SpellSchool]: {
+        enabled: boolean;
+    };
+};
+export type SpellDrawOptions = TableDrawOptions & {
+    schools: EnabledSchools;
+};
+export async function drawSpells(count: number, spells: ItemData[], options?: SpellDrawOptions): Promise<TableDrawResult[]> {
+    if (options === undefined) {
+        options = {
+            displayChat: true,
+            schools: Object.values(SpellSchool).reduce(
+                (prev, curr) =>
+                    mergeObject(prev, {
+                        [curr]: { enabled: true },
+                    }),
+                {},
+            ) as EnabledSchools,
+        };
+    }
+    console.warn(options);
+
+    return undefined;
+
+    // if (tables.length === 0) return [];
+    // tables = duplicate(tables) as TableData[];
+    //
+    // let weightTotal = 0;
+    // for (const table of tables) {
+    //     weightTotal += table.weight;
+    //     table.weight = weightTotal;
+    // }
+    //
+    // const chooseTable = () => {
+    //     let choice = tables[0];
+    //     const random = Math.random() * weightTotal;
+    //     for (let i = 1; i < tables.length; i++) {
+    //         if (random < choice.weight) break;
+    //         choice = tables[i];
+    //     }
+    //     return choice;
+    // };
+    //
+    // const results: TableDrawResult[] = [];
+    // for (let i = 0; i < count; i++) {
+    //     const choice = chooseTable();
+    //     const table = await getTableFromPack(choice.id, choice.packId);
+    //     // @ts-ignore
+    //     const draw = await table.roll({ roll: null, recursive: true });
+    //     const [result]: [TableResult] = draw.results;
+    //
+    //     const item = await getItemFromPack(result.data.collection, result.data.resultId);
+    //
+    //     results.push({
+    //         roll: draw.roll,
+    //         collection: result.data.collection,
+    //         resultId: result.data.resultId,
+    //         tableId: table.id,
+    //         itemData: item.data,
+    //         def: choice,
+    //     });
+    // }
 }
 
 /**

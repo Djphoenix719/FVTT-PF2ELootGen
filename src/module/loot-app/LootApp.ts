@@ -16,6 +16,8 @@
 
 import {
     drawFromTables,
+    drawSpells,
+    EnabledSchools,
     getSchoolSettings,
     getTableSettings,
     mergeExistingStacks,
@@ -33,7 +35,7 @@ import { treasureTables } from './data/tables/Treasure';
 import { TABLE_WEIGHT_MAX, TABLE_WEIGHT_MIN } from './Settings';
 import ModuleSettings, { FEATURE_ALLOW_MERGING } from '../settings-app/ModuleSettings';
 import { ItemData } from '../../types/Items';
-import { spellLevelTables, SpellSchool } from './data/Spells';
+import { spellLevelTables, SpellSchool, spellSourceTables } from './data/Spells';
 
 export enum TableType {
     Treasure = 'treasure',
@@ -81,7 +83,7 @@ export const extendLootSheet = () => {
                 maxValue: TABLE_WEIGHT_MAX,
             };
 
-            data['spellSchools'] = Object.keys(SpellSchool).map((school) => getSchoolSettings(this.actor, school as SpellSchool));
+            data['spellSchools'] = Object.values(SpellSchool).map((school) => getSchoolSettings(this.actor, school as SpellSchool));
 
             data['permanentTables'] = permanentTables.map((table) => getTableSettings(this.actor, table));
             data['consumableTables'] = consumableTables.map((table) => getTableSettings(this.actor, table));
@@ -161,6 +163,57 @@ export const extendLootSheet = () => {
                 results = await rollTreasureValues(results);
 
                 await this.createItemsFromDraw(results);
+            });
+
+            const rollSpells = async (container: JQuery, itemType: 'scroll' | 'wand' | 'either') => {
+                const type = container.data('type') as TableType;
+                const schools = Object.values(SpellSchool).reduce(
+                    (prev, curr) =>
+                        mergeObject(prev, {
+                            [curr]: this.actor.getFlag(MODULE_NAME, `settings.scroll.${curr}.enabled`),
+                        }),
+                    {},
+                );
+                console.warn(schools);
+
+                const promises: Promise<Entity[]>[] = [];
+                for (const table of spellSourceTables) {
+                    // @ts-ignore
+                    promises.push(game.packs.get(table.packId).getDocuments());
+                }
+                const spells = ((await Promise.all(promises)).flat().map((spell) => spell.data) as unknown) as ItemData[];
+                console.warn(spells);
+
+                // TODO:
+                // await drawSpells(this.getLootAppSetting<number>(type, LootAppSetting.Count), spells, {
+                //     displayChat: true, // TODO
+                //     schools,
+                // });
+            };
+
+            // roll scrolls
+            html.find('.buttons .roll-scroll').on('click', async (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                const { container } = getContainer(event);
+                await rollSpells(container, 'scroll');
+            });
+            // roll wands
+            html.find('.buttons .roll-wand').on('click', async (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                const { container } = getContainer(event);
+                await rollSpells(container, 'wand');
+            });
+            // roll scrolls + wands
+            html.find('.buttons .roll-both').on('click', async (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                const { container } = getContainer(event);
+                await rollSpells(container, 'either');
             });
 
             /**
