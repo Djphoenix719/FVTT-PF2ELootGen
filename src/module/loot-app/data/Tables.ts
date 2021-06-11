@@ -20,6 +20,7 @@ import { treasureTables } from './tables/Treasure';
 
 export interface ITableDef {
     id: string;
+    // TODO: We should have a pack def type, to reuse more code
     packId: string;
     name: string;
 }

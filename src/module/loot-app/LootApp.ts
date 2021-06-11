@@ -15,14 +15,17 @@
  */
 
 import {
+    createItemsFromSpellDraws,
     drawFromTables,
     drawSpells,
-    EnabledSchools,
     getSchoolSettings,
     getTableSettings,
     mergeExistingStacks,
     mergeStacks,
     rollTreasureValues,
+    SpellConsumableType,
+    SpellDrawResults,
+    SpellOptions,
     TableData,
     TableDrawResult,
     tablesOfType,
@@ -97,6 +100,16 @@ export const extendLootSheet = () => {
             return data;
         }
 
+        private async createItems(datas: ItemData[]) {
+            //@ts-ignore
+            await this.actor.createEmbeddedDocuments('Item', datas);
+        }
+
+        private async updateItems(datas: ItemData[]) {
+            //@ts-ignore
+            await this.actor.updateEmbeddedDocuments('Item', datas);
+        }
+
         /**
          * Create a group of items from a draw result
          * @param results
@@ -114,10 +127,13 @@ export const extendLootSheet = () => {
 
             itemsToCreate.sort((a, b) => a.data.slug.localeCompare(b.data.slug));
 
-            // @ts-ignore
-            await this.actor.updateEmbeddedDocuments('Item', itemsToUpdate);
-            // @ts-ignore
-            await this.actor.createEmbeddedDocuments('Item', itemsToCreate);
+            await this.updateItems(itemsToUpdate);
+            await this.createItems(itemsToCreate);
+        }
+
+        private async createSpellItemsFromDraws(results: SpellDrawResults[]) {
+            const itemDatas = await createItemsFromSpellDraws(results);
+            await this.createItems(itemDatas);
         }
 
         /**
@@ -165,16 +181,8 @@ export const extendLootSheet = () => {
                 await this.createItemsFromDraw(results);
             });
 
-            const rollSpells = async (container: JQuery, itemType: 'scroll' | 'wand' | 'either') => {
+            const rollSpells = async (container: JQuery, consumableTypes: SpellConsumableType[]) => {
                 const type = container.data('type') as TableType;
-                const schools = Object.values(SpellSchool).reduce(
-                    (prev, curr) =>
-                        mergeObject(prev, {
-                            [curr]: this.actor.getFlag(MODULE_NAME, `settings.scroll.${curr}.enabled`),
-                        }),
-                    {},
-                );
-                console.warn(schools);
 
                 const promises: Promise<Entity[]>[] = [];
                 for (const table of spellSourceTables) {
@@ -182,13 +190,24 @@ export const extendLootSheet = () => {
                     promises.push(game.packs.get(table.packId).getDocuments());
                 }
                 const spells = ((await Promise.all(promises)).flat().map((spell) => spell.data) as unknown) as ItemData[];
-                console.warn(spells);
 
-                // TODO:
-                // await drawSpells(this.getLootAppSetting<number>(type, LootAppSetting.Count), spells, {
-                //     displayChat: true, // TODO
-                //     schools,
-                // });
+                const choices: SpellOptions = Object.values(SpellSchool).reduce(
+                    (prev, curr) =>
+                        mergeObject(prev, {
+                            [curr]: {
+                                enabled: this.actor.getFlag(MODULE_NAME, `settings.scroll.${curr}.enabled`),
+                                spells: spells.filter((spell) => spell.data.school?.value === curr),
+                            },
+                        }),
+                    {},
+                ) as SpellOptions;
+
+                const spellDraws = await drawSpells(this.getLootAppSetting<number>(type, LootAppSetting.Count), choices, {
+                    displayChat: true, // TODO
+                    consumableTypes: consumableTypes,
+                });
+                const spellDatas = await createItemsFromSpellDraws(spellDraws);
+                await this.createItemsFromDraw();
             };
 
             // roll scrolls
@@ -197,7 +216,7 @@ export const extendLootSheet = () => {
                 event.stopPropagation();
 
                 const { container } = getContainer(event);
-                await rollSpells(container, 'scroll');
+                await rollSpells(container, [SpellConsumableType.Scroll]);
             });
             // roll wands
             html.find('.buttons .roll-wand').on('click', async (event) => {
@@ -205,7 +224,7 @@ export const extendLootSheet = () => {
                 event.stopPropagation();
 
                 const { container } = getContainer(event);
-                await rollSpells(container, 'wand');
+                await rollSpells(container, [SpellConsumableType.Wand]);
             });
             // roll scrolls + wands
             html.find('.buttons .roll-both').on('click', async (event) => {
@@ -213,7 +232,7 @@ export const extendLootSheet = () => {
                 event.stopPropagation();
 
                 const { container } = getContainer(event);
-                await rollSpells(container, 'either');
+                await rollSpells(container, [SpellConsumableType.Scroll, SpellConsumableType.Wand]);
             });
 
             /**
