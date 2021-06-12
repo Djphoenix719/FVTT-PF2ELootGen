@@ -15,7 +15,7 @@
  */
 
 import { RollableTablesPack, TableType } from './Tables';
-import { SourceType, TableSource } from './Draw';
+import { SourceType, TableSource } from './DataSource';
 import { INamed } from './Mixins';
 
 export interface ConsumableSource extends TableSource, INamed {}

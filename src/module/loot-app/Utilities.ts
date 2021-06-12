@@ -18,7 +18,7 @@ import { permanentSources } from './data/Permanent';
 import { consumableSources } from './data/Consumable';
 import { treasureSources } from './data/Treasure';
 import { spellSources } from './data/Spells';
-import { DataSource } from './data/Draw';
+import { DataSource } from './data/DataSource';
 import { TableType } from './data/Tables';
 
 // // Helper function for distinct values of an array.

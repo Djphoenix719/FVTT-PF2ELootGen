@@ -19,7 +19,7 @@ import { TreasureSource } from './Treasure';
 import { PermanentSource } from './Permanent';
 import { ConsumableSource } from './Consumable';
 import { SpellSource } from './Spells';
-import { DataSource } from './Draw';
+import { DataSource } from './DataSource';
 import { dataSourcesOfType } from '../Utilities';
 import { TableType } from './Tables';
 
@@ -50,6 +50,12 @@ export function getDataSourceSettings<T extends DataSource>(actor: Actor, source
     const flagData = flags?.sources?.[source.itemType]?.[source.id];
     return mergeObject(duplicate(source) as DataSource, flagData) as T;
 }
+
+/**
+ * Set the options values of a single data source for an actor.
+ * @param actor The actor to update.
+ * @param source The data source to update.
+ */
 export async function setDataSourceSetting(actor: Actor, source: DataSource | DataSource[]): Promise<Actor> {
     if (!Array.isArray(source)) {
         source = [source];

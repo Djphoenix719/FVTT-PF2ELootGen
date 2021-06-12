@@ -1,5 +1,5 @@
 import { MODULE_NAME } from './Constants';
-import { DataSource } from './loot-app/data/Draw';
+import { DataSource } from './loot-app/data/DataSource';
 
 export async function registerHandlebarsTemplates() {
     // prettier-ignore

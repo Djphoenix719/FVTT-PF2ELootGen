@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { FilteredSource, getPackSourceContents, PackSource, SourceType } from './Draw';
+import { FilteredSource, getPackSourceContents, PackSource, SourceType } from './DataSource';
 import { INamed } from './Mixins';
 import { TableType } from './Tables';
 

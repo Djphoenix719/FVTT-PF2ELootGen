@@ -15,7 +15,7 @@
  */
 
 import { MODULE_NAME, PF2E_LOOT_SHEET_NAME } from '../Constants';
-import { getDataSourceSettings, LootAppFlags, setDataSourceSetting, setDataSourceSettingValue } from './data/Flags';
+import { getDataSourceSettings, LootAppFlags, setDataSourceSettingValue } from './data/Flags';
 import { treasureSources } from './data/Treasure';
 import { TABLE_WEIGHT_MAX, TABLE_WEIGHT_MIN } from './Settings';
 import { permanentSources } from './data/Permanent';

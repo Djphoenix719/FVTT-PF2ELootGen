@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { PackSource, SourceType } from './Draw';
+import { PackSource, SourceType } from './DataSource';
 import { INamed } from './Mixins';
 
 export interface RollableTableSource extends PackSource, INamed {}
