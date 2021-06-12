@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-import { ITableDef } from './Tables';
+import { FilteredSource, getPackSourceContents, PackSource, SourceType } from './Draw';
+import { INamed } from './Mixins';
+import { TableType } from './Flags';
 
 export enum SpellSchool {
     Abjuration = 'abjuration',
@@ -27,13 +29,18 @@ export enum SpellSchool {
     Transmutation = 'transmutation',
 }
 
-export const spellSourceTables: ITableDef[] = [
-    {
+export interface SpellSource extends PackSource, INamed {}
+
+export const spellSources: Record<string, SpellSource> = {
+    'spells-srd': {
         id: 'pf2e.spells-srd',
-        packId: 'pf2e.spells-srd',
         name: 'SRD Spells',
+        sourceType: SourceType.Pack,
+        itemType: TableType.Spell,
+        weight: 1,
+        enabled: true,
     },
-];
+};
 
 export const SCROLL_TEMPLATE_PACK_ID = 'pf2e.equipment-srd';
 
@@ -61,15 +68,102 @@ export const wandTemplateIds = {
     9: 'Fgv722039TVM5JTc',
 };
 
-export const spellLevelTables: ITableDef[] = [
-    { id: 'spell-level-1', packId: 'pf2e.spells-srd', name: '1st Level' },
-    { id: 'spell-level-2', packId: 'pf2e.spells-srd', name: '2nd Level' },
-    { id: 'spell-level-3', packId: 'pf2e.spells-srd', name: '3rd Level' },
-    { id: 'spell-level-4', packId: 'pf2e.spells-srd', name: '4th Level' },
-    { id: 'spell-level-5', packId: 'pf2e.spells-srd', name: '5th Level' },
-    { id: 'spell-level-6', packId: 'pf2e.spells-srd', name: '6th Level' },
-    { id: 'spell-level-7', packId: 'pf2e.spells-srd', name: '7th Level' },
-    { id: 'spell-level-8', packId: 'pf2e.spells-srd', name: '8th Level' },
-    { id: 'spell-level-9', packId: 'pf2e.spells-srd', name: '9th Level' },
-    { id: 'spell-level-10', packId: 'pf2e.spells-srd', name: '10th Level' },
+export const leveledSpellSources: FilteredSource<SpellSource>[] = [
+    {
+        id: 'pf2e.spells-srd',
+        name: '1st Level',
+        sourceType: SourceType.Pack,
+        itemType: TableType.Spell,
+        weight: 1,
+        enabled: true,
+        getFiltered: undefined,
+    },
+    {
+        id: 'pf2e.spells-srd',
+        name: '2nd Level',
+        sourceType: SourceType.Pack,
+        itemType: TableType.Spell,
+        weight: 1,
+        enabled: true,
+        getFiltered: undefined,
+    },
+    {
+        id: 'pf2e.spells-srd',
+        name: '3rd Level',
+        sourceType: SourceType.Pack,
+        itemType: TableType.Spell,
+        weight: 1,
+        enabled: true,
+        getFiltered: undefined,
+    },
+    {
+        id: 'pf2e.spells-srd',
+        name: '4th Level',
+        sourceType: SourceType.Pack,
+        itemType: TableType.Spell,
+        weight: 1,
+        enabled: true,
+        getFiltered: undefined,
+    },
+    {
+        id: 'pf2e.spells-srd',
+        name: '5th Level',
+        sourceType: SourceType.Pack,
+        itemType: TableType.Spell,
+        weight: 1,
+        enabled: true,
+        getFiltered: undefined,
+    },
+    {
+        id: 'pf2e.spells-srd',
+        name: '6th Level',
+        sourceType: SourceType.Pack,
+        itemType: TableType.Spell,
+        weight: 1,
+        enabled: true,
+        getFiltered: undefined,
+    },
+    {
+        id: 'pf2e.spells-srd',
+        name: '7th Level',
+        sourceType: SourceType.Pack,
+        itemType: TableType.Spell,
+        weight: 1,
+        enabled: true,
+        getFiltered: undefined,
+    },
+    {
+        id: 'pf2e.spells-srd',
+        name: '8th Level',
+        sourceType: SourceType.Pack,
+        itemType: TableType.Spell,
+        weight: 1,
+        enabled: true,
+        getFiltered: undefined,
+    },
+    {
+        id: 'pf2e.spells-srd',
+        name: '9th Level',
+        sourceType: SourceType.Pack,
+        itemType: TableType.Spell,
+        weight: 1,
+        enabled: true,
+        getFiltered: undefined,
+    },
+    {
+        id: 'pf2e.spells-srd',
+        name: '10th Level',
+        sourceType: SourceType.Pack,
+        itemType: TableType.Spell,
+        weight: 1,
+        enabled: true,
+        getFiltered: undefined,
+    },
 ];
+
+for (let i = 0; i < leveledSpellSources.length; i++) {
+    leveledSpellSources[i].getFiltered = async (source) => {
+        const spells = await getPackSourceContents(source);
+        return spells.filter((spell) => spell.data.level.value === i);
+    };
+}

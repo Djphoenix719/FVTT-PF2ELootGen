@@ -30,6 +30,6 @@ export const getItemFromPack = async (packId: string, itemId: string): Promise<a
  * @param tableId
  * @param packId
  */
-export const getTableFromPack = async (tableId: string, packId: string = 'pf2e.rollable-tables'): Promise<RollTable> => {
+export const getTableFromPack = async (tableId: string, packId: string): Promise<RollTable> => {
     return await getItemFromPack(packId, tableId);
 };

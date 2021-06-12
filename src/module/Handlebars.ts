@@ -1,4 +1,5 @@
 import { MODULE_NAME } from './Constants';
+import { DataSource } from './loot-app/data/Draw';
 
 export async function registerHandlebarsTemplates() {
     // prettier-ignore
@@ -10,11 +11,11 @@ export async function registerHandlebarsTemplates() {
 
         `modules/${MODULE_NAME}/templates/loot-app/inventory.html`,
         `modules/${MODULE_NAME}/templates/loot-app/sidebar.html`,
-        `modules/${MODULE_NAME}/templates/loot-app/tabs/consumables/index.html`,
+        `modules/${MODULE_NAME}/templates/loot-app/tabs/consumable/index.html`,
         `modules/${MODULE_NAME}/templates/loot-app/tabs/permanent/index.html`,
         `modules/${MODULE_NAME}/templates/loot-app/tabs/gm-settings/index.html`,
         `modules/${MODULE_NAME}/templates/loot-app/tabs/treasure/index.html`,
-        `modules/${MODULE_NAME}/templates/loot-app/tabs/scrolls/index.html`,
+        `modules/${MODULE_NAME}/templates/loot-app/tabs/spell/index.html`,
 
         `modules/${MODULE_NAME}/templates/loot-app/partials/loot-profile.html`,
         `modules/${MODULE_NAME}/templates/loot-app/partials/table-list.html`,
@@ -25,6 +26,10 @@ export async function registerHandlebarsTemplates() {
 }
 
 export function registerHandlebarsHelpers() {
+    Handlebars.registerHelper('sourceFlag', function (source: DataSource) {
+        return `flags.pf2e-lootgen.sources.${source.itemType}.${source.id}`;
+    });
+
     Handlebars.registerHelper('includes', function (array: any[], value: any, options: any) {
         if (array.includes(value)) {
             return options.fn(this);

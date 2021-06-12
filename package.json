@@ -30,13 +30,12 @@
         "tinymce": "5.6.2",
         "tsd": "^0.17.0",
         "tsify": "^4.0.2",
-        "typescript": "^4.1.4",
+        "typescript": "^4.3.2",
         "vinyl-buffer": "^1.0.1",
         "vinyl-source-stream": "^2.0.0",
         "watchify": "^3.11.1"
     },
     "repository": "https://github.com/Djphoenix719/FVTT-PF2ELootGen",
     "license": "https://github.com/Djphoenix719/FVTT-PF2ELootGen/blob/master/LICENSE",
-    "dependencies": {},
     "version": "v0.0.0"
 }

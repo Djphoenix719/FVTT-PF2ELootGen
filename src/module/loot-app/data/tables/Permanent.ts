@@ -16,107 +16,192 @@
 
 // Data contained in this file is part of the Open Gaming License, and not subject to the above copyright.
 
-import { ITableDef } from '../Tables';
+import { RollableTablesPack } from '../Tables';
+import { SourceType, TableSource } from '../Draw';
+import { INamed } from '../Mixins';
+import { TableType } from '../Flags';
 
-export const permanentTables: ITableDef[] = [
-    {
+export interface PermanentSource extends TableSource, INamed {}
+
+export const permanentTables: Record<string, PermanentSource> = {
+    'JyDn13oc0MdLjpyw': {
         id: 'JyDn13oc0MdLjpyw',
-        packId: 'pf2e.rollable-tables',
         name: '1st-Level',
+        tableSource: RollableTablesPack,
+        sourceType: SourceType.Table,
+        itemType: TableType.Permanent,
+        weight: 1,
+        enabled: true,
     },
-    {
+    'q6hhGYSee35XxKE8': {
         id: 'q6hhGYSee35XxKE8',
-        packId: 'pf2e.rollable-tables',
         name: '2nd-Level',
+        tableSource: RollableTablesPack,
+        sourceType: SourceType.Table,
+        itemType: TableType.Permanent,
+        weight: 1,
+        enabled: true,
     },
-    {
+    'Ow2zoRUSX0s7JjMo': {
         id: 'Ow2zoRUSX0s7JjMo',
-        packId: 'pf2e.rollable-tables',
         name: '3rd-Level',
+        tableSource: RollableTablesPack,
+        sourceType: SourceType.Table,
+        itemType: TableType.Permanent,
+        weight: 1,
+        enabled: true,
     },
-    {
+    'k0Al2PJni2NTtdIY': {
         id: 'k0Al2PJni2NTtdIY',
-        packId: 'pf2e.rollable-tables',
         name: '4th-Level',
+        tableSource: RollableTablesPack,
+        sourceType: SourceType.Table,
+        itemType: TableType.Permanent,
+        weight: 1,
+        enabled: true,
     },
-    {
+    'k5bG37570BbflxR2': {
         id: 'k5bG37570BbflxR2',
-        packId: 'pf2e.rollable-tables',
         name: '5th-Level',
+        tableSource: RollableTablesPack,
+        sourceType: SourceType.Table,
+        itemType: TableType.Permanent,
+        weight: 1,
+        enabled: true,
     },
-    {
+    '9xol7FdCfaU585WR': {
         id: '9xol7FdCfaU585WR',
-        packId: 'pf2e.rollable-tables',
         name: '6th-Level',
+        tableSource: RollableTablesPack,
+        sourceType: SourceType.Table,
+        itemType: TableType.Permanent,
+        weight: 1,
+        enabled: true,
     },
-    {
+    'r8F8mI2BZU6nOMQB': {
         id: 'r8F8mI2BZU6nOMQB',
-        packId: 'pf2e.rollable-tables',
         name: '7th-Level',
+        tableSource: RollableTablesPack,
+        sourceType: SourceType.Table,
+        itemType: TableType.Permanent,
+        weight: 1,
+        enabled: true,
     },
-    {
+    'QoEkRoteKJwHHVRd': {
         id: 'QoEkRoteKJwHHVRd',
-        packId: 'pf2e.rollable-tables',
         name: '8th-Level',
+        tableSource: RollableTablesPack,
+        sourceType: SourceType.Table,
+        itemType: TableType.Permanent,
+        weight: 1,
+        enabled: true,
     },
-    {
+    'AJOYeeeF3E8UC7KF': {
         id: 'AJOYeeeF3E8UC7KF',
-        packId: 'pf2e.rollable-tables',
         name: '9th-Level',
+        tableSource: RollableTablesPack,
+        sourceType: SourceType.Table,
+        itemType: TableType.Permanent,
+        weight: 1,
+        enabled: true,
     },
-    {
+    'W0qudblot2Z9Vu86': {
         id: 'W0qudblot2Z9Vu86',
-        packId: 'pf2e.rollable-tables',
         name: '10th-Level',
+        tableSource: RollableTablesPack,
+        sourceType: SourceType.Table,
+        itemType: TableType.Permanent,
+        weight: 1,
+        enabled: true,
     },
-    {
+    'ood552HB1onSdJFS': {
         id: 'ood552HB1onSdJFS',
-        packId: 'pf2e.rollable-tables',
         name: '11th-Level',
+        tableSource: RollableTablesPack,
+        sourceType: SourceType.Table,
+        itemType: TableType.Permanent,
+        weight: 1,
+        enabled: true,
     },
-    {
+    'uzkmxRIn4CtzfP47': {
         id: 'uzkmxRIn4CtzfP47',
-        packId: 'pf2e.rollable-tables',
         name: '12th-Level',
+        tableSource: RollableTablesPack,
+        sourceType: SourceType.Table,
+        itemType: TableType.Permanent,
+        weight: 1,
+        enabled: true,
     },
-    {
+    'eo7kjM8xv6KD5h5q': {
         id: 'eo7kjM8xv6KD5h5q',
-        packId: 'pf2e.rollable-tables',
         name: '13th-Level',
+        tableSource: RollableTablesPack,
+        sourceType: SourceType.Table,
+        itemType: TableType.Permanent,
+        weight: 1,
+        enabled: true,
     },
-    {
+    'cBpFoBUNSApkvP6L': {
         id: 'cBpFoBUNSApkvP6L',
-        packId: 'pf2e.rollable-tables',
         name: '14th-Level',
+        tableSource: RollableTablesPack,
+        sourceType: SourceType.Table,
+        itemType: TableType.Permanent,
+        weight: 1,
+        enabled: true,
     },
-    {
+    'X2QkgnYrda4mV5v3': {
         id: 'X2QkgnYrda4mV5v3',
-        packId: 'pf2e.rollable-tables',
         name: '15th-Level',
+        tableSource: RollableTablesPack,
+        sourceType: SourceType.Table,
+        itemType: TableType.Permanent,
+        weight: 1,
+        enabled: true,
     },
-    {
+    'J7XfeVrfUj72IkRY': {
         id: 'J7XfeVrfUj72IkRY',
-        packId: 'pf2e.rollable-tables',
         name: '16th-Level',
+        tableSource: RollableTablesPack,
+        sourceType: SourceType.Table,
+        itemType: TableType.Permanent,
+        weight: 1,
+        enabled: true,
     },
-    {
+    '0jlGmwn6YGqsfG1q': {
         id: '0jlGmwn6YGqsfG1q',
-        packId: 'pf2e.rollable-tables',
         name: '17th-Level',
+        tableSource: RollableTablesPack,
+        sourceType: SourceType.Table,
+        itemType: TableType.Permanent,
+        weight: 1,
+        enabled: true,
     },
-    {
+    '6FmhLLYH94xhucIs': {
         id: '6FmhLLYH94xhucIs',
-        packId: 'pf2e.rollable-tables',
         name: '18th-Level',
+        tableSource: RollableTablesPack,
+        sourceType: SourceType.Table,
+        itemType: TableType.Permanent,
+        weight: 1,
+        enabled: true,
     },
-    {
+    'gkdB45QC0u1WeiRA': {
         id: 'gkdB45QC0u1WeiRA',
-        packId: 'pf2e.rollable-tables',
         name: '19th-Level',
+        tableSource: RollableTablesPack,
+        sourceType: SourceType.Table,
+        itemType: TableType.Permanent,
+        weight: 1,
+        enabled: true,
     },
-    {
+    'NOkobOGi0nqsboHI': {
         id: 'NOkobOGi0nqsboHI',
-        packId: 'pf2e.rollable-tables',
         name: '20th-Level',
+        tableSource: RollableTablesPack,
+        sourceType: SourceType.Table,
+        itemType: TableType.Permanent,
+        weight: 1,
+        enabled: true,
     },
-];
+};

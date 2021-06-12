@@ -16,78 +16,129 @@
 
 // Data contained in this file is part of the Open Gaming License, and not subject to the above copyright.
 
-import { ITreasureTableDef } from '../Tables';
+import { RollableTablesPack } from '../Tables';
+import { SourceType, TableSource } from '../Draw';
+import { INamed } from '../Mixins';
+import { TableType } from '../Flags';
 
-export const semipreciousStonesTables: ITreasureTableDef[] = [
-    {
+export interface TreasureSource extends TableSource, INamed {
+    value: string;
+}
+
+export const semipreciousStonesTables: Record<string, TreasureSource> = {
+    ucTtWBPXViITI8wr: {
         id: 'ucTtWBPXViITI8wr',
-        packId: 'pf2e.rollable-tables',
         name: 'Lesser Semiprecious Stones',
         value: '1d4*5',
+        tableSource: RollableTablesPack,
+        sourceType: SourceType.Table,
+        itemType: TableType.Treasure,
+        weight: 1,
+        enabled: true,
     },
-    {
+    mCzuipepJAJcuY0H: {
         id: 'mCzuipepJAJcuY0H',
-        packId: 'pf2e.rollable-tables',
         name: 'Moderate Semiprecious Stones',
         value: '1d4*25',
+        tableSource: RollableTablesPack,
+        sourceType: SourceType.Table,
+        itemType: TableType.Treasure,
+        weight: 1,
+        enabled: true,
     },
-    {
+    P3HzJtS2iUUWMedJ: {
         id: 'P3HzJtS2iUUWMedJ',
-        packId: 'pf2e.rollable-tables',
         name: 'Greater Semiprecious Stones',
         value: '1d4*5',
+        tableSource: RollableTablesPack,
+        sourceType: SourceType.Table,
+        itemType: TableType.Treasure,
+        weight: 1,
+        enabled: true,
     },
-];
-export const preciousStonesTables: ITreasureTableDef[] = [
-    {
+};
+export const preciousStonesTables: Record<string, TreasureSource> = {
+    ZCYAQplm6zORj6eN: {
         id: 'ZCYAQplm6zORj6eN',
-        packId: 'pf2e.rollable-tables',
         name: 'Lesser Precious Stones',
         value: '1d4*50',
+        tableSource: RollableTablesPack,
+        sourceType: SourceType.Table,
+        itemType: TableType.Treasure,
+        weight: 1,
+        enabled: true,
     },
-    {
+    wCXPh3nft3qWuxro: {
         id: 'wCXPh3nft3qWuxro',
-        packId: 'pf2e.rollable-tables',
         name: 'Moderate Precious Stones',
         value: '1d4*100',
+        tableSource: RollableTablesPack,
+        sourceType: SourceType.Table,
+        itemType: TableType.Treasure,
+        weight: 1,
+        enabled: true,
     },
-    {
+    teZCrF2SOghusarb: {
         id: 'teZCrF2SOghusarb',
-        packId: 'pf2e.rollable-tables',
         name: 'Greater Precious Stones',
         value: '1d4*500',
+        tableSource: RollableTablesPack,
+        sourceType: SourceType.Table,
+        itemType: TableType.Treasure,
+        weight: 1,
+        enabled: true,
     },
-];
-export const artTreasureTables: ITreasureTableDef[] = [
-    {
+};
+export const artTreasureTables: Record<string, TreasureSource> = {
+    ME37cisDz8J2m0H7: {
         id: 'ME37cisDz8J2m0H7',
-        packId: 'pf2e.rollable-tables',
         name: 'Minor Art Object',
         value: '1d4*1',
+        tableSource: RollableTablesPack,
+        sourceType: SourceType.Table,
+        itemType: TableType.Treasure,
+        weight: 1,
+        enabled: true,
     },
-    {
+    zyXbnTnUGs7tWR5j: {
         id: 'zyXbnTnUGs7tWR5j',
-        packId: 'pf2e.rollable-tables',
         name: 'Lesser Art Object',
         value: '1d4*10',
+        tableSource: RollableTablesPack,
+        sourceType: SourceType.Table,
+        itemType: TableType.Treasure,
+        weight: 1,
+        enabled: true,
     },
-    {
+    bCD07W38YjbnyVoZ: {
         id: 'bCD07W38YjbnyVoZ',
-        packId: 'pf2e.rollable-tables',
         name: 'Moderate Art Object',
         value: '1d4*25',
+        tableSource: RollableTablesPack,
+        sourceType: SourceType.Table,
+        itemType: TableType.Treasure,
+        weight: 1,
+        enabled: true,
     },
-    {
+    qmxGfxkMp9vCOtNQ: {
         id: 'qmxGfxkMp9vCOtNQ',
-        packId: 'pf2e.rollable-tables',
         name: 'Greater Art Object',
         value: '1d4*250',
+        tableSource: RollableTablesPack,
+        sourceType: SourceType.Table,
+        itemType: TableType.Treasure,
+        weight: 1,
+        enabled: true,
     },
-    {
+    hTBTUf9dmhDkpIo8: {
         id: 'hTBTUf9dmhDkpIo8',
-        packId: 'pf2e.rollable-tables',
         name: 'Major Art Object',
         value: '1d4*1000',
+        tableSource: RollableTablesPack,
+        sourceType: SourceType.Table,
+        itemType: TableType.Treasure,
+        weight: 1,
+        enabled: true,
     },
-];
-export const treasureTables = [...semipreciousStonesTables, ...preciousStonesTables, ...artTreasureTables];
+};
+export const treasureTables = { ...semipreciousStonesTables, ...preciousStonesTables, ...artTreasureTables };

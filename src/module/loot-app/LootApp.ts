@@ -14,38 +14,14 @@
  * limitations under the License.
  */
 
-import {
-    createItemsFromSpellDraws,
-    drawFromTables,
-    drawSpells,
-    getSchoolSettings,
-    getTableSettings,
-    mergeExistingStacks,
-    mergeStacks,
-    rollTreasureValues,
-    SpellConsumableType,
-    SpellDrawResults,
-    SpellOptions,
-    TableData,
-    TableDrawResult,
-    tablesOfType,
-} from './Utilities';
-import { ITableDef, rollableTableDefs } from './data/Tables';
 import { MODULE_NAME, PF2E_LOOT_SHEET_NAME } from '../Constants';
-import { permanentTables } from './data/tables/Permanent';
-import { consumableTables } from './data/tables/Consumable';
+import { getDataSourceSettings, LootAppFlags, TableType } from './data/Flags';
 import { treasureTables } from './data/tables/Treasure';
 import { TABLE_WEIGHT_MAX, TABLE_WEIGHT_MIN } from './Settings';
-import ModuleSettings, { FEATURE_ALLOW_MERGING } from '../settings-app/ModuleSettings';
+import { permanentTables } from './data/tables/Permanent';
+import { consumableTables } from './data/tables/Consumable';
 import { ItemData } from '../../types/Items';
-import { spellLevelTables, SpellSchool, spellSourceTables } from './data/Spells';
 
-export enum TableType {
-    Treasure = 'treasure',
-    Permanent = 'permanent',
-    Consumable = 'consumable',
-    Scroll = 'scroll',
-}
 export enum LootAppSetting {
     Count = 'count',
 }
@@ -78,6 +54,10 @@ export const extendLootSheet = () => {
             return `modules/${MODULE_NAME}/templates/loot-app/index.html`;
         }
 
+        protected getFlags(): LootAppFlags {
+            return this.actor.data.flags['pf2e-lootgen'];
+        }
+
         public getData(options?: Application.RenderOptions) {
             const data = super.getData(options);
 
@@ -86,13 +66,13 @@ export const extendLootSheet = () => {
                 maxValue: TABLE_WEIGHT_MAX,
             };
 
-            data['spellSchools'] = Object.values(SpellSchool).map((school) => getSchoolSettings(this.actor, school as SpellSchool));
+            // data['spellSchools'] = Object.values(SpellSchool).map((school) => getSchoolSettings(this.actor, school as SpellSchool));
 
-            data['permanentTables'] = permanentTables.map((table) => getTableSettings(this.actor, table));
-            data['consumableTables'] = consumableTables.map((table) => getTableSettings(this.actor, table));
-            data['treasureTables'] = treasureTables.map((table) => getTableSettings(this.actor, table));
+            data['permanentTables'] = Object.values(permanentTables).map((source) => getDataSourceSettings(this.actor, source));
+            data['consumableTables'] = Object.values(consumableTables).map((source) => getDataSourceSettings(this.actor, source));
+            data['treasureTables'] = Object.values(treasureTables).map((source) => getDataSourceSettings(this.actor, source));
 
-            data['spellLevels'] = spellLevelTables.map((table) => getTableSettings(this.actor, table));
+            // data['spellLevels'] = leveledSpellSources.map((table) => getTableSettings(this.actor, table));
 
             console.warn(data);
             console.warn(data['actor'].flags['pf2e-lootgen']);
@@ -109,32 +89,32 @@ export const extendLootSheet = () => {
             //@ts-ignore
             await this.actor.updateEmbeddedDocuments('Item', datas);
         }
-
-        /**
-         * Create a group of items from a draw result
-         * @param results
-         * @private
-         */
-        private async createItemsFromDraw(results: TableDrawResult[]) {
-            let itemsToCreate = results.map((d) => d.itemData);
-            let itemsToUpdate: ItemData[];
-            if (ModuleSettings.get(FEATURE_ALLOW_MERGING)) {
-                const existing = this.actor.data.items.map((item) => item.data);
-                [itemsToUpdate, itemsToCreate] = mergeExistingStacks(existing, itemsToCreate);
-            } else {
-                itemsToCreate = mergeStacks(itemsToCreate);
-            }
-
-            itemsToCreate.sort((a, b) => a.data.slug.localeCompare(b.data.slug));
-
-            await this.updateItems(itemsToUpdate);
-            await this.createItems(itemsToCreate);
-        }
-
-        private async createSpellItemsFromDraws(results: SpellDrawResults[]) {
-            const itemDatas = await createItemsFromSpellDraws(results);
-            await this.createItems(itemDatas);
-        }
+        //
+        // /**
+        //  * Create a group of items from a draw result
+        //  * @param results
+        //  * @private
+        //  */
+        // private async createItemsFromDraw(results: TableDrawResult[]) {
+        //     let itemsToCreate = results.map((d) => d.itemData);
+        //     let itemsToUpdate: ItemData[];
+        //     if (ModuleSettings.get(FEATURE_ALLOW_MERGING)) {
+        //         const existing = this.actor.data.items.map((item) => item.data);
+        //         [itemsToUpdate, itemsToCreate] = mergeExistingStacks(existing, itemsToCreate);
+        //     } else {
+        //         itemsToCreate = mergeStacks(itemsToCreate);
+        //     }
+        //
+        //     itemsToCreate.sort((a, b) => a.data.slug.localeCompare(b.data.slug));
+        //
+        //     await this.updateItems(itemsToUpdate);
+        //     await this.createItems(itemsToCreate);
+        // }
+        //
+        // private async createSpellItemsFromDraws(results: SpellDrawResults[]) {
+        //     const itemDatas = await createItemsFromSpellDraws(results);
+        //     await this.createItems(itemDatas);
+        // }
 
         /**
          * Helper function to retrieve certain settings from the flags store.
@@ -158,138 +138,138 @@ export const extendLootSheet = () => {
                 await this._updateObject(new Event('submit'), this._getSubmitData());
             }
 
-            const getContainer = (event: JQuery.ClickEvent) => {
-                const element = $(event.currentTarget);
-                const container = element.closest('.tab-container');
-                return { element, container };
-            };
+            // const getContainer = (event: JQuery.ClickEvent) => {
+            //     const element = $(event.currentTarget);
+            //     const container = element.closest('.tab-container');
+            //     return { element, container };
+            // };
 
             // group roll button
-            html.find('.buttons .roll').on('click', async (event) => {
-                event.preventDefault();
-                event.stopPropagation();
+            // html.find('.buttons .roll').on('click', async (event) => {
+            //     event.preventDefault();
+            //     event.stopPropagation();
+            //
+            //     const { container } = getContainer(event);
+            //     const type = container.data('type') as TableType;
+            //
+            //     let tablesDefs: IRollableTableDef[] = sourcesOfType(type);
+            //
+            //     const tables = tablesDefs.map((table) => getTableSettings(this.actor, table)).filter((table) => table.enabled);
+            //     let results = await drawFromTables(this.getLootAppSetting<number>(type, LootAppSetting.Count), tables);
+            //     results = await rollTreasureValues(results);
+            //
+            //     await this.createItemsFromDraw(results);
+            // });
 
-                const { container } = getContainer(event);
-                const type = container.data('type') as TableType;
+            // const rollSpells = async (container: JQuery, consumableTypes: SpellConsumableType[]) => {
+            //     const type = container.data('type') as TableType;
+            //
+            //     const promises: Promise<Entity[]>[] = [];
+            //     for (const table of spellSources) {
+            //         // @ts-ignore
+            //         promises.push(game.packs.get(table.packId).getDocuments());
+            //     }
+            //     const spells = ((await Promise.all(promises)).flat().map((spell) => spell.data) as unknown) as ItemData[];
+            //
+            //     const choices: SpellOptions = Object.values(SpellSchool).reduce(
+            //         (prev, curr) =>
+            //             mergeObject(prev, {
+            //                 [curr]: {
+            //                     enabled: this.actor.getFlag(MODULE_NAME, `settings.scroll.${curr}.enabled`),
+            //                     spells: spells.filter((spell) => spell.data.school?.value === curr),
+            //                 },
+            //             }),
+            //         {},
+            //     ) as SpellOptions;
+            //
+            //     const spellDraws = await drawSpells(this.getLootAppSetting<number>(type, LootAppSetting.Count), choices, {
+            //         displayChat: true, // TODO
+            //         consumableTypes: consumableTypes,
+            //     });
+            //     const spellDatas = await createItemsFromSpellDraws(spellDraws);
+            //     // await this.createItemsFromDraw();
+            // };
 
-                let tablesDefs: ITableDef[] = tablesOfType(type);
-
-                const tables = tablesDefs.map((table) => getTableSettings(this.actor, table)).filter((table) => table.enabled);
-                let results = await drawFromTables(this.getLootAppSetting<number>(type, LootAppSetting.Count), tables);
-                results = await rollTreasureValues(results);
-
-                await this.createItemsFromDraw(results);
-            });
-
-            const rollSpells = async (container: JQuery, consumableTypes: SpellConsumableType[]) => {
-                const type = container.data('type') as TableType;
-
-                const promises: Promise<Entity[]>[] = [];
-                for (const table of spellSourceTables) {
-                    // @ts-ignore
-                    promises.push(game.packs.get(table.packId).getDocuments());
-                }
-                const spells = ((await Promise.all(promises)).flat().map((spell) => spell.data) as unknown) as ItemData[];
-
-                const choices: SpellOptions = Object.values(SpellSchool).reduce(
-                    (prev, curr) =>
-                        mergeObject(prev, {
-                            [curr]: {
-                                enabled: this.actor.getFlag(MODULE_NAME, `settings.scroll.${curr}.enabled`),
-                                spells: spells.filter((spell) => spell.data.school?.value === curr),
-                            },
-                        }),
-                    {},
-                ) as SpellOptions;
-
-                const spellDraws = await drawSpells(this.getLootAppSetting<number>(type, LootAppSetting.Count), choices, {
-                    displayChat: true, // TODO
-                    consumableTypes: consumableTypes,
-                });
-                const spellDatas = await createItemsFromSpellDraws(spellDraws);
-                await this.createItemsFromDraw();
-            };
-
-            // roll scrolls
-            html.find('.buttons .roll-scroll').on('click', async (event) => {
-                event.preventDefault();
-                event.stopPropagation();
-
-                const { container } = getContainer(event);
-                await rollSpells(container, [SpellConsumableType.Scroll]);
-            });
-            // roll wands
-            html.find('.buttons .roll-wand').on('click', async (event) => {
-                event.preventDefault();
-                event.stopPropagation();
-
-                const { container } = getContainer(event);
-                await rollSpells(container, [SpellConsumableType.Wand]);
-            });
-            // roll scrolls + wands
-            html.find('.buttons .roll-both').on('click', async (event) => {
-                event.preventDefault();
-                event.stopPropagation();
-
-                const { container } = getContainer(event);
-                await rollSpells(container, [SpellConsumableType.Scroll, SpellConsumableType.Wand]);
-            });
+            // // roll scrolls
+            // html.find('.buttons .roll-scroll').on('click', async (event) => {
+            //     event.preventDefault();
+            //     event.stopPropagation();
+            //
+            //     const { container } = getContainer(event);
+            //     await rollSpells(container, [SpellConsumableType.Scroll]);
+            // });
+            // // roll wands
+            // html.find('.buttons .roll-wand').on('click', async (event) => {
+            //     event.preventDefault();
+            //     event.stopPropagation();
+            //
+            //     const { container } = getContainer(event);
+            //     await rollSpells(container, [SpellConsumableType.Wand]);
+            // });
+            // // roll scrolls + wands
+            // html.find('.buttons .roll-both').on('click', async (event) => {
+            //     event.preventDefault();
+            //     event.stopPropagation();
+            //
+            //     const { container } = getContainer(event);
+            //     await rollSpells(container, [SpellConsumableType.Scroll, SpellConsumableType.Wand]);
+            // });
 
             /**
              * Set all the table values for a specific key in an entire tab
              */
-            const setTableSettings = async (type: TableType, key: keyof Omit<TableData, keyof ITableDef>, value: any) => {
-                await this.actor.update(
-                    tablesOfType(type).reduce((prev, curr) => {
-                        return mergeObject(prev, {
-                            [`flags.${MODULE_NAME}.${curr.id}.${key}`]: value,
-                        });
-                    }, {}),
-                );
-            };
-
-            // check-all button
-            html.find('.buttons .check-all').on('click', async (event) => {
-                event.preventDefault();
-                event.stopPropagation();
-
-                const { container } = getContainer(event);
-                const type = container.data('type') as TableType;
-                await setTableSettings(type, 'enabled', true);
-            });
-            // check-none button
-            html.find('.buttons .check-none').on('click', async (event) => {
-                event.preventDefault();
-                event.stopPropagation();
-
-                const { container } = getContainer(event);
-                const type = container.data('type') as TableType;
-                await setTableSettings(type, 'enabled', false);
-            });
-            // reset button
-            html.find('.buttons .reset').on('click', async (event) => {
-                event.preventDefault();
-                event.stopPropagation();
-
-                const { container } = getContainer(event);
-                const type = container.data('type') as TableType;
-                await setTableSettings(type, 'weight', 100);
-            });
-
-            // quick roll button
-            html.find('.weights i.fa-dice-d20').on('click', async (event) => {
-                event.preventDefault();
-                event.stopPropagation();
-
-                const element = $(event.currentTarget).closest('.tables-row');
-                const tableId = element.data('table-id') as string;
-                const table = rollableTableDefs.find((table) => table.id === tableId);
-
-                let results = await drawFromTables(1, [getTableSettings(this.actor, table)]);
-                results = await rollTreasureValues(results);
-
-                await this.createItemsFromDraw(results);
-            });
+            // const setTableSettings = async (type: TableType, key: keyof Omit<TableData, keyof IRollableTableDef>, value: any) => {
+            //     await this.actor.update(
+            //         sourcesOfType(type).reduce((prev, curr) => {
+            //             return mergeObject(prev, {
+            //                 [`flags.${MODULE_NAME}.${curr.id}.${key}`]: value,
+            //             });
+            //         }, {}),
+            //     );
+            // };
+            //
+            // // check-all button
+            // html.find('.buttons .check-all').on('click', async (event) => {
+            //     event.preventDefault();
+            //     event.stopPropagation();
+            //
+            //     const { container } = getContainer(event);
+            //     const type = container.data('type') as TableType;
+            //     await setTableSettings(type, 'enabled', true);
+            // });
+            // // check-none button
+            // html.find('.buttons .check-none').on('click', async (event) => {
+            //     event.preventDefault();
+            //     event.stopPropagation();
+            //
+            //     const { container } = getContainer(event);
+            //     const type = container.data('type') as TableType;
+            //     await setTableSettings(type, 'enabled', false);
+            // });
+            // // reset button
+            // html.find('.buttons .reset').on('click', async (event) => {
+            //     event.preventDefault();
+            //     event.stopPropagation();
+            //
+            //     const { container } = getContainer(event);
+            //     const type = container.data('type') as TableType;
+            //     await setTableSettings(type, 'weight', 100);
+            // });
+            //
+            // // quick roll button
+            // html.find('.weights i.fa-dice-d20').on('click', async (event) => {
+            //     event.preventDefault();
+            //     event.stopPropagation();
+            //
+            //     const element = $(event.currentTarget).closest('.tables-row');
+            //     const tableId = element.data('table-id') as string;
+            //     const table = rollableTableSources.find((table) => table.id === tableId);
+            //
+            //     let results = await drawFromTables(1, [getTableSettings(this.actor, table)]);
+            //     results = await rollTreasureValues(results);
+            //
+            //     await this.createItemsFromDraw(results);
+            // });
         }
     }
     return LootApp;

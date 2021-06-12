@@ -1,5 +1,5 @@
 <!-- TODO: Localization -->
-<div class="tab-container" data-type="scroll">
+<div class="tab-container" data-type="spell">
     <div class="buttons">
         <button class="roll-scroll" title="Scrolls"><i class="fas fa-scroll"></i></button>
         <button class="roll-wand" title="Wands"><i class="fas fa-magic"></i></button>
@@ -10,20 +10,20 @@
     </div>
     <div class="config">
         <div class="form-group">
-            <label for="flags.pf2e-lootgen.settings.scroll.count">Count</label>
+            <label for="flags.pf2e-lootgen.config.spell.count">Count</label>
             <input type="number"
                    min="1"
-                   name="flags.pf2e-lootgen.settings.scroll.count"
-                   value="{{default actor.flags.pf2e-lootgen.settings.scroll.count 1}}">
+                   name="flags.pf2e-lootgen.config.spell.count"
+                   value="{{default actor.flags.pf2e-lootgen.config.spell.count 1}}">
         </div>
 
         {{#each spellSchools as |school|}}
             <div class="form-group">
-                <label for="flags.pf2e-lootgen.settings.scroll.{{school.id}}.enabled">{{school.name}}</label>
+                <label for="flags.pf2e-lootgen.config.spell.{{school.id}}.enabled">{{school.name}}</label>
                 <input title="Include {{school.name}} Spells?"
                        type="checkbox"
-                       id="flags.pf2e-lootgen.settings.scroll.{{school.id}}.enabled"
-                       name="flags.pf2e-lootgen.settings.scroll.{{school.id}}.enabled"
+                       id="flags.pf2e-lootgen.config.spell.{{school.id}}.enabled"
+                       name="flags.pf2e-lootgen.config.spell.{{school.id}}.enabled"
                     {{checked school.enabled}}
                 >
             </div>

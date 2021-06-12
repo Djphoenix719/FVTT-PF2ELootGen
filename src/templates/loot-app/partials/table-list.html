@@ -4,15 +4,15 @@
 </div>
 <div class="weights">
     {{#each tables as |table|}}
-        <div class="tables-row" data-table-id="{{table.id}}" data-pack-id="{{table.packId}}">
+        <div class="tables-row" data-id="{{table.id}}" data-pack-id="{{table.packId}}">
             <section class="header">
                 <div class="form-group">
                     <i class="fas fa-dice-d20"></i>
-                    <label for="flags.pf2e-lootgen.{{table.id}}.enabled">{{table.name}}</label>
+                    <label for="{{sourceFlag table}}.enabled">{{table.name}}</label>
                     <input title="Include in Possibilities?"
                            type="checkbox"
-                           id="flags.pf2e-lootgen.{{table.id}}.enabled"
-                           name="flags.pf2e-lootgen.{{table.id}}.enabled"
+                           id="{{sourceFlag table}}.enabled"
+                           name="{{sourceFlag table}}.enabled"
                            {{checked table.enabled}}
                     >
                 </div>
@@ -23,8 +23,8 @@
                        min="{{@root.tableSettings.minValue}}"
                        max="{{@root.tableSettings.maxValue}}"
                        step="0.25"
-                       id="flags.pf2e-lootgen.{{table.id}}.weight"
-                       name="flags.pf2e-lootgen.{{table.id}}.weight"
+                       id="{{sourceFlag table}}.weight"
+                       name="{{sourceFlag table}}.weight"
                        value="{{table.weight}}"
                 >
             </section>

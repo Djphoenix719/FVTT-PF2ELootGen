@@ -14,18 +14,12 @@
  * limitations under the License.
  */
 
-import { SpellSchool } from '../module/loot-app/data/Spells';
-
-export interface ItemData extends Entity.Data {
-    data: {
-        slug: string;
-        stackGroup: { value: string };
-        value?: { value: number };
-        price?: { value: string };
-        weight: { value: string | number };
-        quantity: { value: number };
-        description?: { value: string };
-        level?: { value: number };
-        school?: { value: SpellSchool };
-    };
+export interface IEnabled {
+    enabled: boolean;
+}
+export interface IWeighted {
+    weight: number;
+}
+export interface INamed {
+    name: string;
 }

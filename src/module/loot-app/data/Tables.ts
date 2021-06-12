@@ -14,25 +14,15 @@
  * limitations under the License.
  */
 
-import { permanentTables } from './tables/Permanent';
-import { consumableTables } from './tables/Consumable';
-import { treasureTables } from './tables/Treasure';
+import { PackSource, SourceType, TableSource } from './Draw';
+import { INamed } from './Mixins';
 
-export interface ITableDef {
-    id: string;
-    // TODO: We should have a pack def type, to reuse more code
-    packId: string;
-    name: string;
-}
-export interface ITreasureTableDef extends ITableDef {
-    value: string;
-}
+export interface RollableTableSource extends PackSource, INamed {}
 
-export function isTableDef(table: object): table is ITableDef {
-    return table.hasOwnProperty('id') && table.hasOwnProperty('packId') && table.hasOwnProperty('name');
-}
-export function isTreasureTableDef(table: object): table is ITreasureTableDef {
-    return isTableDef(table) && table.hasOwnProperty('value');
-}
-
-export const rollableTableDefs = [...consumableTables, ...permanentTables, ...treasureTables];
+export const RollableTablesPack: RollableTableSource = {
+    id: 'pf2e.rollable-tables',
+    name: 'Rollable Tables',
+    sourceType: SourceType.Pack,
+    weight: 1,
+    enabled: true,
+};
