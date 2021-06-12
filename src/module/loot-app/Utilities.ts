@@ -18,18 +18,34 @@ import { permanentSources } from './data/Permanent';
 import { consumableSources } from './data/Consumable';
 import { treasureSources } from './data/Treasure';
 import { spellSources } from './data/Spells';
-import { DataSource } from './data/DataSource';
-import { TableType } from './data/Tables';
+import {
+    DataSource,
+    getPack,
+    getPackSourceContents,
+    isPackSource,
+    isPoolSource,
+    isTableSource,
+    TableType,
+} from './data/DataSource';
+import { ItemData } from '../../types/Items';
+import { getItemFromPack, getTableFromPack } from '../Utilities';
 
-// // Helper function for distinct values of an array.
-// const distinct = (value: any, index: number, array: any[]) => {
-//     return array.indexOf(value) === index;
-// };
-//
-// // export function choiceFromArray<T>(array: T[]): T {
-// //     return array[Math.round(Math.random() * array.length)];
-// // }
-//
+/**
+ * Return distinct elements of the array.
+ * @param array The array to fetch distinct elements from.
+ */
+function distinct<T>(array: T[]): T[] {
+    return [...new Set(array)];
+}
+
+/**
+ * Choose a random element from the array.
+ * @param choices The array of choices.
+ */
+function chooseFromArray<T>(choices: T[]): T {
+    return choices[Math.floor(Math.random() * choices.length)];
+}
+
 /**
  * Return the correct source map for the given item type.
  * @param type Type of sources to fetch.
@@ -46,28 +62,7 @@ export function dataSourcesOfType(type: TableType): Record<string, DataSource> {
             return spellSources;
     }
 }
-//
-// /**
-//  * Fetch and package data needed to render a table row in the sheet.
-//  * @param actor Actor to fetch from
-//  * @param table Table definition object
-//  */
-// export function getTableSettings(actor: Actor, table: IRollableTableDef) {
-//     const getParam = function (key: string): any {
-//         return actor.getFlag(MODULE_NAME, `${table.id}.${key}`);
-//     };
-//
-//     const enabled: boolean = getParam('enabled') ?? true;
-//     const weight: number = getParam('weight') ?? TABLE_WEIGHT_DEFAULT;
-//
-//     return {
-//         ...table,
-//         enabled,
-//         weight,
-//     };
-// }
-// export type TableData = ReturnType<typeof getTableSettings>;
-//
+
 // /**
 //  * Fetch and package data needed to render spell school selection in the scrolls box.
 //  * @param actor Actor to fetch from.
@@ -87,76 +82,77 @@ export function dataSourcesOfType(type: TableType): Record<string, DataSource> {
 //     };
 // }
 // export type SchoolData = ReturnType<typeof getSchoolSettings>;
-//
-// export interface TableDrawOptions {
-//     displayChat?: boolean;
-// }
-// export interface TableDrawResult {
-//     roll: Roll;
-//     collection: string;
-//     resultId: string;
-//     tableId: string;
-//     itemData: ItemData;
-//     def: TableData;
-// }
-//
-// /**
-//  * Draw a series of items from a group of weighted tables
-//  * @param count The number of items to draw
-//  * @param tables The tables and their draw weights
-//  * @param options
-//  */
-// export async function drawFromTables(count: number, tables: TableData[], options?: TableDrawOptions): Promise<TableDrawResult[]> {
-//     if (options === undefined) {
-//         options = {
-//             displayChat: true,
-//         };
-//     }
-//
-//     if (tables.length === 0) return [];
-//     tables = duplicate(tables) as TableData[];
-//
-//     let weightTotal = 0;
-//     for (const table of tables) {
-//         weightTotal += table.weight;
-//         table.weight = weightTotal;
-//     }
-//
-//     const chooseTable = () => {
-//         let choice = tables[0];
-//         const random = Math.random() * weightTotal;
-//         for (let i = 1; i < tables.length; i++) {
-//             if (random < choice.weight) break;
-//             choice = tables[i];
-//         }
-//         return choice;
-//     };
-//
-//     const results: TableDrawResult[] = [];
-//     for (let i = 0; i < count; i++) {
-//         const choice = chooseTable();
-//         const table = await getTableFromPack(choice.id, choice.pack.id);
-//         // @ts-ignore
-//         const draw = await table.roll({ roll: null, recursive: true });
-//         const [result]: [TableResult] = draw.results;
-//
-//         const item = await getItemFromPack(result.data.collection, result.data.resultId);
-//
-//         results.push({
-//             roll: draw.roll,
-//             collection: result.data.collection,
-//             resultId: result.data.resultId,
-//             tableId: table.id,
-//             itemData: item.data,
-//             def: choice,
-//         });
-//     }
-//
-//     if (options.displayChat) {
-//         await buildRollTableMessage(results);
-//     }
-//     return results;
-// }
+
+export interface DrawOptions {
+    displayChat?: boolean;
+}
+export interface DrawResult {
+    itemData: ItemData;
+    source: DataSource;
+}
+
+export async function drawFromTables(count: number, sources: DataSource[], options?: DrawOptions): Promise<DrawResult[]> {
+    if (options === undefined) {
+        options = {
+            displayChat: true,
+        };
+    }
+
+    if (sources.length === 0) {
+        return [];
+    }
+    sources = duplicate(sources) as DataSource[];
+
+    let weightTotal = 0;
+    sources.forEach((source) => {
+        weightTotal += source.weight;
+    });
+
+    const chooseTable = () => {
+        let choice = sources[0];
+        const random = Math.random() * weightTotal;
+        for (let i = 1; i < sources.length; i++) {
+            if (random < choice.weight) break;
+            choice = sources[i];
+        }
+        return choice;
+    };
+
+    const results: DrawResult[] = [];
+    for (let i = 0; i < count; i++) {
+        const choice = chooseTable();
+
+        let item: ItemData;
+        if (isTableSource(choice)) {
+            const table = await getTableFromPack(choice.id, choice.tableSource.id);
+
+            // @ts-ignore
+            const draw = await table.roll({ roll: null, recursive: true });
+            const [result]: [TableResult] = draw.results;
+
+            item = await getItemFromPack(result.data.collection, result.data.resultId);
+        } else if (isPackSource(choice)) {
+            const pack = getPack(choice);
+            // @ts-ignore
+            const itemId: string = chooseFromArray(pack.index.contents).key;
+            item = await getItemFromPack(choice.id, itemId);
+        } else if (isPoolSource(choice)) {
+            item = chooseFromArray(choice.elements);
+        } else {
+            throw new Error(`Unknown source type: ${choice.sourceType}`);
+        }
+
+        results.push({
+            itemData: item.data as unknown as ItemData,
+            source: choice,
+        });
+    }
+
+    // if (options.displayChat) {
+    //     await buildRollTableMessage(results);
+    // }
+    return results;
+}
 //
 // export interface SpellDrawResults {
 //     spell: ItemData;

@@ -21,7 +21,8 @@ import { TABLE_WEIGHT_MAX, TABLE_WEIGHT_MIN } from './Settings';
 import { permanentSources } from './data/Permanent';
 import { consumableSources } from './data/Consumable';
 import { ItemData } from '../../types/Items';
-import { TableType } from './data/Tables';
+import { dataSourcesOfType, drawFromTables } from './Utilities';
+import { TableType } from './data/DataSource';
 
 export enum LootAppSetting {
     Count = 'count',
@@ -150,21 +151,26 @@ export const extendLootSheet = () => {
             };
 
             // group roll button
-            // html.find('.buttons .roll').on('click', async (event) => {
-            //     event.preventDefault();
-            //     event.stopPropagation();
-            //
-            //     const { container } = getContainer(event);
-            //     const type = container.data('type') as TableType;
-            //
-            //     let tablesDefs: IRollableTableDef[] = sourcesOfType(type);
-            //
-            //     const tables = tablesDefs.map((table) => getTableSettings(this.actor, table)).filter((table) => table.enabled);
-            //     let results = await drawFromTables(this.getLootAppSetting<number>(type, LootAppSetting.Count), tables);
-            //     results = await rollTreasureValues(results);
-            //
-            //     await this.createItemsFromDraw(results);
-            // });
+            html.find('.buttons .roll').on('click', async (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                const { container } = getContainer(event);
+                const type = container.data('type') as TableType;
+
+                const sources = Object.values(dataSourcesOfType(type))
+                    .map((source) => getDataSourceSettings(this.actor, source))
+                    .filter((table) => table.enabled);
+
+                console.warn('sources');
+                console.warn(sources);
+
+                let results = await drawFromTables(this.getLootAppSetting<number>(type, LootAppSetting.Count), sources);
+                console.warn(results);
+                // results = await rollTreasureValues(results);
+
+                // await this.createItemsFromDraw(results);
+            });
 
             // const rollSpells = async (container: JQuery, consumableTypes: SpellConsumableType[]) => {
             //     const type = container.data('type') as TableType;

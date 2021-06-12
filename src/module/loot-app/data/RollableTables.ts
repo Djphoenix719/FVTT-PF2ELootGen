@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { PackSource, SourceType } from './DataSource';
 import { INamed } from './Mixins';
+import { PackSource, SourceType } from './DataSource';
 
 export interface RollableTableSource extends PackSource, INamed {}
 
@@ -26,10 +26,3 @@ export const RollableTablesPack: RollableTableSource = {
     weight: 1,
     enabled: true,
 };
-
-export enum TableType {
-    Treasure = 'treasure',
-    Permanent = 'permanent',
-    Consumable = 'consumable',
-    Spell = 'spell',
-}

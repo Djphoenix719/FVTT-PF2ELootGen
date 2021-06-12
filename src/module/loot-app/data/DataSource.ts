@@ -16,11 +16,18 @@
 
 import { IEnabled, IWeighted } from './Mixins';
 import { ItemData } from '../../../types/Items';
-import { TableType } from './Tables';
 
 export enum SourceType {
     Table = 'table',
     Pack = 'pack',
+    Pool = 'pool',
+}
+
+export enum TableType {
+    Treasure = 'treasure',
+    Permanent = 'permanent',
+    Consumable = 'consumable',
+    Spell = 'spell',
 }
 
 export interface DataSource extends IWeighted, IEnabled {
@@ -51,6 +58,9 @@ export interface PackSource extends DataSource {
 export function isPackSource(source: DataSource): source is PackSource {
     return source.sourceType === SourceType.Pack;
 }
+export function getPack(source: PackSource) {
+    return game.packs.get(source.id);
+}
 export async function getFromPackSource<TResult = ItemData>(source: PackSource, documentId: string): Promise<TResult> {
     const pack = game.packs.get(source.id);
     // @ts-ignore
@@ -62,6 +72,18 @@ export async function getPackSourceContents(source: PackSource): Promise<ItemDat
     return await pack.getDocuments();
 }
 
+export interface PoolSource extends DataSource {
+    // id will be null in this case
+    id: null;
+    sourceType: SourceType.Pool;
+    elements: ItemData[];
+}
+export function isPoolSource(source: DataSource): source is PoolSource {
+    return source.sourceType === SourceType.Pool;
+}
+
 export type FilteredSource<TSource extends DataSource, TItem extends ItemData = ItemData> = TSource & {
     getFiltered: (source: TSource) => Promise<TItem[]>;
 };
+
+

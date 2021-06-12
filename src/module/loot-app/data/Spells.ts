@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import { FilteredSource, getPackSourceContents, PackSource, SourceType } from './DataSource';
+import { FilteredSource, getPackSourceContents, PackSource, SourceType, TableType } from './DataSource';
 import { INamed } from './Mixins';
-import { TableType } from './Tables';
 
 export enum SpellSchool {
     Abjuration = 'abjuration',

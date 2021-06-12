@@ -19,9 +19,8 @@ import { TreasureSource } from './Treasure';
 import { PermanentSource } from './Permanent';
 import { ConsumableSource } from './Consumable';
 import { SpellSource } from './Spells';
-import { DataSource } from './DataSource';
+import { DataSource, TableType } from './DataSource';
 import { dataSourcesOfType } from '../Utilities';
-import { TableType } from './Tables';
 
 export const FLAGS_KEY = MODULE_NAME;
 

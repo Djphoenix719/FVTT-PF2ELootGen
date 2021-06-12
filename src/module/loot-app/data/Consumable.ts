@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { RollableTablesPack, TableType } from './Tables';
-import { SourceType, TableSource } from './DataSource';
+import { SourceType, TableSource, TableType } from './DataSource';
 import { INamed } from './Mixins';
+import { RollableTablesPack } from './RollableTables';
 
 export interface ConsumableSource extends TableSource, INamed {}
 
