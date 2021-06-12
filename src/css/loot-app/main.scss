@@ -46,6 +46,9 @@ form.loot-app {
         }
 
         .config {
+            h3 {
+                margin-bottom: 0;
+            }
             label {
                 font-weight: bold;
             }
@@ -114,7 +117,7 @@ form.loot-app {
     }
 }
 
-form.loot-app .scrolls {
+form.loot-app .spell {
     .buttons {
         button.roll-both {
             padding-left: 0;

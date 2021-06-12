@@ -68,6 +68,13 @@ export const wandTemplateIds = {
     9: 'Fgv722039TVM5JTc',
 };
 
+const filterFunction = (level: number) => {
+    return async (source) => {
+        const spells = await getPackSourceContents(source);
+        return spells.filter((spell) => spell.data.level.value === level);
+    };
+};
+
 export const leveledSpellSources: FilteredSource<SpellSource>[] = [
     {
         id: 'pf2e.spells-srd',
@@ -76,7 +83,7 @@ export const leveledSpellSources: FilteredSource<SpellSource>[] = [
         itemType: TableType.Spell,
         weight: 1,
         enabled: true,
-        getFiltered: undefined,
+        getFiltered: filterFunction(1),
     },
     {
         id: 'pf2e.spells-srd',
@@ -85,7 +92,7 @@ export const leveledSpellSources: FilteredSource<SpellSource>[] = [
         itemType: TableType.Spell,
         weight: 1,
         enabled: true,
-        getFiltered: undefined,
+        getFiltered: filterFunction(2),
     },
     {
         id: 'pf2e.spells-srd',
@@ -94,7 +101,7 @@ export const leveledSpellSources: FilteredSource<SpellSource>[] = [
         itemType: TableType.Spell,
         weight: 1,
         enabled: true,
-        getFiltered: undefined,
+        getFiltered: filterFunction(3),
     },
     {
         id: 'pf2e.spells-srd',
@@ -103,7 +110,7 @@ export const leveledSpellSources: FilteredSource<SpellSource>[] = [
         itemType: TableType.Spell,
         weight: 1,
         enabled: true,
-        getFiltered: undefined,
+        getFiltered: filterFunction(4),
     },
     {
         id: 'pf2e.spells-srd',
@@ -112,7 +119,7 @@ export const leveledSpellSources: FilteredSource<SpellSource>[] = [
         itemType: TableType.Spell,
         weight: 1,
         enabled: true,
-        getFiltered: undefined,
+        getFiltered: filterFunction(5),
     },
     {
         id: 'pf2e.spells-srd',
@@ -121,7 +128,7 @@ export const leveledSpellSources: FilteredSource<SpellSource>[] = [
         itemType: TableType.Spell,
         weight: 1,
         enabled: true,
-        getFiltered: undefined,
+        getFiltered: filterFunction(6),
     },
     {
         id: 'pf2e.spells-srd',
@@ -130,7 +137,7 @@ export const leveledSpellSources: FilteredSource<SpellSource>[] = [
         itemType: TableType.Spell,
         weight: 1,
         enabled: true,
-        getFiltered: undefined,
+        getFiltered: filterFunction(7),
     },
     {
         id: 'pf2e.spells-srd',
@@ -139,7 +146,7 @@ export const leveledSpellSources: FilteredSource<SpellSource>[] = [
         itemType: TableType.Spell,
         weight: 1,
         enabled: true,
-        getFiltered: undefined,
+        getFiltered: filterFunction(8),
     },
     {
         id: 'pf2e.spells-srd',
@@ -148,7 +155,7 @@ export const leveledSpellSources: FilteredSource<SpellSource>[] = [
         itemType: TableType.Spell,
         weight: 1,
         enabled: true,
-        getFiltered: undefined,
+        getFiltered: filterFunction(9),
     },
     {
         id: 'pf2e.spells-srd',
@@ -157,13 +164,6 @@ export const leveledSpellSources: FilteredSource<SpellSource>[] = [
         itemType: TableType.Spell,
         weight: 1,
         enabled: true,
-        getFiltered: undefined,
+        getFiltered: filterFunction(10),
     },
 ];
-
-for (let i = 0; i < leveledSpellSources.length; i++) {
-    leveledSpellSources[i].getFiltered = async (source) => {
-        const spells = await getPackSourceContents(source);
-        return spells.filter((spell) => spell.data.level.value === i);
-    };
-}

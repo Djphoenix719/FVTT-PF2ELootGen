@@ -1,33 +1,34 @@
 <!-- TODO: Localization -->
-<div class="info">
-    <p>Adjust weights and enabled tables, sliders to the right are 10x more likely to occur than those to the left.</p>
-</div>
-<div class="weights">
-    {{#each tables as |table|}}
-        <div class="tables-row" data-id="{{table.id}}" data-pack-id="{{table.packId}}">
-            <section class="header">
-                <div class="form-group">
-                    <i class="fas fa-dice-d20"></i>
-                    <label for="{{sourceFlag table}}.enabled">{{table.name}}</label>
-                    <input title="Include in Possibilities?"
-                           type="checkbox"
-                           id="{{sourceFlag table}}.enabled"
-                           name="{{sourceFlag table}}.enabled"
-                           {{checked table.enabled}}
+<!-- TODO: Collapse save/load -->
+<div class="collapse-wrap">
+    <h3>Data Sources</h3>
+    <div class="weights">
+        {{#each tables as |table|}}
+            <div class="tables-row" data-id="{{table.id}}" data-pack-id="{{table.packId}}">
+                <section class="header">
+                    <div class="form-group">
+                        <i class="fas fa-dice-d20"></i>
+                        <label for="{{sourceFlag table}}.enabled">{{table.name}}</label>
+                        <input title="Include in Possibilities?"
+                               type="checkbox"
+                               id="{{sourceFlag table}}.enabled"
+                               name="{{sourceFlag table}}.enabled"
+                            {{checked table.enabled}}
+                        >
+                    </div>
+                </section>
+                <section class="settings">
+                    <input type="range"
+                           title="Weight"
+                           min="{{@root.tableSettings.minValue}}"
+                           max="{{@root.tableSettings.maxValue}}"
+                           step="0.25"
+                           id="{{sourceFlag table}}.weight"
+                           name="{{sourceFlag table}}.weight"
+                           value="{{table.weight}}"
                     >
-                </div>
-            </section>
-            <section class="settings">
-                <input type="range"
-                       title="Weight"
-                       min="{{@root.tableSettings.minValue}}"
-                       max="{{@root.tableSettings.maxValue}}"
-                       step="0.25"
-                       id="{{sourceFlag table}}.weight"
-                       name="{{sourceFlag table}}.weight"
-                       value="{{table.weight}}"
-                >
-            </section>
-        </div>
-    {{/each}}
+                </section>
+            </div>
+        {{/each}}
+    </div>
 </div>
