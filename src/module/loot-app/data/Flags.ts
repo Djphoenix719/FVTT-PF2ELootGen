@@ -45,9 +45,8 @@ export interface LootAppFlags {
  * @param source The source to load.
  */
 export function getDataSourceSettings<T extends DataSource>(actor: Actor, source: T): T {
-    const flags: LootAppFlags = actor.data.flags[FLAGS_KEY];
-    const flagData = flags?.sources?.[source.itemType]?.[source.id];
-    return mergeObject(duplicate(source) as DataSource, flagData) as T;
+    const flags: DataSource = actor.getFlag(FLAGS_KEY, `sources.${source.itemType}.${source.id}`) as DataSource;
+    return mergeObject(duplicate(source) as DataSource, flags) as T;
 }
 
 /**

@@ -18,15 +18,7 @@ import { permanentSources } from './data/Permanent';
 import { consumableSources } from './data/Consumable';
 import { treasureSources } from './data/Treasure';
 import { spellSources } from './data/Spells';
-import {
-    DataSource,
-    getPack,
-    getPackSourceContents,
-    isPackSource,
-    isPoolSource,
-    isTableSource,
-    TableType,
-} from './data/DataSource';
+import { DataSource, getPack, getPackSourceContents, isPackSource, isPoolSource, isTableSource, TableType } from './data/DataSource';
 import { ItemData } from '../../types/Items';
 import { getItemFromPack, getTableFromPack } from '../Utilities';
 
@@ -90,6 +82,7 @@ export interface DrawResult {
     itemData: ItemData;
     source: DataSource;
 }
+export interface SpellDrawResult extends DrawResult {}
 
 export async function drawFromTables(count: number, sources: DataSource[], options?: DrawOptions): Promise<DrawResult[]> {
     if (options === undefined) {
@@ -132,9 +125,8 @@ export async function drawFromTables(count: number, sources: DataSource[], optio
 
             item = await getItemFromPack(result.data.collection, result.data.resultId);
         } else if (isPackSource(choice)) {
-            const pack = getPack(choice);
             // @ts-ignore
-            const itemId: string = chooseFromArray(pack.index.contents).key;
+            const itemId: string = chooseFromArray(getPack(choice).index.contents).key;
             item = await getItemFromPack(choice.id, itemId);
         } else if (isPoolSource(choice)) {
             item = chooseFromArray(choice.elements);
@@ -153,63 +145,7 @@ export async function drawFromTables(count: number, sources: DataSource[], optio
     // }
     return results;
 }
-//
-// export interface SpellDrawResults {
-//     spell: ItemData;
-//     consumableType: SpellConsumableType;
-// }
-//
-// export enum SpellConsumableType {
-//     Wand = 'wand',
-//     Scroll = 'spell',
-// }
-// export type SpellOptions = {
-//     [TSchool in SpellSchool]: {
-//         enabled: boolean;
-//         spells: ItemData[];
-//     };
-// };
-// export type SpellDrawOptions = TableDrawOptions & {
-//     consumableTypes: SpellConsumableType[];
-// };
-//
-// export async function drawSpells(count: number, spells: SpellOptions, options?: SpellDrawOptions): Promise<SpellDrawResults[]> {
-//     if (options === undefined) {
-//         options = {
-//             displayChat: true,
-//             consumableTypes: [SpellConsumableType.Scroll, SpellConsumableType.Wand],
-//         };
-//     }
-//
-//     const choices = Object.values(spells)
-//         .filter((school) => school.enabled)
-//         .map((school) => school.spells)
-//         .flat();
-//     const wandChoices = choices.filter((spell) => spell.data.level.value <= 9);
-//
-//     const results: SpellDrawResults[] = [];
-//     for (let i = 0; i < count; i++) {
-//         let spell: ItemData;
-//         const consumableType = choiceFromArray(options.consumableTypes);
-//         switch (consumableType) {
-//             case SpellConsumableType.Wand:
-//                 break;
-//             case SpellConsumableType.Scroll:
-//                 break;
-//         }
-//
-//         results.push({
-//             spell: choiceFromArray(choices),
-//             consumableType: choiceFromArray(options.consumableTypes),
-//         });
-//     }
-//     return results;
-// }
-// export async function createItemsFromSpellDraws(draws: SpellDrawResults[]): Promise<ItemData[]> {
-//     // const spellDatas: ItemData[] = [];
-//     // const templateSourcePack = game.packs.get(SCROLL_TEMPLATE_PACK_ID);
-//     return [];
-// }
+
 //
 // /**
 //  * Build a rollable table results message

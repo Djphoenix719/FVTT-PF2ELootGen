@@ -18,10 +18,10 @@ export async function registerHandlebarsTemplates() {
         `modules/${MODULE_NAME}/templates/loot-app/tabs/spell/index.html`,
 
         `modules/${MODULE_NAME}/templates/loot-app/partials/loot-profile.html`,
-        `modules/${MODULE_NAME}/templates/loot-app/partials/table-list.html`,
+        `modules/${MODULE_NAME}/templates/loot-app/partials/sources-list.html`,
         `modules/${MODULE_NAME}/templates/loot-app/partials/table-buttons.html`,
     ];
-    await Handlebars.registerPartial('table-list', '{{> modules/pf2e-lootgen/templates/loot-app/partials/table-list.html }}');
+    await Handlebars.registerPartial('sources-list', '{{> modules/pf2e-lootgen/templates/loot-app/partials/sources-list.html }}');
     await loadTemplates(templatePaths);
 }
 

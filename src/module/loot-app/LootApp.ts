@@ -23,6 +23,7 @@ import { consumableSources } from './data/Consumable';
 import { ItemData } from '../../types/Items';
 import { dataSourcesOfType, drawFromTables } from './Utilities';
 import { TableType } from './data/DataSource';
+import { spellSources } from './data/Spells';
 
 export enum LootAppSetting {
     Count = 'count',
@@ -70,9 +71,13 @@ export const extendLootSheet = () => {
 
             // data['spellSchools'] = Object.values(SpellSchool).map((school) => getSchoolSettings(this.actor, school as SpellSchool));
 
-            data['permanentTables'] = Object.values(permanentSources).map((source) => getDataSourceSettings(this.actor, source));
-            data['consumableTables'] = Object.values(consumableSources).map((source) => getDataSourceSettings(this.actor, source));
-            data['treasureTables'] = Object.values(treasureSources).map((source) => getDataSourceSettings(this.actor, source));
+            data['sources'] = Object.values(TableType).reduce(
+                (prev, curr) =>
+                    mergeObject(prev, {
+                        [curr]: Object.values(dataSourcesOfType(curr)).map((source) => getDataSourceSettings(this.actor, source)),
+                    }),
+                {},
+            );
 
             // data['spellLevels'] = leveledSpellSources.map((table) => getTableSettings(this.actor, table));
 
@@ -125,7 +130,7 @@ export const extendLootSheet = () => {
          * @private
          */
         private getLootAppSetting<T = any>(type: TableType, key: LootAppSetting): T {
-            return this.actor.getFlag(MODULE_NAME, `settings.${type}.${key}`) as T;
+            return this.actor.getFlag(MODULE_NAME, `config.${type}.${key}`) as T;
         }
 
         public async activateListeners(html: JQuery) {
@@ -161,9 +166,6 @@ export const extendLootSheet = () => {
                 const sources = Object.values(dataSourcesOfType(type))
                     .map((source) => getDataSourceSettings(this.actor, source))
                     .filter((table) => table.enabled);
-
-                console.warn('sources');
-                console.warn(sources);
 
                 let results = await drawFromTables(this.getLootAppSetting<number>(type, LootAppSetting.Count), sources);
                 console.warn(results);
