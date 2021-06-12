@@ -16,7 +16,7 @@
 
 import { IEnabled, IWeighted } from './Mixins';
 import { ItemData } from '../../../types/Items';
-import { TableType } from './Flags';
+import { TableType } from './Tables';
 
 export enum SourceType {
     Table = 'table',

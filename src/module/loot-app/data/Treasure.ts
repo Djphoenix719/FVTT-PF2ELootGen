@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-// Data contained in this file is part of the Open Gaming License, and not subject to the above copyright.
-
-import { RollableTablesPack } from '../Tables';
-import { SourceType, TableSource } from '../Draw';
-import { INamed } from '../Mixins';
-import { TableType } from '../Flags';
+import { RollableTablesPack, TableType } from './Tables';
+import { SourceType, TableSource } from './Draw';
+import { INamed } from './Mixins';
 
 export interface TreasureSource extends TableSource, INamed {
     value: string;
@@ -141,4 +138,4 @@ export const artTreasureTables: Record<string, TreasureSource> = {
         enabled: true,
     },
 };
-export const treasureTables = { ...semipreciousStonesTables, ...preciousStonesTables, ...artTreasureTables };
+export const treasureSources = { ...semipreciousStonesTables, ...preciousStonesTables, ...artTreasureTables };

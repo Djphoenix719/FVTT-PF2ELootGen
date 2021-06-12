@@ -15,12 +15,13 @@
  */
 
 import { MODULE_NAME, PF2E_LOOT_SHEET_NAME } from '../Constants';
-import { getDataSourceSettings, LootAppFlags, TableType } from './data/Flags';
-import { treasureTables } from './data/tables/Treasure';
+import { getDataSourceSettings, LootAppFlags, setDataSourceSetting, setDataSourceSettingValue } from './data/Flags';
+import { treasureSources } from './data/Treasure';
 import { TABLE_WEIGHT_MAX, TABLE_WEIGHT_MIN } from './Settings';
-import { permanentTables } from './data/tables/Permanent';
-import { consumableTables } from './data/tables/Consumable';
+import { permanentSources } from './data/Permanent';
+import { consumableSources } from './data/Consumable';
 import { ItemData } from '../../types/Items';
+import { TableType } from './data/Tables';
 
 export enum LootAppSetting {
     Count = 'count',
@@ -68,9 +69,9 @@ export const extendLootSheet = () => {
 
             // data['spellSchools'] = Object.values(SpellSchool).map((school) => getSchoolSettings(this.actor, school as SpellSchool));
 
-            data['permanentTables'] = Object.values(permanentTables).map((source) => getDataSourceSettings(this.actor, source));
-            data['consumableTables'] = Object.values(consumableTables).map((source) => getDataSourceSettings(this.actor, source));
-            data['treasureTables'] = Object.values(treasureTables).map((source) => getDataSourceSettings(this.actor, source));
+            data['permanentTables'] = Object.values(permanentSources).map((source) => getDataSourceSettings(this.actor, source));
+            data['consumableTables'] = Object.values(consumableSources).map((source) => getDataSourceSettings(this.actor, source));
+            data['treasureTables'] = Object.values(treasureSources).map((source) => getDataSourceSettings(this.actor, source));
 
             // data['spellLevels'] = leveledSpellSources.map((table) => getTableSettings(this.actor, table));
 
@@ -138,11 +139,15 @@ export const extendLootSheet = () => {
                 await this._updateObject(new Event('submit'), this._getSubmitData());
             }
 
-            // const getContainer = (event: JQuery.ClickEvent) => {
-            //     const element = $(event.currentTarget);
-            //     const container = element.closest('.tab-container');
-            //     return { element, container };
-            // };
+            const getContainer = (event: JQuery.ClickEvent) => {
+                const element = $(event.currentTarget);
+                const container = element.closest('.tab-container');
+                return { element, container };
+            };
+            const getType = (event: JQuery.ClickEvent) => {
+                const { container } = getContainer(event);
+                return container.data('type') as TableType;
+            };
 
             // group roll button
             // html.find('.buttons .roll').on('click', async (event) => {
@@ -227,35 +232,29 @@ export const extendLootSheet = () => {
             //         }, {}),
             //     );
             // };
-            //
-            // // check-all button
-            // html.find('.buttons .check-all').on('click', async (event) => {
-            //     event.preventDefault();
-            //     event.stopPropagation();
-            //
-            //     const { container } = getContainer(event);
-            //     const type = container.data('type') as TableType;
-            //     await setTableSettings(type, 'enabled', true);
-            // });
-            // // check-none button
-            // html.find('.buttons .check-none').on('click', async (event) => {
-            //     event.preventDefault();
-            //     event.stopPropagation();
-            //
-            //     const { container } = getContainer(event);
-            //     const type = container.data('type') as TableType;
-            //     await setTableSettings(type, 'enabled', false);
-            // });
-            // // reset button
-            // html.find('.buttons .reset').on('click', async (event) => {
-            //     event.preventDefault();
-            //     event.stopPropagation();
-            //
-            //     const { container } = getContainer(event);
-            //     const type = container.data('type') as TableType;
-            //     await setTableSettings(type, 'weight', 100);
-            // });
-            //
+
+            // check-all button
+            html.find('.buttons .check-all').on('click', async (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                await setDataSourceSettingValue(this.actor, getType(event), 'enabled', true);
+            });
+            // check-none button
+            html.find('.buttons .check-none').on('click', async (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                await setDataSourceSettingValue(this.actor, getType(event), 'enabled', false);
+            });
+            // reset button
+            html.find('.buttons .reset').on('click', async (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                await setDataSourceSettingValue(this.actor, getType(event), ['weight', 'enabled'], [1, true]);
+            });
+
             // // quick roll button
             // html.find('.weights i.fa-dice-d20').on('click', async (event) => {
             //     event.preventDefault();

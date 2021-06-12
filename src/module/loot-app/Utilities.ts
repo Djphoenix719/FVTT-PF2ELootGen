@@ -14,16 +14,12 @@
  * limitations under the License.
  */
 
-import { getItemFromPack, getTableFromPack } from '../Utilities';
-import { MODULE_NAME } from '../Constants';
-import { ItemData } from '../../types/Items';
-import { permanentTables } from './data/tables/Permanent';
-import { consumableTables } from './data/tables/Consumable';
-import { TABLE_WEIGHT_DEFAULT } from './Settings';
-import { SCROLL_TEMPLATE_PACK_ID, leveledSpellSources, SpellSchool } from './data/Spells';
-import { treasureTables } from './data/tables/Treasure';
+import { permanentSources } from './data/Permanent';
+import { consumableSources } from './data/Consumable';
+import { treasureSources } from './data/Treasure';
+import { spellSources } from './data/Spells';
 import { DataSource } from './data/Draw';
-import { TableType } from './data/Flags';
+import { TableType } from './data/Tables';
 
 // // Helper function for distinct values of an array.
 // const distinct = (value: any, index: number, array: any[]) => {
@@ -34,22 +30,22 @@ import { TableType } from './data/Flags';
 // //     return array[Math.round(Math.random() * array.length)];
 // // }
 //
-// /**
-//  * Return the correct table map for the given table type.
-//  * @param type
-//  */
-// export function sourcesOfType(type: TableType): Source[] {
-//     switch (type) {
-//         case TableType.Treasure:
-//             return treasureTables;
-//         case TableType.Permanent:
-//             return permanentTables;
-//         case TableType.Consumable:
-//             return consumableTables;
-//         // case TableType.Scroll:
-//         //     return spellLevelTables;
-//     }
-// }
+/**
+ * Return the correct source map for the given item type.
+ * @param type Type of sources to fetch.
+ */
+export function dataSourcesOfType(type: TableType): Record<string, DataSource> {
+    switch (type) {
+        case TableType.Treasure:
+            return treasureSources;
+        case TableType.Permanent:
+            return permanentSources;
+        case TableType.Consumable:
+            return consumableSources;
+        case TableType.Spell:
+            return spellSources;
+    }
+}
 //
 // /**
 //  * Fetch and package data needed to render a table row in the sheet.

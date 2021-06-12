@@ -15,20 +15,15 @@
  */
 
 import { MODULE_NAME } from '../../Constants';
-import { TreasureSource } from './tables/Treasure';
-import { PermanentSource } from './tables/Permanent';
-import { ConsumableSource } from './tables/Consumable';
+import { TreasureSource } from './Treasure';
+import { PermanentSource } from './Permanent';
+import { ConsumableSource } from './Consumable';
 import { SpellSource } from './Spells';
 import { DataSource } from './Draw';
+import { dataSourcesOfType } from '../Utilities';
+import { TableType } from './Tables';
 
 export const FLAGS_KEY = MODULE_NAME;
-
-export enum TableType {
-    Treasure = 'treasure',
-    Permanent = 'permanent',
-    Consumable = 'consumable',
-    Spell = 'spell',
-}
 
 export interface LootCategoryConfig {
     count: number;
@@ -54,4 +49,41 @@ export function getDataSourceSettings<T extends DataSource>(actor: Actor, source
     const flags: LootAppFlags = actor.data.flags[FLAGS_KEY];
     const flagData = flags?.sources?.[source.itemType]?.[source.id];
     return mergeObject(duplicate(source) as DataSource, flagData) as T;
+}
+export async function setDataSourceSetting(actor: Actor, source: DataSource | DataSource[]): Promise<Actor> {
+    if (!Array.isArray(source)) {
+        source = [source];
+    }
+    const updateData = source.reduce(
+        (prev, curr) =>
+            mergeObject(prev, {
+                [`flags.${FLAGS_KEY}.sources.${curr.itemType}.${curr.id}`]: curr,
+            }),
+        {},
+    );
+    return await actor.update(updateData);
+}
+
+export type SourceKeys = keyof TreasureSource | PermanentSource | ConsumableSource | SpellSource;
+export async function setDataSourceSettingValue(actor: Actor, type: TableType, keys: SourceKeys | SourceKeys[], values: any | any[]): Promise<Actor> {
+    if (!Array.isArray(keys)) keys = [keys];
+    if (!Array.isArray(values)) values = [values];
+    if (keys.length !== values.length) throw new Error(`keys and values must be of equal length, got ${keys.length} and ${values.length}`);
+
+    const sources = dataSourcesOfType(type);
+    const updateData = Object.values(sources).reduce(
+        (prevSource, currSource) =>
+            mergeObject(
+                prevSource,
+                (keys as SourceKeys[]).reduce(
+                    (prevKey, currKey, currIdx) =>
+                        mergeObject(prevKey, {
+                            [`flags.${FLAGS_KEY}.sources.${currSource.itemType}.${currSource.id}.${currKey}`]: values[currIdx],
+                        }),
+                    {},
+                ),
+            ),
+        {},
+    );
+    return await actor.update(updateData);
 }

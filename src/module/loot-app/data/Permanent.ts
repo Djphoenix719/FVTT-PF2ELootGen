@@ -14,193 +14,190 @@
  * limitations under the License.
  */
 
-// Data contained in this file is part of the Open Gaming License, and not subject to the above copyright.
+import { RollableTablesPack, TableType } from './Tables';
+import { SourceType, TableSource } from './Draw';
+import { INamed } from './Mixins';
 
-import { RollableTablesPack } from '../Tables';
-import { SourceType, TableSource } from '../Draw';
-import { INamed } from '../Mixins';
-import { TableType } from '../Flags';
+export interface PermanentSource extends TableSource, INamed {}
 
-export interface ConsumableSource extends TableSource, INamed {}
-
-export const consumableTables: Record<string, ConsumableSource> = {
-    'tlX5PLwar8b1tmiQ': {
-        id: 'tlX5PLwar8b1tmiQ',
+export const permanentSources: Record<string, PermanentSource> = {
+    'JyDn13oc0MdLjpyw': {
+        id: 'JyDn13oc0MdLjpyw',
         name: '1st-Level',
         tableSource: RollableTablesPack,
         sourceType: SourceType.Table,
-        itemType: TableType.Consumable,
+        itemType: TableType.Permanent,
         weight: 1,
         enabled: true,
     },
-    'g30jZWCJEiK1RlIa': {
-        id: 'g30jZWCJEiK1RlIa',
+    'q6hhGYSee35XxKE8': {
+        id: 'q6hhGYSee35XxKE8',
         name: '2nd-Level',
         tableSource: RollableTablesPack,
         sourceType: SourceType.Table,
-        itemType: TableType.Consumable,
+        itemType: TableType.Permanent,
         weight: 1,
         enabled: true,
     },
-    'mDPLoPYwuPo3o0Wj': {
-        id: 'mDPLoPYwuPo3o0Wj',
+    'Ow2zoRUSX0s7JjMo': {
+        id: 'Ow2zoRUSX0s7JjMo',
         name: '3rd-Level',
         tableSource: RollableTablesPack,
         sourceType: SourceType.Table,
-        itemType: TableType.Consumable,
+        itemType: TableType.Permanent,
         weight: 1,
         enabled: true,
     },
-    '0WpkRFm8SyfwVCP6': {
-        id: '0WpkRFm8SyfwVCP6',
+    'k0Al2PJni2NTtdIY': {
+        id: 'k0Al2PJni2NTtdIY',
         name: '4th-Level',
         tableSource: RollableTablesPack,
         sourceType: SourceType.Table,
-        itemType: TableType.Consumable,
+        itemType: TableType.Permanent,
         weight: 1,
         enabled: true,
     },
-    'zRyuNslbOzN9oW5u': {
-        id: 'zRyuNslbOzN9oW5u',
+    'k5bG37570BbflxR2': {
+        id: 'k5bG37570BbflxR2',
         name: '5th-Level',
         tableSource: RollableTablesPack,
         sourceType: SourceType.Table,
-        itemType: TableType.Consumable,
+        itemType: TableType.Permanent,
         weight: 1,
         enabled: true,
     },
-    'A68C9O0vtWbFXbfS': {
-        id: 'A68C9O0vtWbFXbfS',
+    '9xol7FdCfaU585WR': {
+        id: '9xol7FdCfaU585WR',
         name: '6th-Level',
         tableSource: RollableTablesPack,
         sourceType: SourceType.Table,
-        itemType: TableType.Consumable,
+        itemType: TableType.Permanent,
         weight: 1,
         enabled: true,
     },
-    'E9ZNupg1p4yLpfrd': {
-        id: 'E9ZNupg1p4yLpfrd',
+    'r8F8mI2BZU6nOMQB': {
+        id: 'r8F8mI2BZU6nOMQB',
         name: '7th-Level',
         tableSource: RollableTablesPack,
         sourceType: SourceType.Table,
-        itemType: TableType.Consumable,
+        itemType: TableType.Permanent,
         weight: 1,
         enabled: true,
     },
-    'UmJGUUgN9TQtFQDI': {
-        id: 'UmJGUUgN9TQtFQDI',
+    'QoEkRoteKJwHHVRd': {
+        id: 'QoEkRoteKJwHHVRd',
         name: '8th-Level',
         tableSource: RollableTablesPack,
         sourceType: SourceType.Table,
-        itemType: TableType.Consumable,
+        itemType: TableType.Permanent,
         weight: 1,
         enabled: true,
     },
-    'XAJFTpuo8qrcW30P': {
-        id: 'XAJFTpuo8qrcW30P',
+    'AJOYeeeF3E8UC7KF': {
+        id: 'AJOYeeeF3E8UC7KF',
         name: '9th-Level',
         tableSource: RollableTablesPack,
         sourceType: SourceType.Table,
-        itemType: TableType.Consumable,
+        itemType: TableType.Permanent,
         weight: 1,
         enabled: true,
     },
-    'AIBvZzHidUXxZfEF': {
-        id: 'AIBvZzHidUXxZfEF',
+    'W0qudblot2Z9Vu86': {
+        id: 'W0qudblot2Z9Vu86',
         name: '10th-Level',
         tableSource: RollableTablesPack,
         sourceType: SourceType.Table,
-        itemType: TableType.Consumable,
+        itemType: TableType.Permanent,
         weight: 1,
         enabled: true,
     },
-    'Ca7vD8PZtMPqVuHu': {
-        id: 'Ca7vD8PZtMPqVuHu',
+    'ood552HB1onSdJFS': {
+        id: 'ood552HB1onSdJFS',
         name: '11th-Level',
         tableSource: RollableTablesPack,
         sourceType: SourceType.Table,
-        itemType: TableType.Consumable,
+        itemType: TableType.Permanent,
         weight: 1,
         enabled: true,
     },
-    '5HHqLskEnfjxpkCO': {
-        id: '5HHqLskEnfjxpkCO',
+    'uzkmxRIn4CtzfP47': {
+        id: 'uzkmxRIn4CtzfP47',
         name: '12th-Level',
         tableSource: RollableTablesPack,
         sourceType: SourceType.Table,
-        itemType: TableType.Consumable,
+        itemType: TableType.Permanent,
         weight: 1,
         enabled: true,
     },
-    'awfTQvkm7NrRjRaQ': {
-        id: 'awfTQvkm7NrRjRaQ',
+    'eo7kjM8xv6KD5h5q': {
+        id: 'eo7kjM8xv6KD5h5q',
         name: '13th-Level',
         tableSource: RollableTablesPack,
         sourceType: SourceType.Table,
-        itemType: TableType.Consumable,
+        itemType: TableType.Permanent,
         weight: 1,
         enabled: true,
     },
-    'Vhuuy0vFJV5tYldR': {
-        id: 'Vhuuy0vFJV5tYldR',
+    'cBpFoBUNSApkvP6L': {
+        id: 'cBpFoBUNSApkvP6L',
         name: '14th-Level',
         tableSource: RollableTablesPack,
         sourceType: SourceType.Table,
-        itemType: TableType.Consumable,
+        itemType: TableType.Permanent,
         weight: 1,
         enabled: true,
     },
-    'Af7beeFZhtvDAZaM': {
-        id: 'Af7beeFZhtvDAZaM',
+    'X2QkgnYrda4mV5v3': {
+        id: 'X2QkgnYrda4mV5v3',
         name: '15th-Level',
         tableSource: RollableTablesPack,
         sourceType: SourceType.Table,
-        itemType: TableType.Consumable,
+        itemType: TableType.Permanent,
         weight: 1,
         enabled: true,
     },
-    'aomFSKgGl52z7tdX': {
-        id: 'aomFSKgGl52z7tdX',
+    'J7XfeVrfUj72IkRY': {
+        id: 'J7XfeVrfUj72IkRY',
         name: '16th-Level',
         tableSource: RollableTablesPack,
         sourceType: SourceType.Table,
-        itemType: TableType.Consumable,
+        itemType: TableType.Permanent,
         weight: 1,
         enabled: true,
     },
-    'YyQkwd1PksU1Lno4': {
-        id: 'YyQkwd1PksU1Lno4',
+    '0jlGmwn6YGqsfG1q': {
+        id: '0jlGmwn6YGqsfG1q',
         name: '17th-Level',
         tableSource: RollableTablesPack,
         sourceType: SourceType.Table,
-        itemType: TableType.Consumable,
+        itemType: TableType.Permanent,
         weight: 1,
         enabled: true,
     },
-    'PSs31Xj5RfszMbAe': {
-        id: 'PSs31Xj5RfszMbAe',
+    '6FmhLLYH94xhucIs': {
+        id: '6FmhLLYH94xhucIs',
         name: '18th-Level',
         tableSource: RollableTablesPack,
         sourceType: SourceType.Table,
-        itemType: TableType.Consumable,
+        itemType: TableType.Permanent,
         weight: 1,
         enabled: true,
     },
-    'pH85KVl31VBdENuy': {
-        id: 'pH85KVl31VBdENuy',
+    'gkdB45QC0u1WeiRA': {
+        id: 'gkdB45QC0u1WeiRA',
         name: '19th-Level',
         tableSource: RollableTablesPack,
         sourceType: SourceType.Table,
-        itemType: TableType.Consumable,
+        itemType: TableType.Permanent,
         weight: 1,
         enabled: true,
     },
-    'nusyoQjLs0ZxifRd': {
-        id: 'nusyoQjLs0ZxifRd',
+    'NOkobOGi0nqsboHI': {
+        id: 'NOkobOGi0nqsboHI',
         name: '20th-Level',
         tableSource: RollableTablesPack,
         sourceType: SourceType.Table,
-        itemType: TableType.Consumable,
+        itemType: TableType.Permanent,
         weight: 1,
         enabled: true,
     },

@@ -16,7 +16,7 @@
 
 import { FilteredSource, getPackSourceContents, PackSource, SourceType } from './Draw';
 import { INamed } from './Mixins';
-import { TableType } from './Flags';
+import { TableType } from './Tables';
 
 export enum SpellSchool {
     Abjuration = 'abjuration',
