@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import { MODULE_NAME } from '../../Constants';
-import { TreasureSource } from './Treasure';
-import { PermanentSource } from './Permanent';
-import { ConsumableSource } from './Consumable';
-import { SpellSource } from './Spells';
-import { DataSource, TableType } from './DataSource';
-import { dataSourcesOfType } from '../Utilities';
+import { MODULE_NAME } from '../Constants';
+import { TreasureSource } from './data/Treasure';
+import { PermanentSource } from './data/Permanent';
+import { ConsumableSource } from './data/Consumable';
+import { SpellSource } from './data/Spells';
+import { DataSource, TableType } from './data/DataSource';
+import { dataSourcesOfType } from './Utilities';
 
 export const FLAGS_KEY = MODULE_NAME;
 

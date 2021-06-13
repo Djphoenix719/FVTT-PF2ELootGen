@@ -15,15 +15,11 @@
  */
 
 import { MODULE_NAME, PF2E_LOOT_SHEET_NAME } from '../Constants';
-import { getDataSourceSettings, LootAppFlags, setDataSourceSettingValue } from './data/Flags';
-import { treasureSources } from './data/Treasure';
+import { getDataSourceSettings, LootAppFlags, setDataSourceSettingValue } from './Flags';
 import { TABLE_WEIGHT_MAX, TABLE_WEIGHT_MIN } from './Settings';
-import { permanentSources } from './data/Permanent';
-import { consumableSources } from './data/Consumable';
 import { ItemData } from '../../types/Items';
 import { dataSourcesOfType, drawFromSources, DrawResult, mergeExistingStacks, mergeStacks, rollTreasureValues } from './Utilities';
 import { DataSource, TableType } from './data/DataSource';
-import { spellSources } from './data/Spells';
 import ModuleSettings, { FEATURE_ALLOW_MERGING } from '../settings-app/ModuleSettings';
 
 export enum LootAppSetting {
@@ -186,15 +182,13 @@ export const extendLootSheet = () => {
                 await this.createItemsFromDraw(results);
             });
 
-            // const rollSpells = async (container: JQuery, consumableTypes: SpellConsumableType[]) => {
-            //     const type = container.data('type') as TableType;
-            //
+            // const rollSpells = async (consumableTypes: SpellItemType[]) => {
             //     const promises: Promise<Entity[]>[] = [];
             //     for (const table of spellSources) {
             //         // @ts-ignore
             //         promises.push(game.packs.get(table.packId).getDocuments());
             //     }
-            //     const spells = ((await Promise.all(promises)).flat().map((spell) => spell.data) as unknown) as ItemData[];
+            //     const spells = (await Promise.all(promises)).flat().map((spell) => spell.data) as unknown as ItemData[];
             //
             //     const choices: SpellOptions = Object.values(SpellSchool).reduce(
             //         (prev, curr) =>
@@ -207,20 +201,20 @@ export const extendLootSheet = () => {
             //         {},
             //     ) as SpellOptions;
             //
-            //     const spellDraws = await drawSpells(this.getLootAppSetting<number>(type, LootAppSetting.Count), choices, {
+            //     const count = this.getLootAppSetting<number>(TableType.Spell, LootAppSetting.Count);
+            //     const spellDraws = await drawFromSources(count, choices, {
             //         displayChat: true, // TODO
             //         consumableTypes: consumableTypes,
             //     });
             //     const spellDatas = await createItemsFromSpellDraws(spellDraws);
             //     // await this.createItemsFromDraw();
             // };
-
+            //
             // // roll scrolls
             // html.find('.buttons .roll-scroll').on('click', async (event) => {
             //     event.preventDefault();
             //     event.stopPropagation();
             //
-            //     const { container } = getContainer(event);
             //     await rollSpells(container, [SpellConsumableType.Scroll]);
             // });
             // // roll wands
