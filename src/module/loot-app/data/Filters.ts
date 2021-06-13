@@ -20,22 +20,31 @@ import { ItemData } from '../../../types/Items';
 import { SpellSchool } from './Spells';
 import { IEnabled, INamed, IWeighted } from './Mixins';
 import { AndFilter } from '../../filter/AbstractFilter';
+import { TableType } from './DataSource';
+
+export enum FilterType {
+    SpellSchool = 'school',
+}
 
 export interface AppFilter extends IWeighted, IEnabled, INamed {
     id: string;
     dataPath: string;
     class: new (...args) => ISpecification<ItemData>;
-    type: EqualityType;
+    filterCategory: TableType;
+    filterType: FilterType;
+    equalityType: EqualityType;
 }
 
-const schoolFilterId = (school: SpellSchool) => `school-${school}`;
+const schoolFilterId = (school: SpellSchool) => `${school}`;
 const schoolFilter = (school: SpellSchool): AppFilter => {
     return {
         id: schoolFilterId(school),
         name: school.capitalize(),
         dataPath: 'data.school.value',
         class: AndFilter,
-        type: EqualityType.EqualTo,
+        filterCategory: TableType.Spell,
+        filterType: FilterType.SpellSchool,
+        equalityType: EqualityType.EqualTo,
         weight: 1,
         enabled: true,
     };

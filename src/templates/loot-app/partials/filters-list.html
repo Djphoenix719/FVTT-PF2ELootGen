@@ -2,14 +2,10 @@
 <div class="filters-wrap">
     <h3>Data Filters</h3>
     <div class="filters">
-        {{log filters}}
-        {{#each (lookup filters sourceType) as |filters|}}
-            <div class="sources-row" data-source="{{json source}}">
+        {{#each filters as |filter|}}
+            <div class="fitlers-row" data-source="{{json source}}">
                 <section class="header">
                     <div class="form-group">
-                        {{#if ../displayQuickRolls}}
-                            <i class="fas fa-dice-d20"></i>
-                        {{/if}}
                         <label for="{{filterFlag filter}}.enabled">{{filter.name}}</label>
                         <input title="Include in Possibilities?"
                                type="checkbox"

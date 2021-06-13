@@ -1,5 +1,6 @@
 import { MODULE_NAME } from './Constants';
 import { DataSource } from './loot-app/data/DataSource';
+import { AppFilter } from './loot-app/data/Filters';
 
 export async function registerHandlebarsTemplates() {
     const templatePaths = [
@@ -29,6 +30,9 @@ export async function registerHandlebarsTemplates() {
 export function registerHandlebarsHelpers() {
     Handlebars.registerHelper('sourceFlag', function (source: DataSource) {
         return `flags.pf2e-lootgen.sources.${source.itemType}.${source.id}`;
+    });
+    Handlebars.registerHelper('filterFlag', function (filter: AppFilter) {
+        return `flags.pf2e-lootgen.filters.${filter.filterCategory}.${filter.filterType}.${filter.id}`;
     });
 
     Handlebars.registerHelper('json', function (obj: any) {

@@ -15,7 +15,7 @@
  */
 
 import { MODULE_NAME, PF2E_LOOT_SHEET_NAME } from '../Constants';
-import { getDataSourceSettings, getFilterSettings, LootAppFlags, setDataSourceSettingValue } from './Flags';
+import { getDataSourceSettings, getSchoolFilterSettings, LootAppFlags, setDataSourceSettingValue } from './Flags';
 import { TABLE_WEIGHT_MAX, TABLE_WEIGHT_MIN } from './Settings';
 import { ItemData } from '../../types/Items';
 import { dataSourcesOfType, drawFromSources, DrawResult, mergeExistingStacks, mergeStacks, rollTreasureValues } from './Utilities';
@@ -66,7 +66,7 @@ export const extendLootSheet = () => {
 
             data['filters'] = {
                 spell: {
-                    school: Object.values(spellFilters).map((filter) => getFilterSettings(this.actor, filter)),
+                    school: Object.values(spellFilters).map((filter) => getSchoolFilterSettings(this.actor, filter)),
                 },
             };
 
@@ -77,11 +77,6 @@ export const extendLootSheet = () => {
                     }),
                 {},
             );
-
-            // data['spellLevels'] = leveledSpellSources.map((table) => getTableSettings(this.actor, table));
-
-            console.warn(data);
-            console.warn(data['actor'].flags['pf2e-lootgen']);
 
             return data;
         }
