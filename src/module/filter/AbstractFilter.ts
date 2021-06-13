@@ -16,9 +16,6 @@
 
 import { ISpecification } from './ISpecification';
 import { ItemData } from '../../types/Items';
-import { AndFilter } from './AndFilter';
-import { NotFilter } from './NotFilter';
-import { OrFilter } from './OrFilter';
 
 export abstract class AbstractFilter implements ISpecification<ItemData> {
     protected children: ISpecification<ItemData>[];
@@ -50,5 +47,45 @@ export abstract class AbstractFilter implements ISpecification<ItemData> {
             others = [others];
         }
         this.children.push(...others);
+    }
+}
+
+export class AndFilter extends AbstractFilter {
+    public constructor(children?: ISpecification<ItemData>[]) {
+        super(children);
+    }
+
+    public isSatisfiedBy(data: ItemData): boolean {
+        for (const child of this.children) {
+            if (!child.isSatisfiedBy(data)) {
+                return false;
+            }
+        }
+        return true;
+    }
+}
+
+export class NotFilter extends AbstractFilter {
+    public constructor(filter: ISpecification<ItemData>) {
+        super([filter]);
+    }
+
+    public isSatisfiedBy(data: ItemData): boolean {
+        return !this.children[0].isSatisfiedBy(data);
+    }
+}
+
+export class OrFilter extends AbstractFilter {
+    public constructor(children?: ISpecification<ItemData>[]) {
+        super(children);
+    }
+
+    public isSatisfiedBy(data: ItemData): boolean {
+        for (const child of this.children) {
+            if (child.isSatisfiedBy(data)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
