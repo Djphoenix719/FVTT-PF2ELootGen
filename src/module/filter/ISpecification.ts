@@ -16,7 +16,4 @@
 
 export interface ISpecification<TData> {
     isSatisfiedBy: (data: TData) => boolean;
-    or: (other: ISpecification<TData>) => ISpecification<TData>;
-    and: (other: ISpecification<TData>) => ISpecification<TData>;
-    not: (other?: ISpecification<TData>) => ISpecification<TData>;
 }

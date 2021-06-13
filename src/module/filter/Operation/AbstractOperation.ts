@@ -18,7 +18,7 @@ import { ItemData } from '../../../types/Items';
 import { EqualityType } from '../EqualityType';
 import { ISpecification } from '../ISpecification';
 
-export abstract class AbstractOperation<T extends number | string | boolean> implements ISpecification {
+export abstract class AbstractOperation<T extends number | string | boolean> implements ISpecification<ItemData> {
     private readonly key: string;
     private readonly desiredValue: T;
     private readonly equality: EqualityType;
