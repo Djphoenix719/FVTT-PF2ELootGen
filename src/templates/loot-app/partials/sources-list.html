@@ -1,33 +1,32 @@
 <!-- TODO: Localization -->
-<!-- TODO: Collapse save/load -->
-<div class="collapse-wrap">
+<div class="sources-wrap">
     <h3>Data Sources</h3>
-    <div class="weights">
-        {{#each (lookup sources sourceType) as |table|}}
-            <div class="tables-row" data-id="{{table.id}}">
+    <div class="sources">
+        {{#each (lookup sources sourceType) as |source|}}
+            <div class="sources-row" data-source="{{json source}}">
                 <section class="header">
                     <div class="form-group">
-                        {{#if displayQuickRolls}}
+                        {{#if ../displayQuickRolls}}
                             <i class="fas fa-dice-d20"></i>
                         {{/if}}
-                        <label for="{{sourceFlag table}}.enabled">{{table.name}}</label>
+                        <label for="{{sourceFlag source}}.enabled">{{source.name}}</label>
                         <input title="Include in Possibilities?"
                                type="checkbox"
-                               id="{{sourceFlag table}}.enabled"
-                               name="{{sourceFlag table}}.enabled"
-                            {{checked table.enabled}}
+                               id="{{sourceFlag source}}.enabled"
+                               name="{{sourceFlag source}}.enabled"
+                            {{checked source.enabled}}
                         >
                     </div>
                 </section>
                 <section class="settings">
                     <input type="range"
                            title="Weight"
-                           min="{{@root.tableSettings.minValue}}"
-                           max="{{@root.tableSettings.maxValue}}"
+                           min="{{@root.sourceSettings.minValue}}"
+                           max="{{@root.sourceSettings.maxValue}}"
                            step="0.25"
-                           id="{{sourceFlag table}}.weight"
-                           name="{{sourceFlag table}}.weight"
-                           value="{{table.weight}}"
+                           id="{{sourceFlag source}}.weight"
+                           name="{{sourceFlag source}}.weight"
+                           value="{{source.weight}}"
                     >
                 </section>
             </div>

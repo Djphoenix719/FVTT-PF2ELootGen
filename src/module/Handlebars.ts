@@ -30,6 +30,10 @@ export function registerHandlebarsHelpers() {
         return `flags.pf2e-lootgen.sources.${source.itemType}.${source.id}`;
     });
 
+    Handlebars.registerHelper('json', function (obj: any) {
+        return JSON.stringify(obj);
+    });
+
     Handlebars.registerHelper('includes', function (array: any[], value: any, options: any) {
         if (array.includes(value)) {
             return options.fn(this);

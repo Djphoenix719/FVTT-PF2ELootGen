@@ -22,7 +22,7 @@ import { permanentSources } from './data/Permanent';
 import { consumableSources } from './data/Consumable';
 import { ItemData } from '../../types/Items';
 import { dataSourcesOfType, drawFromTables } from './Utilities';
-import { TableType } from './data/DataSource';
+import { DataSource, TableType } from './data/DataSource';
 import { spellSources } from './data/Spells';
 
 export enum LootAppSetting {
@@ -174,6 +174,23 @@ export const extendLootSheet = () => {
                 // await this.createItemsFromDraw(results);
             });
 
+            // quick roll button
+            html.find('.sources i.fa-dice-d20').on('click', async (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                const element = $(event.currentTarget).closest('.sources-row');
+                const source: DataSource = element.data('source');
+
+                let results = await drawFromTables(1, [source]);
+
+                console.warn(results);
+
+                // results = await rollTreasureValues(results);
+                //
+                // await this.createItemsFromDraw(results);
+            });
+
             // const rollSpells = async (container: JQuery, consumableTypes: SpellConsumableType[]) => {
             //     const type = container.data('type') as TableType;
             //
@@ -262,21 +279,6 @@ export const extendLootSheet = () => {
 
                 await setDataSourceSettingValue(this.actor, getType(event), ['weight', 'enabled'], [1, true]);
             });
-
-            // // quick roll button
-            // html.find('.weights i.fa-dice-d20').on('click', async (event) => {
-            //     event.preventDefault();
-            //     event.stopPropagation();
-            //
-            //     const element = $(event.currentTarget).closest('.tables-row');
-            //     const tableId = element.data('table-id') as string;
-            //     const table = rollableTableSources.find((table) => table.id === tableId);
-            //
-            //     let results = await drawFromTables(1, [getTableSettings(this.actor, table)]);
-            //     results = await rollTreasureValues(results);
-            //
-            //     await this.createItemsFromDraw(results);
-            // });
         }
     }
     return LootApp;
