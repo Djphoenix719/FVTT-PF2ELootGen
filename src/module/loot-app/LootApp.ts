@@ -15,12 +15,14 @@
  */
 
 import { MODULE_NAME, PF2E_LOOT_SHEET_NAME } from '../Constants';
-import { getDataSourceSettings, LootAppFlags, setDataSourceSettingValue } from './Flags';
+import { getDataSourceSettings, getSchoolFilterSettings, LootAppFlags, setDataSourceSettingValue } from './Flags';
 import { TABLE_WEIGHT_MAX, TABLE_WEIGHT_MIN } from './Settings';
 import { ItemData } from '../../types/Items';
 import { dataSourcesOfType, drawFromSources, DrawResult, mergeExistingStacks, mergeStacks, rollTreasureValues } from './Utilities';
 import { DataSource, TableType } from './data/DataSource';
 import ModuleSettings, { FEATURE_ALLOW_MERGING } from '../settings-app/ModuleSettings';
+import { SpellSchool } from './data/Spells';
+import { spellFilters } from './data/Filters';
 
 export enum LootAppSetting {
     Count = 'count',
@@ -40,7 +42,7 @@ export const extendLootSheet = () => {
                 {
                     navSelector: '.loot-app-nav',
                     contentSelector: '.loot-app-content',
-                    initial: 'treasure',
+                    initial: 'spell',
                 },
             ];
             return options;
@@ -54,19 +56,19 @@ export const extendLootSheet = () => {
             return `modules/${MODULE_NAME}/templates/loot-app/index.html`;
         }
 
-        protected getFlags(): LootAppFlags {
-            return this.actor.data.flags['pf2e-lootgen'];
-        }
-
         public getData(options?: Application.RenderOptions) {
             const data = super.getData(options);
 
-            data['tableSettings'] = {
-                minValue: TABLE_WEIGHT_MIN,
-                maxValue: TABLE_WEIGHT_MAX,
+            data['constants'] = {
+                rangeMin: TABLE_WEIGHT_MIN,
+                rangeMax: TABLE_WEIGHT_MAX,
             };
 
-            // data['spellSchools'] = Object.values(SpellSchool).map((school) => getSchoolSettings(this.actor, school as SpellSchool));
+            data['filters'] = {
+                spell: {
+                    school: Object.values(spellFilters).map((filter) => getSchoolFilterSettings(this.actor, filter)),
+                },
+            };
 
             data['sources'] = Object.values(TableType).reduce(
                 (prev, curr) =>
@@ -75,11 +77,6 @@ export const extendLootSheet = () => {
                     }),
                 {},
             );
-
-            // data['spellLevels'] = leveledSpellSources.map((table) => getTableSettings(this.actor, table));
-
-            console.warn(data);
-            console.warn(data['actor'].flags['pf2e-lootgen']);
 
             return data;
         }

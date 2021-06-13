@@ -59,7 +59,8 @@ form.loot-app {
                 }
             }
         }
-        .sources .form-group {
+        .sources .form-group,
+        .filters .form-group {
             margin: 0;
             label {
                 line-height: 1em;

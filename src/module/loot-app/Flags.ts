@@ -18,9 +18,10 @@ import { MODULE_NAME } from '../Constants';
 import { TreasureSource } from './data/Treasure';
 import { PermanentSource } from './data/Permanent';
 import { ConsumableSource } from './data/Consumable';
-import { SpellSource } from './data/Spells';
+import { SpellSchool, SpellSource } from './data/Spells';
 import { DataSource, TableType } from './data/DataSource';
 import { dataSourcesOfType } from './Utilities';
+import { AppFilter, FilterType } from './data/Filters';
 
 export const FLAGS_KEY = MODULE_NAME;
 
@@ -34,9 +35,19 @@ export interface LootAppFlags {
         [TableType.Consumable]: Record<string, ConsumableSource>;
         [TableType.Spell]: Record<string, SpellSource>;
     };
+    filters: {
+        [TableType.Spell]: {
+            [FilterType.SpellSchool]: Record<SpellSchool, AppFilter>;
+        };
+    };
     config: {
         [TKey in TableType]: LootCategoryConfig;
     };
+}
+
+export function getSchoolFilterSettings<T extends AppFilter>(actor: Actor, filter: T): T {
+    const flags: AppFilter = actor.getFlag(FLAGS_KEY, `filters.spell.school.${filter.id}`) as AppFilter;
+    return mergeObject(duplicate(filter) as AppFilter, flags) as T;
 }
 
 /**

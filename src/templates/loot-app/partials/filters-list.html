@@ -1,0 +1,32 @@
+<!-- TODO: Localization -->
+<div class="filters-wrap">
+    <h3>Data Filters</h3>
+    <div class="filters">
+        {{#each filters as |filter|}}
+            <div class="fitlers-row" data-source="{{json source}}">
+                <section class="header">
+                    <div class="form-group">
+                        <label for="{{filterFlag filter}}.enabled">{{filter.name}}</label>
+                        <input title="Include in Possibilities?"
+                               type="checkbox"
+                               id="{{filterFlag filter}}.enabled"
+                               name="{{filterFlag filter}}.enabled"
+                            {{checked filter.enabled}}
+                        >
+                    </div>
+                </section>
+                <section class="settings">
+                    <input type="range"
+                           title="Weight"
+                           min="{{@root.constants.rangeMin}}"
+                           max="{{@root.constants.rangeMax}}"
+                           step="0.25"
+                           id="{{filterFlag filter}}.weight"
+                           name="{{filterFlag filter}}.weight"
+                           value="{{filter.weight}}"
+                    >
+                </section>
+            </div>
+        {{/each}}
+    </div>
+</div>
