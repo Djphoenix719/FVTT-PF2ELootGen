@@ -21,9 +21,10 @@ import { TABLE_WEIGHT_MAX, TABLE_WEIGHT_MIN } from './Settings';
 import { permanentSources } from './data/Permanent';
 import { consumableSources } from './data/Consumable';
 import { ItemData } from '../../types/Items';
-import { dataSourcesOfType, drawFromTables } from './Utilities';
+import { dataSourcesOfType, drawFromSources, DrawResult, mergeExistingStacks, mergeStacks, rollTreasureValues } from './Utilities';
 import { DataSource, TableType } from './data/DataSource';
 import { spellSources } from './data/Spells';
+import ModuleSettings, { FEATURE_ALLOW_MERGING } from '../settings-app/ModuleSettings';
 
 export enum LootAppSetting {
     Count = 'count',
@@ -96,28 +97,28 @@ export const extendLootSheet = () => {
             //@ts-ignore
             await this.actor.updateEmbeddedDocuments('Item', datas);
         }
-        //
-        // /**
-        //  * Create a group of items from a draw result
-        //  * @param results
-        //  * @private
-        //  */
-        // private async createItemsFromDraw(results: TableDrawResult[]) {
-        //     let itemsToCreate = results.map((d) => d.itemData);
-        //     let itemsToUpdate: ItemData[];
-        //     if (ModuleSettings.get(FEATURE_ALLOW_MERGING)) {
-        //         const existing = this.actor.data.items.map((item) => item.data);
-        //         [itemsToUpdate, itemsToCreate] = mergeExistingStacks(existing, itemsToCreate);
-        //     } else {
-        //         itemsToCreate = mergeStacks(itemsToCreate);
-        //     }
-        //
-        //     itemsToCreate.sort((a, b) => a.data.slug.localeCompare(b.data.slug));
-        //
-        //     await this.updateItems(itemsToUpdate);
-        //     await this.createItems(itemsToCreate);
-        // }
-        //
+
+        /**
+         * Create a group of items from a draw result
+         * @param results
+         * @private
+         */
+        private async createItemsFromDraw(results: DrawResult[]) {
+            let itemsToUpdate: ItemData[];
+            let itemsToCreate = results.map((d) => d.itemData);
+            if (ModuleSettings.get(FEATURE_ALLOW_MERGING)) {
+                const existing = this.actor.data.items.map((item) => item.data);
+                [itemsToUpdate, itemsToCreate] = mergeExistingStacks(existing, itemsToCreate);
+            } else {
+                itemsToCreate = mergeStacks(itemsToCreate);
+            }
+
+            itemsToCreate.sort((a, b) => a.data.slug.localeCompare(b.data.slug));
+
+            await this.updateItems(itemsToUpdate);
+            await this.createItems(itemsToCreate);
+        }
+
         // private async createSpellItemsFromDraws(results: SpellDrawResults[]) {
         //     const itemDatas = await createItemsFromSpellDraws(results);
         //     await this.createItems(itemDatas);
@@ -167,11 +168,9 @@ export const extendLootSheet = () => {
                     .map((source) => getDataSourceSettings(this.actor, source))
                     .filter((table) => table.enabled);
 
-                let results = await drawFromTables(this.getLootAppSetting<number>(type, LootAppSetting.Count), sources);
-                console.warn(results);
-                // results = await rollTreasureValues(results);
-
-                // await this.createItemsFromDraw(results);
+                let results = await drawFromSources(this.getLootAppSetting<number>(type, LootAppSetting.Count), sources);
+                results = await rollTreasureValues(results);
+                await this.createItemsFromDraw(results);
             });
 
             // quick roll button
@@ -182,13 +181,9 @@ export const extendLootSheet = () => {
                 const element = $(event.currentTarget).closest('.sources-row');
                 const source: DataSource = element.data('source');
 
-                let results = await drawFromTables(1, [source]);
-
-                console.warn(results);
-
-                // results = await rollTreasureValues(results);
-                //
-                // await this.createItemsFromDraw(results);
+                let results = await drawFromSources(1, [source]);
+                results = await rollTreasureValues(results);
+                await this.createItemsFromDraw(results);
             });
 
             // const rollSpells = async (container: JQuery, consumableTypes: SpellConsumableType[]) => {

@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-import { SourceType, TableSource, TableType } from './DataSource';
+import { DataSource, isTableSource, SourceType, TableSource, TableType } from './DataSource';
 import { INamed } from './Mixins';
 import { RollableTablesPack } from './RollableTables';
 
 export interface TreasureSource extends TableSource, INamed {
     value: string;
+}
+export function isTreasureSource(source: DataSource): source is TreasureSource {
+    return isTableSource(source) && source.hasOwnProperty('value');
 }
 
 export const semipreciousStonesTables: Record<string, TreasureSource> = {

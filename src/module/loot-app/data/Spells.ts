@@ -28,6 +28,11 @@ export enum SpellSchool {
     Transmutation = 'transmutation',
 }
 
+export enum SpellItemType {
+    Wand = 'wand',
+    Scroll = 'scroll',
+}
+
 export interface SpellSource extends PackSource, INamed {}
 
 export const spellSources: Record<string, SpellSource> = {

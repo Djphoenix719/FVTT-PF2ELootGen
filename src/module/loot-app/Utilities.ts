@@ -16,18 +16,20 @@
 
 import { permanentSources } from './data/Permanent';
 import { consumableSources } from './data/Consumable';
-import { treasureSources } from './data/Treasure';
+import { isTreasureSource, TreasureSource, treasureSources } from './data/Treasure';
 import { spellSources } from './data/Spells';
 import { DataSource, getPack, getPackSourceContents, isPackSource, isPoolSource, isTableSource, TableType } from './data/DataSource';
 import { ItemData } from '../../types/Items';
 import { getItemFromPack, getTableFromPack } from '../Utilities';
 
 /**
- * Return distinct elements of the array.
- * @param array The array to fetch distinct elements from.
+ * Returns distinct elements of an array when used to filter an array.
+ * @param value
+ * @param index
+ * @param array
  */
-function distinct<T>(array: T[]): T[] {
-    return [...new Set(array)];
+function distinct<T>(value: T, index: number, array: T[]): boolean {
+    return array.indexOf(value) === index;
 }
 
 /**
@@ -84,7 +86,13 @@ export interface DrawResult {
 }
 export interface SpellDrawResult extends DrawResult {}
 
-export async function drawFromTables(count: number, sources: DataSource[], options?: DrawOptions): Promise<DrawResult[]> {
+/**
+ * Draw from a series of data sources and return the item data for the items drawn, along with their source tables.
+ * @param count The number of items to draw.
+ * @param sources The data sources available to be drawn from.
+ * @param options Options
+ */
+export async function drawFromSources(count: number, sources: DataSource[], options?: DrawOptions): Promise<DrawResult[]> {
     if (options === undefined) {
         options = {
             displayChat: true,
@@ -179,132 +187,129 @@ export async function drawFromTables(count: number, sources: DataSource[], optio
 //
 //     // @ts-ignore
 //     return ChatMessage.create(messageData, {});
-// }
 //
-// /**
-//  * Roll and modify item data for the values of a treasure item
-//  * @param results The results to modify
-//  */
-// export async function rollTreasureValues(results: TableDrawResult[]) {
-//     const rollValue = async (table: TableDrawResult): Promise<number> => {
-//         // @ts-ignore
-//         const roll = await new Roll((table.def as ITreasureTableDef).value).roll({ async: true });
-//         return roll.total;
-//     };
-//
-//     results = duplicate(results) as TableDrawResult[];
-//     for (const result of results) {
-//         if (isTreasureTableDef(result.def)) {
-//             result.itemData['data']['value']['value'] = await rollValue(result);
-//         }
-//     }
-//
-//     return results;
-// }
-//
-// export interface MergeStacksOptions {
-//     /**
-//      * Should values be compared when determining uniqueness?
-//      */
-//     compareValues?: boolean;
-// }
-//
-// /**
-//  * Get a function that correctly fetches a slug from an item data given the options.
-//  * @param options
-//  */
-// const getSlugFunction = (options: MergeStacksOptions) => {
-//     // Our slugs are human readable unique ids, in our case when we want to
-//     // compare the values as well we can append the value to the slug and get
-//     // a pseudo-hash to use for comparison instead
-//     let getSlug: (i: ItemData) => string;
-//     if (options.compareValues) {
-//         getSlug = (i) => `${i.data.slug}-${i.data.value?.value ?? i.data.price?.value}`;
-//     } else {
-//         getSlug = (i) => i.data.slug;
-//     }
-//     return getSlug;
-// };
-//
-// /**
-//  *  * Takes two sets of itemDatas, and attempts to merge all the new datas into the old datas.
-//  * Returns an array of items that were unable to be merges
-//  * @param oldDatas
-//  * @param newDatas
-//  * @param options
-//  * @returns [merged, remaining]
-//  *  merged: The successfully merged old + new items
-//  *  remaining: items that could not be merged.
-//  */
-// export function mergeExistingStacks(oldDatas: ItemData[], newDatas: ItemData[], options?: MergeStacksOptions) {
-//     if (options === undefined) {
-//         options = { compareValues: true };
-//     }
-//
-//     const getSlug = getSlugFunction(options);
-//
-//     oldDatas = duplicate(oldDatas) as ItemData[];
-//     newDatas = duplicate(newDatas) as ItemData[];
-//
-//     const oldSlugs = oldDatas.map(getSlug);
-//     const newSlugs = newDatas.map(getSlug);
-//
-//     for (let i = newSlugs.length - 1; i >= 0; i--) {
-//         const index = oldSlugs.indexOf(newSlugs[i]);
-//         if (index === -1) continue;
-//         mergeItem(oldDatas[index], newDatas[i]);
-//         newDatas.splice(i, 1);
-//     }
-//
-//     newDatas = mergeStacks(newDatas, options);
-//
-//     return [oldDatas, newDatas];
-// }
-//
-// /**
-//  * Merge an array of item datas into a set of stacked items of the same slug
-//  *  and optionally also compare and do not merge items based on provided options.
-//  * @param itemDatas
-//  * @param options
-//  */
-// export function mergeStacks(itemDatas: ItemData[], options?: MergeStacksOptions) {
-//     if (options === undefined) {
-//         options = { compareValues: true };
-//     }
-//
-//     itemDatas = duplicate(itemDatas) as ItemData[];
-//
-//     console.warn('mergeStacks: itemDatas');
-//     console.warn(itemDatas);
-//
-//     const getSlug = getSlugFunction(options);
-//
-//     let allSlugs: string[] = itemDatas.map(getSlug);
-//     const unqSlugs = allSlugs.filter(distinct);
-//     for (const slug of unqSlugs) {
-//         // we'll keep the first item in the array, and discard the rest
-//         const first = allSlugs.indexOf(slug);
-//         for (let i = itemDatas.length - 1; i > first; i--) {
-//             const itemData = itemDatas[i];
-//             if (getSlug(itemData) !== slug) continue;
-//             mergeItem(itemDatas[first], itemData);
-//             itemDatas.splice(i, 1);
-//             allSlugs.splice(i, 1);
-//         }
-//     }
-//
-//     return itemDatas;
-// }
-//
-// /**
-//  * Merge item a IN PLACE by incrementing it's quantity by item b's quantity.
-//  * @param a The target item
-//  * @param b The item to increase the target by
-//  */
-// export function mergeItem(a: ItemData, b: ItemData) {
-//     a.data.quantity.value += b.data.quantity.value;
-// }
-//
+
+/**
+ * Roll and create a new set of item data for the values of treasure items in the results
+ * @param results The results to duplicate and then modify
+ */
+export async function rollTreasureValues(results: DrawResult[]) {
+    const rollValue = async (source: TreasureSource): Promise<number> => {
+        // @ts-ignore
+        const roll = await new Roll(source.value).roll({ async: true });
+        return roll.total;
+    };
+
+    results = duplicate(results) as DrawResult[];
+    for (const result of results) {
+        if (isTreasureSource(result.source)) {
+            result.itemData['data']['value']['value'] = await rollValue(result.source);
+        }
+    }
+
+    return results;
+}
+
+export interface MergeStacksOptions {
+    /**
+     * Should values be compared when determining uniqueness?
+     */
+    compareValues?: boolean;
+}
+
+/**
+ * Get a function that correctly fetches a slug from an item data given the options.
+ * @param options
+ */
+const getSlugFunction = (options: MergeStacksOptions) => {
+    // Our slugs are human readable unique ids, in our case when we want to
+    // compare the values as well we can append the value to the slug and get
+    // a pseudo-hash to use for comparison instead
+    let getSlug: (i: ItemData) => string;
+    if (options.compareValues) {
+        getSlug = (i) => `${i.data.slug}-${i.data.value?.value ?? i.data.price?.value}`;
+    } else {
+        getSlug = (i) => i.data.slug;
+    }
+    return getSlug;
+};
+
+/**
+ *  * Takes two sets of itemDatas, and attempts to merge all the new datas into the old datas.
+ * Returns an array of items that were unable to be merges
+ * @param oldDatas
+ * @param newDatas
+ * @param options
+ * @returns [merged, remaining]
+ *  merged: The successfully merged old + new items
+ *  remaining: items that could not be merged.
+ */
+export function mergeExistingStacks(oldDatas: ItemData[], newDatas: ItemData[], options?: MergeStacksOptions) {
+    if (options === undefined) {
+        options = { compareValues: true };
+    }
+
+    const getSlug = getSlugFunction(options);
+
+    oldDatas = duplicate(oldDatas) as ItemData[];
+    newDatas = duplicate(newDatas) as ItemData[];
+
+    const oldSlugs = oldDatas.map(getSlug);
+    const newSlugs = newDatas.map(getSlug);
+
+    for (let i = newSlugs.length - 1; i >= 0; i--) {
+        const index = oldSlugs.indexOf(newSlugs[i]);
+        if (index === -1) continue;
+        mergeItem(oldDatas[index], newDatas[i]);
+        newDatas.splice(i, 1);
+    }
+
+    newDatas = mergeStacks(newDatas, options);
+
+    return [oldDatas, newDatas];
+}
+
+/**
+ * Merge an array of item datas into a set of stacked items of the same slug
+ *  and optionally also compare and do not merge items based on provided options.
+ * @param itemDatas
+ * @param options
+ */
+export function mergeStacks(itemDatas: ItemData[], options?: MergeStacksOptions) {
+    if (options === undefined) {
+        options = { compareValues: true };
+    }
+
+    itemDatas = duplicate(itemDatas) as ItemData[];
+
+    const getSlug = getSlugFunction(options);
+
+    let allSlugs: string[] = itemDatas.map(getSlug);
+    const unqSlugs = allSlugs.filter(distinct);
+    for (const slug of unqSlugs) {
+        // we'll keep the first item in the array, and discard the rest
+        const first = allSlugs.indexOf(slug);
+        for (let i = itemDatas.length - 1; i > first; i--) {
+            const itemData = itemDatas[i];
+            if (getSlug(itemData) !== slug) continue;
+            mergeItem(itemDatas[first], itemData);
+            itemDatas.splice(i, 1);
+            allSlugs.splice(i, 1);
+        }
+    }
+
+    return itemDatas;
+}
+
+/**
+ * Merge item a IN PLACE by incrementing it's quantity by item b's quantity.
+ * @param a The target item
+ * @param b The item to increase the target by
+ */
+export function mergeItem(a: ItemData, b: ItemData) {
+    a.data.quantity.value += b.data.quantity.value;
+}
+
 // export async function createItemFromSpell(spellData: ItemData, templateId: string, level?: number) {
 //     level = level ?? spellData.data.level.value;
 //
