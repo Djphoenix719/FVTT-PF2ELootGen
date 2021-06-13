@@ -19,7 +19,7 @@ import { ItemData } from '../../types/Items';
 import { ISpecification } from './ISpecification';
 
 export class NotFilter extends AbstractFilter {
-    constructor(filter: ISpecification<ItemData>) {
+    public constructor(filter: ISpecification<ItemData>) {
         super([filter]);
     }
 

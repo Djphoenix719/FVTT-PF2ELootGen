@@ -16,8 +16,13 @@
 
 import { AbstractFilter } from './AbstractFilter';
 import { ItemData } from '../../types/Items';
+import { ISpecification } from './ISpecification';
 
 export class OrFilter extends AbstractFilter {
+    public constructor(children?: ISpecification<ItemData>[]) {
+        super(children);
+    }
+
     public isSatisfiedBy(data: ItemData): boolean {
         for (const child of this.children) {
             if (child.isSatisfiedBy(data)) {
