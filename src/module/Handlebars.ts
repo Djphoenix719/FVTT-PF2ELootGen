@@ -2,7 +2,6 @@ import { MODULE_NAME } from './Constants';
 import { DataSource } from './loot-app/data/DataSource';
 
 export async function registerHandlebarsTemplates() {
-    // prettier-ignore
     const templatePaths = [
         `modules/${MODULE_NAME}/templates/settings-app/SettingsApp.html`,
         `modules/${MODULE_NAME}/templates/settings-app/tabs/About.html`,
@@ -17,10 +16,12 @@ export async function registerHandlebarsTemplates() {
         `modules/${MODULE_NAME}/templates/loot-app/tabs/treasure/index.html`,
         `modules/${MODULE_NAME}/templates/loot-app/tabs/spell/index.html`,
 
-        `modules/${MODULE_NAME}/templates/loot-app/partials/loot-profile.html`,
         `modules/${MODULE_NAME}/templates/loot-app/partials/sources-list.html`,
+        `modules/${MODULE_NAME}/templates/loot-app/partials/filters-list.html`,
+        `modules/${MODULE_NAME}/templates/loot-app/partials/loot-profile.html`,
         `modules/${MODULE_NAME}/templates/loot-app/partials/table-buttons.html`,
     ];
+    await Handlebars.registerPartial('filters-list', '{{> modules/pf2e-lootgen/templates/loot-app/partials/filters-list.html }}');
     await Handlebars.registerPartial('sources-list', '{{> modules/pf2e-lootgen/templates/loot-app/partials/sources-list.html }}');
     await loadTemplates(templatePaths);
 }

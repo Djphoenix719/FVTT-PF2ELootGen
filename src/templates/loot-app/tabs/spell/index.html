@@ -18,17 +18,7 @@
                    value="{{default actor.flags.pf2e-lootgen.config.spell.count 1}}">
         </div>
 
-        {{#each spellSchools as |school|}}
-            <div class="form-group">
-                <label for="flags.pf2e-lootgen.config.spell.{{school.id}}.enabled">{{school.name}}</label>
-                <input title="Include {{school.name}} Spells?"
-                       type="checkbox"
-                       id="flags.pf2e-lootgen.config.spell.{{school.id}}.enabled"
-                       name="flags.pf2e-lootgen.config.spell.{{school.id}}.enabled"
-                    {{checked school.enabled}}
-                >
-            </div>
-        {{/each}}
+        {{ filters-list filters=filters sourceType="spell" }}
     </div>
 
     {{> sources-list sources=sources sourceType="spell" displayQuickRolls=false}}

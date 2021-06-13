@@ -1,20 +1,21 @@
 <!-- TODO: Localization -->
-<div class="sources-wrap">
-    <h3>Data Sources</h3>
-    <div class="sources">
-        {{#each (lookup sources sourceType) as |source|}}
+<div class="filters-wrap">
+    <h3>Data Filters</h3>
+    <div class="filters">
+        {{log filters}}
+        {{#each (lookup filters sourceType) as |filters|}}
             <div class="sources-row" data-source="{{json source}}">
                 <section class="header">
                     <div class="form-group">
                         {{#if ../displayQuickRolls}}
                             <i class="fas fa-dice-d20"></i>
                         {{/if}}
-                        <label for="{{sourceFlag source}}.enabled">{{source.name}}</label>
+                        <label for="{{filterFlag filter}}.enabled">{{filter.name}}</label>
                         <input title="Include in Possibilities?"
                                type="checkbox"
-                               id="{{sourceFlag source}}.enabled"
-                               name="{{sourceFlag source}}.enabled"
-                            {{checked source.enabled}}
+                               id="{{filterFlag filter}}.enabled"
+                               name="{{filterFlag filter}}.enabled"
+                            {{checked filter.enabled}}
                         >
                     </div>
                 </section>
@@ -24,9 +25,9 @@
                            min="{{@root.constants.rangeMin}}"
                            max="{{@root.constants.rangeMax}}"
                            step="0.25"
-                           id="{{sourceFlag source}}.weight"
-                           name="{{sourceFlag source}}.weight"
-                           value="{{source.weight}}"
+                           id="{{filterFlag filter}}.weight"
+                           name="{{filterFlag filter}}.weight"
+                           value="{{filter.weight}}"
                     >
                 </section>
             </div>

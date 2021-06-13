@@ -21,6 +21,7 @@ import { ConsumableSource } from './data/Consumable';
 import { SpellSource } from './data/Spells';
 import { DataSource, TableType } from './data/DataSource';
 import { dataSourcesOfType } from './Utilities';
+import { AppFilter } from './data/Filters';
 
 export const FLAGS_KEY = MODULE_NAME;
 
@@ -37,6 +38,16 @@ export interface LootAppFlags {
     config: {
         [TKey in TableType]: LootCategoryConfig;
     };
+}
+
+/**
+ *
+ * @param actor
+ * @param filter
+ */
+export function getFilterSettings<T extends AppFilter>(actor: Actor, filter: T): T {
+    const flags: AppFilter = actor.getFlag(FLAGS_KEY, `filters.${filter.id}`) as AppFilter;
+    return mergeObject(duplicate(filter) as AppFilter, flags) as T;
 }
 
 /**
