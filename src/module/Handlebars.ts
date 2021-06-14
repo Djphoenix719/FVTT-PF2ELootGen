@@ -1,6 +1,6 @@
 import { MODULE_NAME } from './Constants';
 import { DataSource } from './loot-app/data/DataSource';
-import { AppFilter } from './loot-app/data/Filters';
+import { AppFilter } from './loot-app/Filters';
 
 export async function registerHandlebarsTemplates() {
     const templatePaths = [
