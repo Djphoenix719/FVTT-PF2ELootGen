@@ -15,7 +15,7 @@
  */
 
 import { MODULE_NAME, PF2E_LOOT_SHEET_NAME } from '../Constants';
-import { getDataSourceSettings, getFilterSettings, setDataSourceSettingValue, setSpellFilterSettingValue } from './Flags';
+import { FLAGS_KEY, getDataSourceSettings, getFilterSettings, setDataSourceSettingValue, setSpellFilterSettingValue } from './Flags';
 import { TABLE_WEIGHT_MAX, TABLE_WEIGHT_MIN } from './Settings';
 import { ItemData } from '../../types/Items';
 import { dataSourcesOfType, drawFromSources, DrawResult, mergeExistingStacks, mergeStacks, rollTreasureValues } from './Utilities';
@@ -82,6 +82,13 @@ export const extendLootSheet = () => {
                     }),
                 {},
             );
+
+            data['flags'] = {
+                ...data['flags'],
+                ...data['actor']['flags'][FLAGS_KEY],
+            };
+
+            console.warn(data);
 
             return data;
         }

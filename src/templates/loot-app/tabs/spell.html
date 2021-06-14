@@ -1,0 +1,19 @@
+<!-- TODO: Localization -->
+<div class="tab-container" data-type="spell">
+
+    {{#set-block "pre-buttons"}}
+            <button class="roll-scroll" title="Scrolls"><i class="fas fa-scroll"></i></button>
+            <button class="roll-wand" title="Wands"><i class="fas fa-magic"></i></button>
+            <button class="roll-both" title="Scroll or Wand"><i class="fas fa-scroll"></i><i class="fas fa-magic"></i></button>
+    {{/set-block}}
+    {{> tab-buttons roll=false }}
+
+    {{> tab-config key="spell" }}
+
+    {{> sources-list sources=sources sourceType="spell" displayQuickRolls=false}}
+
+    {{#each filters.spell.school as |filter|}}
+        {{> weight-range key="" valueWeight=filter.weight valueEnabled=value.enabled }}
+    {{/each}}
+
+</div>
