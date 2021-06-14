@@ -18,10 +18,11 @@ import { MODULE_NAME } from '../Constants';
 import { TreasureSource } from './data/Treasure';
 import { PermanentSource } from './data/Permanent';
 import { ConsumableSource } from './data/Consumable';
-import { SpellSchool, SpellSource } from './data/Spells';
-import { DataSource, TableType } from './data/DataSource';
+import { SpellSource } from './data/Spells';
+import { DataSource, ItemType } from './data/DataSource';
 import { dataSourcesOfType } from './Utilities';
-import { AppFilter, FilterType } from './data/Filters';
+import { AppFilter, FilterType, spellFilters } from './Filters';
+import { IEnabled, IWeighted } from './data/Mixins';
 
 export const FLAGS_KEY = MODULE_NAME;
 
@@ -30,23 +31,24 @@ export interface LootCategoryConfig {
 }
 export interface LootAppFlags {
     sources: {
-        [TableType.Treasure]: Record<string, TreasureSource>;
-        [TableType.Permanent]: Record<string, PermanentSource>;
-        [TableType.Consumable]: Record<string, ConsumableSource>;
-        [TableType.Spell]: Record<string, SpellSource>;
+        [ItemType.Treasure]: Record<string, TreasureSource>;
+        [ItemType.Permanent]: Record<string, PermanentSource>;
+        [ItemType.Consumable]: Record<string, ConsumableSource>;
+        [ItemType.Spell]: Record<string, SpellSource>;
     };
     filters: {
-        [TableType.Spell]: {
-            [FilterType.SpellSchool]: Record<SpellSchool, AppFilter>;
+        [ItemType.Spell]: {
+            [FilterType.SpellSchool]: Record<string, AppFilter>;
+            [FilterType.SpellLevel]: Record<string, AppFilter>;
         };
     };
     config: {
-        [TKey in TableType]: LootCategoryConfig;
+        [TKey in ItemType]: LootCategoryConfig;
     };
 }
 
-export function getSchoolFilterSettings<T extends AppFilter>(actor: Actor, filter: T): T {
-    const flags: AppFilter = actor.getFlag(FLAGS_KEY, `filters.spell.school.${filter.id}`) as AppFilter;
+export function getFilterSettings<T extends AppFilter>(actor: Actor, filter: T): T {
+    const flags: AppFilter = actor.getFlag(FLAGS_KEY, `filters.${filter.filterCategory}.${filter.filterType}.${filter.id}`) as AppFilter;
     return mergeObject(duplicate(filter) as AppFilter, flags) as T;
 }
 
@@ -79,18 +81,18 @@ export async function setDataSourceSetting(actor: Actor, source: DataSource | Da
     return await actor.update(updateData);
 }
 
-export type SourceKeys = keyof TreasureSource | PermanentSource | ConsumableSource | SpellSource;
-export async function setDataSourceSettingValue(actor: Actor, type: TableType, keys: SourceKeys | SourceKeys[], values: any | any[]): Promise<Actor> {
+export type SetValueKeys = keyof IEnabled | keyof IWeighted;
+export async function setDataSourceSettingValue(actor: Actor, type: ItemType, keys: SetValueKeys | SetValueKeys[], values: any | any[]): Promise<Actor> {
     if (!Array.isArray(keys)) keys = [keys];
     if (!Array.isArray(values)) values = [values];
     if (keys.length !== values.length) throw new Error(`keys and values must be of equal length, got ${keys.length} and ${values.length}`);
 
     const sources = dataSourcesOfType(type);
-    const updateData = Object.values(sources).reduce(
+    let updateData = Object.values(sources).reduce(
         (prevSource, currSource) =>
             mergeObject(
                 prevSource,
-                (keys as SourceKeys[]).reduce(
+                (keys as SetValueKeys[]).reduce(
                     (prevKey, currKey, currIdx) =>
                         mergeObject(prevKey, {
                             [`flags.${FLAGS_KEY}.sources.${currSource.itemType}.${currSource.id}.${currKey}`]: values[currIdx],
@@ -100,5 +102,29 @@ export async function setDataSourceSettingValue(actor: Actor, type: TableType, k
             ),
         {},
     );
+
+    return await actor.update(updateData);
+}
+
+export async function setSpellFilterSettingValue(actor: Actor, type: FilterType, keys: SetValueKeys | SetValueKeys[], values: any | any[]): Promise<Actor> {
+    if (!Array.isArray(keys)) keys = [keys];
+    if (!Array.isArray(values)) values = [values];
+    if (keys.length !== values.length) throw new Error(`keys and values must be of equal length, got ${keys.length} and ${values.length}`);
+
+    let updateData = Object.values(spellFilters).reduce(
+        (prevSource, currSource) =>
+            mergeObject(
+                prevSource,
+                (keys as SetValueKeys[]).reduce(
+                    (prevKey, currKey, currIdx) =>
+                        mergeObject(prevKey, {
+                            [`flags.${FLAGS_KEY}.filters.spell.${currSource.filterType}.${currSource.id}.${currKey}`]: values[currIdx],
+                        }),
+                    {},
+                ),
+            ),
+        {},
+    );
+
     return await actor.update(updateData);
 }

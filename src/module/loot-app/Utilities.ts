@@ -17,10 +17,12 @@
 import { permanentSources } from './data/Permanent';
 import { consumableSources } from './data/Consumable';
 import { isTreasureSource, TreasureSource, treasureSources } from './data/Treasure';
-import { spellSources } from './data/Spells';
-import { DataSource, getPack, getPackSourceContents, isPackSource, isPoolSource, isTableSource, TableType } from './data/DataSource';
+import { SpellItemType, spellSources } from './data/Spells';
+import { DataSource, getPack, isPackSource, isPoolSource, isTableSource, ItemType } from './data/DataSource';
 import { ItemData } from '../../types/Items';
 import { getItemFromPack, getTableFromPack } from '../Utilities';
+import { IWeighted } from './data/Mixins';
+import { ISpecification } from '../filter/ISpecification';
 
 /**
  * Returns distinct elements of an array when used to filter an array.
@@ -44,38 +46,18 @@ function chooseFromArray<T>(choices: T[]): T {
  * Return the correct source map for the given item type.
  * @param type Type of sources to fetch.
  */
-export function dataSourcesOfType(type: TableType): Record<string, DataSource> {
+export function dataSourcesOfType(type: ItemType): Record<string, DataSource> {
     switch (type) {
-        case TableType.Treasure:
+        case ItemType.Treasure:
             return treasureSources;
-        case TableType.Permanent:
+        case ItemType.Permanent:
             return permanentSources;
-        case TableType.Consumable:
+        case ItemType.Consumable:
             return consumableSources;
-        case TableType.Spell:
+        case ItemType.Spell:
             return spellSources;
     }
 }
-
-// /**
-//  * Fetch and package data needed to render spell school selection in the scrolls box.
-//  * @param actor Actor to fetch from.
-//  * @param school School to fetch for.
-//  */
-// export function getSchoolSettings(actor: Actor, school: SpellSchool) {
-//     const getParam = function (key: string): any {
-//         return actor.getFlag(MODULE_NAME, `settings.scroll.${school}.${key}`);
-//     };
-//
-//     const enabled: boolean = getParam('enabled') ?? true;
-//
-//     return {
-//         id: school,
-//         name: school.capitalize(),
-//         enabled,
-//     };
-// }
-// export type SchoolData = ReturnType<typeof getSchoolSettings>;
 
 export interface DrawOptions {
     displayChat?: boolean;
@@ -152,6 +134,11 @@ export async function drawFromSources(count: number, sources: DataSource[], opti
     //     await buildRollTableMessage(results);
     // }
     return results;
+}
+
+export async function createSpellItems(itemDatas: ItemData[], itemTypes: SpellItemType[]): Promise<ItemData[]> {
+    // TODO:
+    return undefined;
 }
 
 //
@@ -309,22 +296,3 @@ export function mergeStacks(itemDatas: ItemData[], options?: MergeStacksOptions)
 export function mergeItem(a: ItemData, b: ItemData) {
     a.data.quantity.value += b.data.quantity.value;
 }
-
-// export async function createItemFromSpell(spellData: ItemData, templateId: string, level?: number) {
-//     level = level ?? spellData.data.level.value;
-//
-//     // @ts-ignore
-//     const templateObject = await game.packs.get(SCROLL_TEMPLATE_PACK_ID)?.getDocument(templateId);
-//     console.warn(templateObject);
-//
-//     // const consumableData = consumable.toObject();
-//     // consumableData.data.traits.value.push(...spellData.data.traditions.value);
-//     // consumableData.name = getNameForSpellConsumable(type, spellData.name, heightenedLevel);
-//     // const description = consumableData.data.description.value;
-//     // consumableData.data.description.value = `@Compendium[pf2e.spells-srd.${spellData._id}]{${spellData.name}}\n<hr/>${description}`;
-//     // consumableData.data.spell = {
-//     //     data: duplicate(spellData),
-//     //     heightenedLevel: heightenedLevel,
-//     // };
-//     // return consumableData;
-// }

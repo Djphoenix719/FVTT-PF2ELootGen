@@ -23,7 +23,7 @@ export enum SourceType {
     Pool = 'pool',
 }
 
-export enum TableType {
+export enum ItemType {
     Treasure = 'treasure',
     Permanent = 'permanent',
     Consumable = 'consumable',
@@ -33,7 +33,7 @@ export enum TableType {
 export interface DataSource extends IWeighted, IEnabled {
     id: string;
     sourceType: SourceType;
-    itemType?: TableType;
+    itemType?: ItemType;
 }
 
 export interface TableSource extends DataSource {
