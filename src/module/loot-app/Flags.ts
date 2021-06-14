@@ -47,6 +47,9 @@ export interface LootAppFlags {
     };
 }
 
+// TODO: Should EVERY storable setting have a unique key, so we can handle all data save and load the same way?
+//  > Probably!
+
 export function getFilterSettings<T extends AppFilter>(actor: Actor, filter: T): T {
     const flags: AppFilter = actor.getFlag(FLAGS_KEY, `filters.${filter.filterCategory}.${filter.filterType}.${filter.id}`) as AppFilter;
     return mergeObject(duplicate(filter) as AppFilter, flags) as T;

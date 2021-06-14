@@ -1,97 +1,115 @@
 import { MODULE_NAME } from './Constants';
-import { DataSource } from './loot-app/data/DataSource';
+import { DataSource, ItemType } from './loot-app/data/DataSource';
 import { AppFilter } from './loot-app/Filters';
 
+export interface HandlebarsContext {
+    data: Record<string, any> & {
+        root: Record<string, any>;
+    };
+    hash?: Record<string, any>;
+    // contents of block
+    fn?: (context: any) => string;
+    // contents of else block
+    inverse?: () => string;
+    loc?: {
+        start: { line: number; column: number };
+        end: { line: number; column: number };
+    };
+    name?: string;
+}
+
 export async function registerHandlebarsTemplates() {
+    const templatePath = (path: string) => `modules/${MODULE_NAME}/${path}`;
+
+    const partials: Record<string, string> = {
+        'weight-range': `templates/loot-app/partials/weight-range.html`,
+        'filters-list': `templates/loot-app/partials/filters-list.html`,
+        'sources-list': `templates/loot-app/partials/sources-list.html`,
+        'tab-buttons': `templates/loot-app/tabs/partials/tab-buttons.html`,
+        'tab-config': `templates/loot-app/tabs/partials/tab-config.html`,
+    };
+
     const templatePaths = [
-        `modules/${MODULE_NAME}/templates/settings-app/SettingsApp.html`,
-        `modules/${MODULE_NAME}/templates/settings-app/tabs/About.html`,
-        `modules/${MODULE_NAME}/templates/settings-app/tabs/Features.html`,
-        `modules/${MODULE_NAME}/templates/settings-app/tabs/License.html`,
+        `templates/settings-app/SettingsApp.html`,
+        `templates/settings-app/tabs/About.html`,
+        `templates/settings-app/tabs/Features.html`,
+        `templates/settings-app/tabs/License.html`,
+        `templates/loot-app/inventory.html`,
+        `templates/loot-app/sidebar.html`,
+        `templates/loot-app/partials/sources-list.html`,
+        `templates/loot-app/partials/filters-list.html`,
+        `templates/loot-app/partials/loot-profile.html`,
 
-        `modules/${MODULE_NAME}/templates/loot-app/inventory.html`,
-        `modules/${MODULE_NAME}/templates/loot-app/sidebar.html`,
-        `modules/${MODULE_NAME}/templates/loot-app/tabs/consumable/index.html`,
-        `modules/${MODULE_NAME}/templates/loot-app/tabs/permanent/index.html`,
-        `modules/${MODULE_NAME}/templates/loot-app/tabs/gm-settings/index.html`,
-        `modules/${MODULE_NAME}/templates/loot-app/tabs/treasure/index.html`,
-        `modules/${MODULE_NAME}/templates/loot-app/tabs/spell/index.html`,
+        `templates/loot-app/tabs/settings.html`,
 
-        `modules/${MODULE_NAME}/templates/loot-app/partials/sources-list.html`,
-        `modules/${MODULE_NAME}/templates/loot-app/partials/filters-list.html`,
-        `modules/${MODULE_NAME}/templates/loot-app/partials/loot-profile.html`,
-        `modules/${MODULE_NAME}/templates/loot-app/partials/table-buttons.html`,
-    ];
-    await Handlebars.registerPartial('filters-list', '{{> modules/pf2e-lootgen/templates/loot-app/partials/filters-list.html }}');
-    await Handlebars.registerPartial('sources-list', '{{> modules/pf2e-lootgen/templates/loot-app/partials/sources-list.html }}');
+        ...Object.values(ItemType).map((type) => `templates/loot-app/tabs/${type}.html`),
+        ...Object.values(partials),
+    ].map(templatePath);
+
+    for (const [key, value] of Object.entries(partials)) {
+        Handlebars.registerPartial(key, `{{> ${templatePath(value)} }}`);
+    }
+
     await loadTemplates(templatePaths);
 }
 
 export function registerHandlebarsHelpers() {
-    Handlebars.registerHelper('sourceFlag', function (source: DataSource) {
+    Handlebars.registerHelper('sourceFlag', (source: DataSource) => {
         return `flags.pf2e-lootgen.sources.${source.itemType}.${source.id}`;
     });
-    Handlebars.registerHelper('filterFlag', function (filter: AppFilter) {
+    Handlebars.registerHelper('filterFlag', (filter: AppFilter) => {
         return `flags.pf2e-lootgen.filters.${filter.filterCategory}.${filter.filterType}.${filter.id}`;
     });
 
-    Handlebars.registerHelper('json', function (obj: any) {
-        return JSON.stringify(obj);
+    Handlebars.registerHelper('json', (data: any) => {
+        return JSON.stringify(data);
     });
 
-    Handlebars.registerHelper('includes', function (array: any[], value: any, options: any) {
-        if (array.includes(value)) {
-            return options.fn(this);
-        } else {
-            return options.inverse(this);
-        }
-    });
-    Handlebars.registerHelper('ifeq', function (v1, v2, options) {
-        if (v1 === v2) return options.fn(this);
-        else return options.inverse(this);
-    });
-    Handlebars.registerHelper('ifne', function (v1, v2, options) {
-        if (v1 !== v2) return options.fn(this);
-        else return options.inverse(this);
-    });
-    Handlebars.registerHelper('ifgt', function (v1, v2, options) {
-        if (v1 > v2) return options.fn(this);
-        else return options.inverse(this);
-    });
-    Handlebars.registerHelper('iflt', function (v1, v2, options) {
-        if (v1 < v2) return options.fn(this);
-        else return options.inverse(this);
+    Handlebars.registerHelper('default', (value, defaultValue) => {
+        return value === undefined || value === null ? defaultValue : value;
     });
 
-    Handlebars.registerHelper('isNaN', function (context, options) {
-        if (isNaN(context) && !(typeof context === 'string')) {
-            return options.fn(this);
-        } else {
-            return options.inverse(this);
-        }
-    });
+    /***
+     * Walks an object tree with a data path with replaceable keys to avoid lookup chains.
+     */
+    Handlebars.registerHelper('walk', (data: Record<string, any>, path: string, context: HandlebarsContext) => {
+        let current = data;
+        const parts = path.split('.');
+        while (parts.length > 0) {
+            let key = parts.shift();
 
-    Handlebars.registerHelper('default', function (obj, def) {
-        if (obj === undefined || obj === null) {
-            return def;
-        } else {
-            return obj;
-        }
-    });
+            if (key.startsWith('$')) {
+                key = context.hash[key.substr(1)];
+            }
+            current = current[key];
 
-    Handlebars.registerHelper('undefined', function () {
-        return undefined;
-    });
-    Handlebars.registerHelper('commas', function (context) {
-        return context.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    });
-
-    Handlebars.registerHelper('hasKey', function (context, key) {
-        for (const prop of context) {
-            if (prop.hasOwnProperty(key)) {
-                return true;
+            if (current === null || current === undefined) {
+                return undefined;
             }
         }
-        return false;
+        return current;
+    });
+
+    Handlebars.registerHelper('setting-key', (key: string, context: HandlebarsContext) => {});
+
+    const loadPartial = (name: string) => {
+        let partial = Handlebars.partials[name];
+        if (typeof partial === 'string') {
+            partial = Handlebars.compile(partial);
+            Handlebars.partials[name] = partial;
+        }
+        return partial;
+    };
+
+    const blockKey = (key: string) => `${MODULE_NAME}-${key}`;
+    Handlebars.registerHelper('set-block', (name: string, options) => {
+        Handlebars.registerPartial(blockKey(name), options.fn);
+    });
+    Handlebars.registerHelper('del-block', (name: string) => {
+        Handlebars.unregisterPartial(blockKey(name));
+    });
+    Handlebars.registerHelper('get-block', (name: string, options) => {
+        const partial = loadPartial(blockKey(name)) || options.fn;
+        return partial(this, { data: options.hash });
     });
 }

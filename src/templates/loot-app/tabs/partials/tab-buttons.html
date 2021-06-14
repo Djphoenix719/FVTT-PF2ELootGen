@@ -1,0 +1,25 @@
+<div class="buttons">
+
+    {{# get-block "pre-buttons"}}{{/get-block}}
+    {{ del-block "pre-buttons" }}
+
+    {{#if (default roll true)}}
+        <button class="roll" title="Roll"><i class="fas fa-dice-d20"></i></button>
+    {{/if}}
+
+    {{#if (default all true)}}
+        <button class="check-all" title="All Tables"><i class="fas fa-check-square"></i></button>
+    {{/if}}
+
+    {{#if (default none true)}}
+        <button class="check-none" title="No Tables"><i class="far fa-check-square"></i></button>
+    {{/if}}
+
+    {{#if (default reset true)}}
+        <button class="reset" title="Reset"><i class="fas fa-undo"></i></button>
+    {{/if}}
+
+    {{# get-block "post-buttons"}}{{/get-block}}
+    {{ del-block "post-buttons" }}
+
+</div>
