@@ -16,8 +16,8 @@
 
 import { MODULE_NAME } from '../Constants';
 import { DataSource, ItemType } from './data/DataSource';
-import { dataSourcesOfType } from './Utilities';
-import { AppFilter, FilterType, spellFilters } from './Filters';
+import { dataSourcesOfType, filtersOfType } from './Utilities';
+import { AppFilter, FilterType } from './Filters';
 import { IEnabled, IWeighted } from './data/Mixins';
 
 export const FLAGS_KEY = MODULE_NAME;
@@ -99,49 +99,36 @@ export async function setDataSourceSetting(actor: Actor, source: DataSource | Da
 }
 
 export type SetValueKeys = keyof IEnabled | keyof IWeighted;
-export async function setDataSourceSettingValue(actor: Actor, type: ItemType, keys: SetValueKeys | SetValueKeys[], values: any | any[]): Promise<Actor> {
+export function buildSourceSettingUpdate(actor: Actor, type: ItemType, keys: SetValueKeys | SetValueKeys[], values: any | any[]): Record<string, any> {
     if (!Array.isArray(keys)) keys = [keys];
     if (!Array.isArray(values)) values = [values];
-    if (keys.length !== values.length) throw new Error(`keys and values must be of equal length, got ${keys.length} and ${values.length}`);
+    if (keys.length !== values.length) {
+        throw new Error(`keys and values must be of equal length, got ${keys.length} and ${values.length}.`);
+    }
 
     const sources = dataSourcesOfType(type);
-    let updateData = Object.values(sources).reduce(
-        (prevSource, currSource) =>
-            mergeObject(
-                prevSource,
-                (keys as SetValueKeys[]).reduce(
-                    (prevKey, currKey, currIdx) =>
-                        mergeObject(prevKey, {
-                            [`flags.${FLAGS_KEY}.sources.${currSource.itemType}.${currSource.id}.${currKey}`]: values[currIdx],
-                        }),
-                    {},
-                ),
-            ),
-        {},
-    );
-
-    return await actor.update(updateData);
+    const updateData: Record<string, any> = {};
+    for (const source of Object.values(sources)) {
+        for (let i = 0; i < keys.length; i++) {
+            updateData[`${sourceFlagPath(source, true)}.${keys[i]}`] = values[i];
+        }
+    }
+    return updateData;
 }
 
-export async function setSpellFilterSettingValue(actor: Actor, type: FilterType, keys: SetValueKeys | SetValueKeys[], values: any | any[]): Promise<Actor> {
+export function buildFilterSettingUpdate(actor: Actor, type: FilterType, keys: SetValueKeys | SetValueKeys[], values: any | any[]): Record<string, any> {
     if (!Array.isArray(keys)) keys = [keys];
     if (!Array.isArray(values)) values = [values];
-    if (keys.length !== values.length) throw new Error(`keys and values must be of equal length, got ${keys.length} and ${values.length}`);
+    if (keys.length !== values.length) {
+        throw new Error(`keys and values must be of equal length, got ${keys.length} and ${values.length}.`);
+    }
 
-    let updateData = Object.values(spellFilters).reduce(
-        (prevSource, currSource) =>
-            mergeObject(
-                prevSource,
-                (keys as SetValueKeys[]).reduce(
-                    (prevKey, currKey, currIdx) =>
-                        mergeObject(prevKey, {
-                            [`flags.${FLAGS_KEY}.filters.spell.${currSource.filterType}.${currSource.id}.${currKey}`]: values[currIdx],
-                        }),
-                    {},
-                ),
-            ),
-        {},
-    );
-
-    return await actor.update(updateData);
+    const filters = filtersOfType(type);
+    const updateData: Record<string, any> = {};
+    for (const filter of Object.values(filters)) {
+        for (let i = 0; i < keys.length; i++) {
+            updateData[`${filterFlagPath(filter, true)}.${keys[i]}`] = values[i];
+        }
+    }
+    return updateData;
 }

@@ -15,7 +15,7 @@
  */
 
 import { MODULE_NAME, PF2E_LOOT_SHEET_NAME } from '../Constants';
-import { FLAGS_KEY, getDataSourceSettings, getFilterSettings, setDataSourceSettingValue, setSpellFilterSettingValue } from './Flags';
+import { FLAGS_KEY, getDataSourceSettings, getFilterSettings, buildSourceSettingUpdate, buildFilterSettingUpdate } from './Flags';
 import { TABLE_WEIGHT_MAX, TABLE_WEIGHT_MIN } from './Settings';
 import { ItemData } from '../../types/Items';
 import { dataSourcesOfType, drawFromSources, DrawResult, mergeExistingStacks, mergeStacks, rollTreasureValues } from './Utilities';
@@ -197,34 +197,34 @@ export const extendLootSheet = () => {
             });
 
             const rollSpells = async (consumableTypes: SpellItemType[]) => {
-                const promises: Promise<Entity[]>[] = [];
-                for (const source of Object.values(spellSources)) {
-                    // @ts-ignore
-                    promises.push(game.packs.get(source.id).getDocuments());
-                }
-
-                const levelFilters = Object.values(spellLevelFilters)
-                    .map((filter) => getFilterSettings(this.actor, filter))
-                    .filter((filter) => filter.enabled)
-                    .map((filter) => {
-                        return {
-                            weight: filter.weight,
-                            filter: new NumberOperation('data.level.value', filter.desiredValue as number, EqualityType.EqualTo),
-                        };
-                    });
-                const schoolFilters = Object.values(spellSchoolFilters)
-                    .map((filter) => getFilterSettings(this.actor, filter))
-                    .filter((filter) => filter.enabled)
-                    .map((filter) => {
-                        return {
-                            weight: filter.weight,
-                            filter: new StringOperation('data.school.value', filter.desiredValue as string),
-                        };
-                    });
-
-                let spells = (await Promise.all(promises)).flat().map((spell) => spell.data) as unknown as ItemData[];
-
-                console.warn(spells);
+                // const promises: Promise<Entity[]>[] = [];
+                // for (const source of Object.values(spellSources)) {
+                //     // @ts-ignore
+                //     promises.push(game.packs.get(source.id).getDocuments());
+                // }
+                //
+                // const levelFilters = Object.values(spellLevelFilters)
+                //     .map((filter) => getFilterSettings(this.actor, filter))
+                //     .filter((filter) => filter.enabled)
+                //     .map((filter) => {
+                //         return {
+                //             weight: filter.weight,
+                //             filter: new NumberOperation('data.level.value', filter.desiredValue as number, EqualityType.EqualTo),
+                //         };
+                //     });
+                // const schoolFilters = Object.values(spellSchoolFilters)
+                //     .map((filter) => getFilterSettings(this.actor, filter))
+                //     .filter((filter) => filter.enabled)
+                //     .map((filter) => {
+                //         return {
+                //             weight: filter.weight,
+                //             filter: new StringOperation('data.school.value', filter.desiredValue as string),
+                //         };
+                //     });
+                //
+                // let spells = (await Promise.all(promises)).flat().map((spell) => spell.data) as unknown as ItemData[];
+                //
+                // console.warn(spells);
             };
 
             // roll scrolls
@@ -254,30 +254,39 @@ export const extendLootSheet = () => {
                 event.preventDefault();
                 event.stopPropagation();
 
-                await setDataSourceSettingValue(this.actor, getType(event), 'enabled', true);
+                let updateData = buildSourceSettingUpdate(this.actor, getType(event), 'enabled', true);
                 if (getType(event)) {
-                    await setSpellFilterSettingValue(this.actor, FilterType.SpellSchool, 'enabled', true);
+                    updateData = { ...updateData, ...buildFilterSettingUpdate(this.actor, FilterType.SpellSchool, 'enabled', true) };
+                    updateData = { ...updateData, ...buildFilterSettingUpdate(this.actor, FilterType.SpellLevel, 'enabled', true) };
                 }
+
+                await this.actor.update(updateData);
             });
             // check-none button
             html.find('.buttons .check-none').on('click', async (event) => {
                 event.preventDefault();
                 event.stopPropagation();
 
-                await setDataSourceSettingValue(this.actor, getType(event), 'enabled', false);
+                let updateData = buildSourceSettingUpdate(this.actor, getType(event), 'enabled', false);
                 if (getType(event)) {
-                    await setSpellFilterSettingValue(this.actor, FilterType.SpellSchool, 'enabled', false);
+                    updateData = { ...updateData, ...buildFilterSettingUpdate(this.actor, FilterType.SpellSchool, 'enabled', false) };
+                    updateData = { ...updateData, ...buildFilterSettingUpdate(this.actor, FilterType.SpellLevel, 'enabled', false) };
                 }
+
+                await this.actor.update(updateData);
             });
             // reset button
             html.find('.buttons .reset').on('click', async (event) => {
                 event.preventDefault();
                 event.stopPropagation();
 
-                await setDataSourceSettingValue(this.actor, getType(event), ['weight', 'enabled'], [1, true]);
+                let updateData = buildSourceSettingUpdate(this.actor, getType(event), ['weight', 'enabled'], [1, true]);
                 if (getType(event)) {
-                    await setSpellFilterSettingValue(this.actor, FilterType.SpellSchool, ['weight', 'enabled'], [1, true]);
+                    updateData = { ...updateData, ...buildFilterSettingUpdate(this.actor, FilterType.SpellSchool, ['weight', 'enabled'], [1, true]) };
+                    updateData = { ...updateData, ...buildFilterSettingUpdate(this.actor, FilterType.SpellLevel, ['weight', 'enabled'], [1, true]) };
                 }
+
+                await this.actor.update(updateData);
             });
         }
     }

@@ -21,6 +21,7 @@ import { SpellItemType, spellSources } from './data/Spells';
 import { DataSource, getPack, isPackSource, isPoolSource, isTableSource, ItemType } from './data/DataSource';
 import { ItemData } from '../../types/Items';
 import { getItemFromPack, getTableFromPack } from '../Utilities';
+import { AppFilter, FilterType, spellFilters, spellLevelFilters, spellSchoolFilters } from './Filters';
 
 /**
  * Returns distinct elements of an array when used to filter an array.
@@ -54,6 +55,15 @@ export function dataSourcesOfType(type: ItemType): Record<string, DataSource> {
             return consumableSources;
         case ItemType.Spell:
             return spellSources;
+    }
+}
+
+export function filtersOfType(type: FilterType): Record<string, AppFilter> {
+    switch (type) {
+        case FilterType.SpellSchool:
+            return spellSchoolFilters;
+        case FilterType.SpellLevel:
+            return spellLevelFilters;
     }
 }
 
