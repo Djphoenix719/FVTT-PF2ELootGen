@@ -14,23 +14,18 @@
  * limitations under the License.
  */
 
-div.weight-range {
-    position: relative;
-
-    div.weight-title {
-        text-align: center;
-    }
-    div.weight-input {
-        position: absolute;
-
-        top: 0;
-        left: 20px;
-        right: 20px;
+form.loot-app {
+    button,
+    label,
+    input {
+        line-height: 1em;
     }
 
-    input[type='checkbox'] {
-        width: 13px;
-        height: 13px;
-        //flex: 0 0 13px;
+    .spell .buttons {
+        button.roll-both {
+            padding-left: 0;
+            padding-right: 0;
+            flex: 3;
+        }
     }
 }

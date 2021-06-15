@@ -49,8 +49,6 @@ export async function registerHandlebarsTemplates() {
         `templates/settings-app/tabs/License.html`,
         `templates/loot-app/inventory.html`,
         `templates/loot-app/sidebar.html`,
-        `templates/loot-app/partials/sources-list.html`,
-        `templates/loot-app/partials/filters-list.html`,
         `templates/loot-app/partials/loot-profile.html`,
 
         `templates/loot-app/tabs/settings.html`,

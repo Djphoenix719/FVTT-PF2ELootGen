@@ -1,12 +1,9 @@
-{{log this}}
 <div class="weight-range">
-    <section class="weight-title">
-        <div class="form-group">
-            <label for="{{key}}.enabled">{{name}}</label>
-            <input type="checkbox" id="{{key}}.enabled" name="{{key}}.enabled" {{checked enabled}}>
-        </div>
-    </section>
-    <section class="weight-input">
+    <div class="weight-title">
+        <label for="{{key}}.enabled">{{name}}</label>
+        <input type="checkbox" id="{{key}}.enabled" name="{{key}}.enabled" {{checked enabled}}>
+    </div>
+    <div class="weight-input">
         <input type="range" title="Weight"
                min="{{@root.constants.rangeMin}}"
                max="{{@root.constants.rangeMax}}"
@@ -14,5 +11,5 @@
                id="{{key}}.weight"
                name="{{key}}.weight"
                value="{{weight}}">
-    </section>
+    </div>
 </div>

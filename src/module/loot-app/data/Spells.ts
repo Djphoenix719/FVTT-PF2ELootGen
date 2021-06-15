@@ -81,23 +81,4 @@ export const wandTemplateIds = {
     9: 'Fgv722039TVM5JTc',
 };
 
-const filterFunction = (level: number) => {
-    return async (source) => {
-        const spells = await getPackSourceContents(source);
-        return spells.filter((spell) => spell.data.level.value === level);
-    };
-};
 
-const levelSpellSourceTemplate = (level: number): FilteredSource<SpellSource> => {
-    return {
-        id: 'pf2e.spells-srd',
-        storeId: tableStoreId(`spellLevel-${level}`),
-        name: `${ordinalNumber(level)}-Level`,
-        sourceType: SourceType.Pack,
-        itemType: ItemType.Spell,
-        weight: 1,
-        enabled: true,
-        getFiltered: filterFunction(level),
-    };
-};
-export const leveledSpellSources: FilteredSource<SpellSource>[] = Array.fromRange(10).map((level) => levelSpellSourceTemplate(level + 1));

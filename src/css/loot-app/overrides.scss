@@ -14,23 +14,18 @@
  * limitations under the License.
  */
 
-div.weight-range {
-    position: relative;
-
-    div.weight-title {
-        text-align: center;
-    }
-    div.weight-input {
-        position: absolute;
-
-        top: 0;
-        left: 20px;
-        right: 20px;
+form.loot-app {
+    section.sheet-sidebar {
+        padding: 0 2px;
     }
 
-    input[type='checkbox'] {
-        width: 13px;
-        height: 13px;
-        //flex: 0 0 13px;
+    .sheet-sidebar.sidebar.sidebar-loot {
+        width: 220px;
+    }
+
+    // fixes padding and overflow on treasure item controls
+    .inventory-list .list-row .item-controls a.item-control {
+        padding: 0;
+        margin: 0;
     }
 }

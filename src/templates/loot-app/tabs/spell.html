@@ -18,4 +18,8 @@
         {{> weight-range key=(filter-flag filter) }}
     {{/each}}
 
+    {{#each filters.spell.level as |filter|}}
+        {{> weight-range key=(filter-flag filter) }}
+    {{/each}}
+
 </div>

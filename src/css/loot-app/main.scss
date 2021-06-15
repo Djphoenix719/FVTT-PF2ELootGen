@@ -14,82 +14,10 @@
  * limitations under the License.
  */
 
-form.loot-app {
-    .inventory-list .list-row .item-controls a.item-control {
-        padding: 0;
-        margin: 0;
-    }
-
-    section.sheet-sidebar {
-        padding-right: 5px;
-    }
-
-    .sheet-sidebar.sidebar.sidebar-loot {
-        width: 220px;
-    }
-
-    .tab input[type='checkbox'] {
-        width: 13px;
-        height: 13px;
-        flex: 0 0 13px;
-    }
-
-    .loot-app-tab {
-        p {
-            text-align: justify;
-        }
-
-        button,
-        label,
-        input {
-            line-height: 1em;
-        }
-
-        .config {
-            h3 {
-                margin-bottom: 0;
-            }
-            label {
-                font-weight: bold;
-            }
-            .form-group {
-                input {
-                    text-align: right;
-                    margin: 0;
-                }
-            }
-        }
-        .sources .form-group,
-        .filters .form-group {
-            margin: 0;
-            label {
-                line-height: 1em;
-            }
-            input {
-                text-align: right;
-                margin: 0;
-            }
-            i {
-                color: var(--light);
-                margin-right: 4px;
-                flex: 0;
-
-                &:hover {
-                    cursor: pointer;
-                    color: var(--primary);
-                    -webkit-animation-name: spin;
-                    -webkit-animation-duration: 1000ms;
-                    -webkit-animation-iteration-count: infinite;
-                    -webkit-animation-timing-function: linear;
-                    -moz-animation-name: spin;
-                    -moz-animation-duration: 1000ms;
-                    -moz-animation-iteration-count: infinite;
-                    -moz-animation-timing-function: linear;
-                }
-            }
-        }
-    }
-}
+@import 'overrides';
+@import 'buttons';
+@import 'config';
+@import 'weight-range';
 
 form.loot-app {
     nav.sheet-tabs {
@@ -114,19 +42,6 @@ form.loot-app {
         }
         button.roll {
             flex: 4;
-        }
-    }
-}
-
-form.loot-app .spell {
-    .buttons {
-        button.roll-both {
-            padding-left: 0;
-            padding-right: 0;
-            flex: 3;
-        }
-        button i {
-            margin: 0;
         }
     }
 }
