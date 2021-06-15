@@ -41,12 +41,23 @@ export interface LootAppFlags {
 // TODO: Should EVERY storable setting have a unique key, so we can handle all data save and load the same way?
 //  > Probably!
 
-Handlebars.registerHelper('sourceFlag', (source: DataSource) => {
-    return `flags.pf2e-lootgen.sources.${source.itemType}.${source.id}`;
-});
-Handlebars.registerHelper('filterFlag', (filter: AppFilter) => {
-    return `flags.pf2e-lootgen.filters.${filter.filterCategory}.${filter.filterType}.${filter.id}`;
-});
+export function sourceFlagPath(source: DataSource, withFlags: boolean = false): string {
+    let path = `sources.${source.storeId}`;
+    if (withFlags) {
+        path = `flags.${FLAGS_KEY}.${path}`;
+    }
+    return path;
+}
+export function filterFlagPath(filter: AppFilter, withFlags: boolean = false): string {
+    let path = `filters.${filter.id}`;
+    if (withFlags) {
+        path = `flags.${FLAGS_KEY}.${path}`;
+    }
+    return path;
+}
+
+Handlebars.registerHelper('source-flag', (source: DataSource) => sourceFlagPath(source, true));
+Handlebars.registerHelper('filter-flag', (filter: AppFilter) => filterFlagPath(filter, true));
 
 /**
  * Get a filter with the saved weight and enabled status from an actor.
@@ -54,7 +65,7 @@ Handlebars.registerHelper('filterFlag', (filter: AppFilter) => {
  * @param filter The filter to fetch.
  */
 export function getFilterSettings<T extends AppFilter>(actor: Actor, filter: T): T {
-    const flags: AppFilter = actor.getFlag(FLAGS_KEY, `filters.${filter.filterCategory}.${filter.filterType}.${filter.id}`) as AppFilter;
+    const flags = actor.getFlag(FLAGS_KEY, filterFlagPath(filter)) as Partial<AppFilter>;
     return mergeObject(duplicate(filter) as AppFilter, flags) as T;
 }
 
@@ -64,7 +75,7 @@ export function getFilterSettings<T extends AppFilter>(actor: Actor, filter: T):
  * @param source The source to load.
  */
 export function getDataSourceSettings<T extends DataSource>(actor: Actor, source: T): T {
-    const flags: DataSource = actor.getFlag(FLAGS_KEY, `sources.${source.itemType}.${source.id}`) as DataSource;
+    const flags = actor.getFlag(FLAGS_KEY, sourceFlagPath(source)) as Partial<DataSource>;
     return mergeObject(duplicate(source) as DataSource, flags) as T;
 }
 

@@ -5,6 +5,8 @@
 
     {{> tab-config key="permanent" }}
 
-    {{> sources-list sources=sources sourceType="permanent" displayQuickRolls=true }}
+    {{#each sources.permanent as |source|}}
+        {{> weight-range key=(source-flag source) valueWeight=source.weight valueEnabled=source.enabled }}
+    {{/each}}
 
 </div>
