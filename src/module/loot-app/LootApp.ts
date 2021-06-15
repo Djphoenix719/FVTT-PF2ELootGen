@@ -26,7 +26,9 @@ import { FilterType, spellLevelFilters, spellSchoolFilters } from './Filters';
 import { NumberOperation } from '../filter/Operation/NumberOperation';
 import { EqualityType } from '../filter/EqualityType';
 import { StringOperation } from '../filter/Operation/StringOperation';
-import { OrFilter } from '../filter/AbstractFilter';
+import { consumableSources } from './data/Consumable';
+import { permanentSources } from './data/Permanent';
+import { treasureSources } from './data/Treasure';
 
 export enum LootAppSetting {
     Count = 'count',
@@ -46,7 +48,7 @@ export const extendLootSheet = () => {
                 {
                     navSelector: '.loot-app-nav',
                     contentSelector: '.loot-app-content',
-                    initial: 'spell',
+                    initial: 'treasure',
                 },
             ];
             return options;
@@ -75,13 +77,12 @@ export const extendLootSheet = () => {
                 },
             };
 
-            data['sources'] = Object.values(ItemType).reduce(
-                (prev, curr) =>
-                    mergeObject(prev, {
-                        [curr]: Object.values(dataSourcesOfType(curr)).map((source) => getDataSourceSettings(this.actor, source)),
-                    }),
-                {},
-            );
+            data['sources'] = {
+                [ItemType.Consumable]: Object.values(consumableSources).map((source) => getDataSourceSettings(this.actor, source)),
+                [ItemType.Permanent]: Object.values(permanentSources).map((source) => getDataSourceSettings(this.actor, source)),
+                [ItemType.Treasure]: Object.values(treasureSources).map((source) => getDataSourceSettings(this.actor, source)),
+                [ItemType.Spell]: Object.values(spellSources).map((source) => getDataSourceSettings(this.actor, source)),
+            };
 
             data['flags'] = {
                 ...data['flags'],
@@ -208,7 +209,7 @@ export const extendLootSheet = () => {
                     .map((filter) => {
                         return {
                             weight: filter.weight,
-                            filter: new NumberOperation('data.level.value', filter.value as number, EqualityType.EqualTo),
+                            filter: new NumberOperation('data.level.value', filter.desiredValue as number, EqualityType.EqualTo),
                         };
                     });
                 const schoolFilters = Object.values(spellSchoolFilters)
@@ -217,7 +218,7 @@ export const extendLootSheet = () => {
                     .map((filter) => {
                         return {
                             weight: filter.weight,
-                            filter: new StringOperation('data.school.value', filter.value as string),
+                            filter: new StringOperation('data.school.value', filter.desiredValue as string),
                         };
                     });
 

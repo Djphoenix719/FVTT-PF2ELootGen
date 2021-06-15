@@ -15,10 +15,6 @@
  */
 
 import { MODULE_NAME } from '../Constants';
-import { TreasureSource } from './data/Treasure';
-import { PermanentSource } from './data/Permanent';
-import { ConsumableSource } from './data/Consumable';
-import { SpellSource } from './data/Spells';
 import { DataSource, ItemType } from './data/DataSource';
 import { dataSourcesOfType } from './Utilities';
 import { AppFilter, FilterType, spellFilters } from './Filters';
@@ -29,18 +25,13 @@ export const FLAGS_KEY = MODULE_NAME;
 export interface LootCategoryConfig {
     count: number;
 }
+export interface LootStoredData extends IEnabled, IWeighted {}
 export interface LootAppFlags {
     sources: {
-        [ItemType.Treasure]: Record<string, TreasureSource>;
-        [ItemType.Permanent]: Record<string, PermanentSource>;
-        [ItemType.Consumable]: Record<string, ConsumableSource>;
-        [ItemType.Spell]: Record<string, SpellSource>;
+        [storeId: string]: LootStoredData;
     };
     filters: {
-        [ItemType.Spell]: {
-            [FilterType.SpellSchool]: Record<string, AppFilter>;
-            [FilterType.SpellLevel]: Record<string, AppFilter>;
-        };
+        [storeId: string]: LootStoredData;
     };
     config: {
         [TKey in ItemType]: LootCategoryConfig;
@@ -50,6 +41,12 @@ export interface LootAppFlags {
 // TODO: Should EVERY storable setting have a unique key, so we can handle all data save and load the same way?
 //  > Probably!
 
+
+/**
+ * Get a filter with the saved weight and enabled status from an actor.
+ * @param actor The actor to fetch from.
+ * @param filter The filter to fetch.
+ */
 export function getFilterSettings<T extends AppFilter>(actor: Actor, filter: T): T {
     const flags: AppFilter = actor.getFlag(FLAGS_KEY, `filters.${filter.filterCategory}.${filter.filterType}.${filter.id}`) as AppFilter;
     return mergeObject(duplicate(filter) as AppFilter, flags) as T;

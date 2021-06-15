@@ -14,131 +14,135 @@
  * limitations under the License.
  */
 
-import { DataSource, isTableSource, SourceType, TableSource, ItemType } from './DataSource';
+import {
+    DataSource,
+    isTableSource,
+    SourceType,
+    TableSource,
+    ItemType,
+    tableStoreId,
+
+} from './DataSource';
 import { INamed } from './Mixins';
 import { RollableTablesPack } from './RollableTables';
 
+export enum Denomination {
+    Copper = 'cp',
+    Silver = 'sp',
+    Gold = 'gp',
+    Platinum = 'pp',
+}
+
 export interface TreasureSource extends TableSource, INamed {
     value: string;
+    denomination: Denomination;
 }
 export function isTreasureSource(source: DataSource): source is TreasureSource {
     return isTableSource(source) && source.hasOwnProperty('value');
 }
 
-export const semipreciousStonesTables: Record<string, TreasureSource> = {
-    ucTtWBPXViITI8wr: {
+type UniqueTableData = {
+    id: string;
+    name: string;
+    value: string;
+    denomination: Denomination;
+};
+
+const semipreciousTables: UniqueTableData[] = [
+    {
         id: 'ucTtWBPXViITI8wr',
         name: 'Lesser Semiprecious Stones',
-        value: '1d4*5',
-        tableSource: RollableTablesPack,
-        sourceType: SourceType.Table,
-        itemType: ItemType.Treasure,
-        weight: 1,
-        enabled: true,
+        value: '1d4+5',
+        denomination: Denomination.Silver,
     },
-    mCzuipepJAJcuY0H: {
+    {
         id: 'mCzuipepJAJcuY0H',
         name: 'Moderate Semiprecious Stones',
-        value: '1d4*25',
-        tableSource: RollableTablesPack,
-        sourceType: SourceType.Table,
-        itemType: ItemType.Treasure,
-        weight: 1,
-        enabled: true,
+        value: '1d4+25',
+        denomination: Denomination.Silver,
     },
-    P3HzJtS2iUUWMedJ: {
+    {
         id: 'P3HzJtS2iUUWMedJ',
         name: 'Greater Semiprecious Stones',
-        value: '1d4*5',
-        tableSource: RollableTablesPack,
-        sourceType: SourceType.Table,
-        itemType: ItemType.Treasure,
-        weight: 1,
-        enabled: true,
+        value: '1d4+5',
+        denomination: Denomination.Gold,
     },
-};
-export const preciousStonesTables: Record<string, TreasureSource> = {
-    ZCYAQplm6zORj6eN: {
+];
+const preciousTables: UniqueTableData[] = [
+    {
         id: 'ZCYAQplm6zORj6eN',
         name: 'Lesser Precious Stones',
         value: '1d4*50',
-        tableSource: RollableTablesPack,
-        sourceType: SourceType.Table,
-        itemType: ItemType.Treasure,
-        weight: 1,
-        enabled: true,
+        denomination: Denomination.Gold,
     },
-    wCXPh3nft3qWuxro: {
+    {
         id: 'wCXPh3nft3qWuxro',
         name: 'Moderate Precious Stones',
         value: '1d4*100',
-        tableSource: RollableTablesPack,
-        sourceType: SourceType.Table,
-        itemType: ItemType.Treasure,
-        weight: 1,
-        enabled: true,
+        denomination: Denomination.Gold,
     },
-    teZCrF2SOghusarb: {
+    {
         id: 'teZCrF2SOghusarb',
         name: 'Greater Precious Stones',
         value: '1d4*500',
-        tableSource: RollableTablesPack,
-        sourceType: SourceType.Table,
-        itemType: ItemType.Treasure,
-        weight: 1,
-        enabled: true,
+        denomination: Denomination.Gold,
     },
-};
-export const artTreasureTables: Record<string, TreasureSource> = {
-    ME37cisDz8J2m0H7: {
+];
+const artTables: UniqueTableData[] = [
+    {
         id: 'ME37cisDz8J2m0H7',
         name: 'Minor Art Object',
         value: '1d4*1',
-        tableSource: RollableTablesPack,
-        sourceType: SourceType.Table,
-        itemType: ItemType.Treasure,
-        weight: 1,
-        enabled: true,
+        denomination: Denomination.Gold,
     },
-    zyXbnTnUGs7tWR5j: {
+    {
         id: 'zyXbnTnUGs7tWR5j',
         name: 'Lesser Art Object',
         value: '1d4*10',
-        tableSource: RollableTablesPack,
-        sourceType: SourceType.Table,
-        itemType: ItemType.Treasure,
-        weight: 1,
-        enabled: true,
+        denomination: Denomination.Gold,
     },
-    bCD07W38YjbnyVoZ: {
+    {
         id: 'bCD07W38YjbnyVoZ',
         name: 'Moderate Art Object',
         value: '1d4*25',
-        tableSource: RollableTablesPack,
-        sourceType: SourceType.Table,
-        itemType: ItemType.Treasure,
-        weight: 1,
-        enabled: true,
+        denomination: Denomination.Gold,
     },
-    qmxGfxkMp9vCOtNQ: {
+    {
         id: 'qmxGfxkMp9vCOtNQ',
         name: 'Greater Art Object',
         value: '1d4*250',
-        tableSource: RollableTablesPack,
-        sourceType: SourceType.Table,
-        itemType: ItemType.Treasure,
-        weight: 1,
-        enabled: true,
+        denomination: Denomination.Gold,
     },
-    hTBTUf9dmhDkpIo8: {
+    {
         id: 'hTBTUf9dmhDkpIo8',
         name: 'Major Art Object',
         value: '1d4*1000',
+        denomination: Denomination.Gold,
+    },
+];
+
+const tableIds: UniqueTableData[] = [...semipreciousTables, ...preciousTables, ...artTables];
+
+const treasureSourceTemplate = (data: UniqueTableData): TreasureSource => {
+    return {
+        id: data.id,
+        storeId: tableStoreId(data.id),
+        name: data.name,
+        value: data.value,
+        denomination: data.denomination,
+
         tableSource: RollableTablesPack,
         sourceType: SourceType.Table,
-        itemType: ItemType.Treasure,
+        itemType: ItemType.Permanent,
         weight: 1,
         enabled: true,
-    },
+    };
 };
-export const treasureSources = { ...semipreciousStonesTables, ...preciousStonesTables, ...artTreasureTables };
+
+export const treasureSources: Record<string, TreasureSource> = tableIds.reduce(
+    (prev, curr) =>
+        mergeObject(prev, {
+            [tableStoreId(curr.id)]: treasureSourceTemplate(curr),
+        }),
+    {},
+);
