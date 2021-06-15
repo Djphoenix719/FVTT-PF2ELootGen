@@ -14,15 +14,7 @@
  * limitations under the License.
  */
 
-import {
-    DataSource,
-    isTableSource,
-    SourceType,
-    TableSource,
-    ItemType,
-    tableStoreId,
-
-} from './DataSource';
+import { DataSource, isTableSource, SourceType, TableSource, ItemType, tableStoreId } from './DataSource';
 import { INamed } from './Mixins';
 import { RollableTablesPack } from './RollableTables';
 
@@ -52,19 +44,19 @@ const semipreciousTables: UniqueTableData[] = [
     {
         id: 'ucTtWBPXViITI8wr',
         name: 'Lesser Semiprecious Stones',
-        value: '1d4+5',
+        value: '1d4*5',
         denomination: Denomination.Silver,
     },
     {
         id: 'mCzuipepJAJcuY0H',
         name: 'Moderate Semiprecious Stones',
-        value: '1d4+25',
+        value: '1d4*25',
         denomination: Denomination.Silver,
     },
     {
         id: 'P3HzJtS2iUUWMedJ',
         name: 'Greater Semiprecious Stones',
-        value: '1d4+5',
+        value: '1d4*5',
         denomination: Denomination.Gold,
     },
 ];
@@ -123,11 +115,21 @@ const artTables: UniqueTableData[] = [
 
 const tableIds: UniqueTableData[] = [...semipreciousTables, ...preciousTables, ...artTables];
 
+/**
+ * Format a roll into a value range string.
+ * @param valueRoll The value string to format.
+ */
+const treasureRange = (valueRoll: string) => {
+    valueRoll = valueRoll.substr('1d4*'.length);
+    const value = parseInt(valueRoll);
+    return `${value}-${value * 4}`;
+};
+
 const treasureSourceTemplate = (data: UniqueTableData): TreasureSource => {
     return {
         id: data.id,
         storeId: tableStoreId(data.id),
-        name: data.name,
+        name: `${data.name} (${treasureRange(data.value)}${data.denomination})`,
         value: data.value,
         denomination: data.denomination,
 
