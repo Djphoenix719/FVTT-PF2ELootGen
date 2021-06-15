@@ -15,22 +15,21 @@
  */
 
 div.weight-range {
-    position: relative;
+    display: flex;
+    flex-direction: column;
 
     div.weight-title {
-        text-align: center;
+        display: flex;
+
+        input[type='checkbox'] {
+            margin: 0;
+            margin-left: auto;
+            width: 13px;
+            height: 13px;
+        }
     }
     div.weight-input {
-        position: absolute;
-
-        top: 0;
-        left: 20px;
-        right: 20px;
-    }
-
-    input[type='checkbox'] {
-        width: 13px;
-        height: 13px;
-        //flex: 0 0 13px;
+        margin-top: -0.125em;
+        margin-bottom: -0.125em;
     }
 }
