@@ -5,6 +5,8 @@
 
     {{> tab-config key="consumable" }}
 
-    {{> sources-list sources=sources sourceType="consumable" displayQuickRolls=true}}
+    {{#each sources.consumable as |source|}}
+        {{> weight-range key=(source-flag source) valueWeight=source.weight valueEnabled=source.enabled }}
+    {{/each}}
 
 </div>

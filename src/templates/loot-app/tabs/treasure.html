@@ -5,6 +5,8 @@
 
     {{> tab-config key="treasure" }}
 
-    {{> sources-list sources=sources sourceType="treasure" displayQuickRolls=true }}
+    {{#each sources.treasure as |source|}}
+        {{> weight-range key=(source-flag source) valueWeight=source.weight valueEnabled=source.enabled }}
+    {{/each}}
 
 </div>

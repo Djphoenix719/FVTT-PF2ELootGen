@@ -10,10 +10,12 @@
 
     {{> tab-config key="spell" }}
 
-    {{> sources-list sources=sources sourceType="spell" displayQuickRolls=false}}
+    {{#each sources.spell as |source|}}
+        {{> weight-range key=(source-flag source) valueWeight=source.weight valueEnabled=source.enabled }}
+    {{/each}}
 
     {{#each filters.spell.school as |filter|}}
-        {{> weight-range key="" valueWeight=filter.weight valueEnabled=value.enabled }}
+        {{> weight-range key=(filter-flag filter) valueWeight=filter.weight valueEnabled=value.enabled }}
     {{/each}}
 
 </div>
