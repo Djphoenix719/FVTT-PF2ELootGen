@@ -6,7 +6,7 @@
     {{> tab-config key="treasure" }}
 
     {{#each sources.treasure as |source|}}
-        {{> weight-range key=(source-flag source) valueWeight=source.weight valueEnabled=source.enabled }}
+        {{> weight-range key=(source-flag source) }}
     {{/each}}
 
 </div>

@@ -11,11 +11,11 @@
     {{> tab-config key="spell" }}
 
     {{#each sources.spell as |source|}}
-        {{> weight-range key=(source-flag source) valueWeight=source.weight valueEnabled=source.enabled }}
+        {{> weight-range key=(source-flag source) }}
     {{/each}}
 
     {{#each filters.spell.school as |filter|}}
-        {{> weight-range key=(filter-flag filter) valueWeight=filter.weight valueEnabled=value.enabled }}
+        {{> weight-range key=(filter-flag filter) }}
     {{/each}}
 
 </div>
