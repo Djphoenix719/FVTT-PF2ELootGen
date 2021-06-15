@@ -1,7 +1,13 @@
 <div class="weight-range">
     <div class="weight-title">
+
+        {{#if quick-roll}}
+            <i class="fas fa-dice-d20 quick-roll"></i>
+        {{/if}}
+
         <label for="{{key}}.enabled">{{name}}</label>
         <input type="checkbox" id="{{key}}.enabled" name="{{key}}.enabled" {{checked enabled}}>
+
     </div>
     <div class="weight-input">
         <input type="range" title="Weight"

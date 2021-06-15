@@ -27,7 +27,26 @@ div.weight-range {
             width: 13px;
             height: 13px;
         }
+
+        i.quick-roll {
+            color: var(--light);
+            margin-right: 5px;
+
+            &:hover {
+                color: var(--secondary);
+                cursor: pointer;
+                -webkit-animation-name: spin;
+                -webkit-animation-duration: 1000ms;
+                -webkit-animation-iteration-count: infinite;
+                -webkit-animation-timing-function: linear;
+                -moz-animation-name: spin;
+                -moz-animation-duration: 1000ms;
+                -moz-animation-iteration-count: infinite;
+                -moz-animation-timing-function: linear;
+            }
+        }
     }
+
     div.weight-input {
         margin-top: -0.125em;
         margin-bottom: -0.125em;

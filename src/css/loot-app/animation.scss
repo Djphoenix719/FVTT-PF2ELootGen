@@ -14,39 +14,6 @@
  * limitations under the License.
  */
 
-@import 'overrides';
-@import 'buttons';
-@import 'config';
-@import 'animation';
-@import 'weight-range';
-
-form.loot-app {
-    nav.sheet-tabs {
-        top: 4px;
-        position: sticky;
-        background: url(/systems/pf2e/assets/sheet/parchment.webp) repeat;
-        z-index: 1;
-    }
-    div.buttons {
-        top: 38px;
-        position: sticky;
-        background: url(/systems/pf2e/assets/sheet/parchment.webp) repeat;
-        z-index: 1;
-
-        display: flex;
-
-        button {
-            flex: 1;
-            i {
-                margin: 0;
-            }
-        }
-        button.roll {
-            flex: 4;
-        }
-    }
-}
-
 @-moz-keyframes spin {
     from {
         -moz-transform: rotate(0deg);

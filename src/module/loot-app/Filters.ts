@@ -37,7 +37,7 @@ const levelFilterId = (level: number) => `level-${level}`;
 const levelFilter = (level: number): SpellFilter => {
     return {
         id: levelFilterId(level),
-        name: ordinalNumber(level),
+        name: `${ordinalNumber(level)}-Level`,
 
         filterType: FilterType.SpellLevel,
         filterCategory: ItemType.Spell,

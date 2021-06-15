@@ -103,6 +103,8 @@ export async function drawFromSources(count: number, sources: DataSource[], opti
     for (let i = 0; i < count; i++) {
         const choice = chooseTable();
 
+        // TODO: Something is "weird" with the table weights, seeming to prefer very high level items and large groups
+        //  of the same item are being created, even with all tables enabled and evenly weighted
         let item: ItemData;
         if (isTableSource(choice)) {
             const table = await getTableFromPack(choice.id, choice.tableSource.id);
@@ -111,7 +113,13 @@ export async function drawFromSources(count: number, sources: DataSource[], opti
             const draw = await table.roll({ roll: null, recursive: true });
             const [result]: [TableResult] = draw.results;
 
-            item = await getItemFromPack(result.data.collection, result.data.resultId);
+            if (result.data.resultId) {
+                item = await getItemFromPack(result.data.collection, result.data.resultId);
+            } else {
+                // TODO: Create random weapons/armor/gear of rolled type
+                i -= 1;
+                continue;
+            }
         } else if (isPackSource(choice)) {
             // @ts-ignore
             const itemId: string = chooseFromArray(getPack(choice).index.contents).key;
@@ -294,4 +302,3 @@ export function mergeStacks(itemDatas: ItemData[], options?: MergeStacksOptions)
 export function mergeItem(a: ItemData, b: ItemData) {
     a.data.quantity.value += b.data.quantity.value;
 }
-
