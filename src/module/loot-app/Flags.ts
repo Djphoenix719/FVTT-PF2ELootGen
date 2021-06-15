@@ -41,6 +41,12 @@ export interface LootAppFlags {
 // TODO: Should EVERY storable setting have a unique key, so we can handle all data save and load the same way?
 //  > Probably!
 
+Handlebars.registerHelper('sourceFlag', (source: DataSource) => {
+    return `flags.pf2e-lootgen.sources.${source.itemType}.${source.id}`;
+});
+Handlebars.registerHelper('filterFlag', (filter: AppFilter) => {
+    return `flags.pf2e-lootgen.filters.${filter.filterCategory}.${filter.filterType}.${filter.id}`;
+});
 
 /**
  * Get a filter with the saved weight and enabled status from an actor.

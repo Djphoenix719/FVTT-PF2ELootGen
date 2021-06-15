@@ -1,6 +1,21 @@
+/*
+ * Copyright 2021 Andrew Cuccinello
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ *
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import { MODULE_NAME } from './Constants';
-import { DataSource, ItemType } from './loot-app/data/DataSource';
-import { AppFilter } from './loot-app/Filters';
+import { ItemType } from './loot-app/data/DataSource';
 
 export interface HandlebarsContext {
     data: Record<string, any> & {
@@ -23,8 +38,6 @@ export async function registerHandlebarsTemplates() {
 
     const partials: Record<string, string> = {
         'weight-range': `templates/loot-app/partials/weight-range.html`,
-        'filters-list': `templates/loot-app/partials/filters-list.html`,
-        'sources-list': `templates/loot-app/partials/sources-list.html`,
         'tab-buttons': `templates/loot-app/tabs/partials/tab-buttons.html`,
         'tab-config': `templates/loot-app/tabs/partials/tab-config.html`,
     };
@@ -54,13 +67,6 @@ export async function registerHandlebarsTemplates() {
 }
 
 export function registerHandlebarsHelpers() {
-    Handlebars.registerHelper('sourceFlag', (source: DataSource) => {
-        return `flags.pf2e-lootgen.sources.${source.itemType}.${source.id}`;
-    });
-    Handlebars.registerHelper('filterFlag', (filter: AppFilter) => {
-        return `flags.pf2e-lootgen.filters.${filter.filterCategory}.${filter.filterType}.${filter.id}`;
-    });
-
     Handlebars.registerHelper('json', (data: any) => {
         return JSON.stringify(data);
     });
@@ -69,10 +75,13 @@ export function registerHandlebarsHelpers() {
         return value === undefined || value === null ? defaultValue : value;
     });
 
-    /***
-     * Walks an object tree with a data path with replaceable keys to avoid lookup chains.
+    /**
+     * Walk an object tree. Mostly exists for convenience so lookup does not need to be chained.
+     * @param data The data to walk over.
+     * @param path The data path to walk.
+     * @param context The handlebars context where this is being called.
      */
-    Handlebars.registerHelper('walk', (data: Record<string, any>, path: string, context: HandlebarsContext) => {
+    const walk = (data: Record<string, any>, path: string, context: HandlebarsContext) => {
         let current = data;
         const parts = path.split('.');
         while (parts.length > 0) {
@@ -88,28 +97,51 @@ export function registerHandlebarsHelpers() {
             }
         }
         return current;
-    });
-
-    Handlebars.registerHelper('setting-key', (key: string, context: HandlebarsContext) => {});
-
-    const loadPartial = (name: string) => {
-        let partial = Handlebars.partials[name];
-        if (typeof partial === 'string') {
-            partial = Handlebars.compile(partial);
-            Handlebars.partials[name] = partial;
-        }
-        return partial;
     };
 
+    Handlebars.registerHelper('walk', walk);
+
+    // When working with keys in the partial system, append the module name
+    //  so we have a lower chance of overwriting or deleting another modules
+    //  registered partials.
     const blockKey = (key: string) => `${MODULE_NAME}-${key}`;
-    Handlebars.registerHelper('set-block', (name: string, options) => {
-        Handlebars.registerPartial(blockKey(name), options.fn);
-    });
-    Handlebars.registerHelper('del-block', (name: string) => {
+
+    /**
+     * Set a block, so the next call to get-block renders the provided content.
+     * @param name The name of the block to set.
+     * @param context The handlebars context where the block is being set.
+     */
+    const setBlock = (name: string, context: HandlebarsContext) => {
+        Handlebars.registerPartial(blockKey(name), context.fn);
+    };
+    /**
+     * Get and render a block by it's name.
+     * @param name The name of the block.
+     * @param context The handlebars context where this block is rendering.
+     */
+    const getBlock = (name: string, context: HandlebarsContext) => {
+        const loadPartial = (name: string) => {
+            let partial = Handlebars.partials[name];
+            if (typeof partial === 'string') {
+                partial = Handlebars.compile(partial);
+                Handlebars.partials[name] = partial;
+            }
+            return partial;
+        };
+
+        const partial = loadPartial(blockKey(name)) || context.fn;
+        return partial(this, { data: context.hash });
+    };
+    /**
+     * Unset a block template. It is important to unset so later calls to
+     *  a template do not re-render old data where it does not belong.
+     * @param name The name of the block to delete.
+     */
+    const delBlock = (name: string) => {
         Handlebars.unregisterPartial(blockKey(name));
-    });
-    Handlebars.registerHelper('get-block', (name: string, options) => {
-        const partial = loadPartial(blockKey(name)) || options.fn;
-        return partial(this, { data: options.hash });
-    });
+    };
+
+    Handlebars.registerHelper('set-block', setBlock);
+    Handlebars.registerHelper('del-block', delBlock);
+    Handlebars.registerHelper('get-block', getBlock);
 }
