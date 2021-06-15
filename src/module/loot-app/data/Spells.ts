@@ -14,7 +14,15 @@
  * limitations under the License.
  */
 
-import { FilteredSource, getPackSourceContents, PackSource, SourceType, ItemType } from './DataSource';
+import {
+    FilteredSource,
+    getPackSourceContents,
+    PackSource,
+    SourceType,
+    ItemType,
+    tableStoreId,
+    ordinalNumber,
+} from './DataSource';
 import { INamed } from './Mixins';
 
 export enum SpellSchool {
@@ -38,6 +46,7 @@ export interface SpellSource extends PackSource, INamed {}
 export const spellSources: Record<string, SpellSource> = {
     'spells-srd': {
         id: 'pf2e.spells-srd',
+        storeId: tableStoreId('spells-srd'),
         name: 'SRD Spells',
         sourceType: SourceType.Pack,
         itemType: ItemType.Spell,
@@ -79,95 +88,16 @@ const filterFunction = (level: number) => {
     };
 };
 
-export const leveledSpellSources: FilteredSource<SpellSource>[] = [
-    {
+const levelSpellSourceTemplate = (level: number): FilteredSource<SpellSource> => {
+    return {
         id: 'pf2e.spells-srd',
-        name: '1st Level',
+        storeId: tableStoreId(`spellLevel-${level}`),
+        name: `${ordinalNumber(level)}-Level`,
         sourceType: SourceType.Pack,
         itemType: ItemType.Spell,
         weight: 1,
         enabled: true,
-        getFiltered: filterFunction(1),
-    },
-    {
-        id: 'pf2e.spells-srd',
-        name: '2nd Level',
-        sourceType: SourceType.Pack,
-        itemType: ItemType.Spell,
-        weight: 1,
-        enabled: true,
-        getFiltered: filterFunction(2),
-    },
-    {
-        id: 'pf2e.spells-srd',
-        name: '3rd Level',
-        sourceType: SourceType.Pack,
-        itemType: ItemType.Spell,
-        weight: 1,
-        enabled: true,
-        getFiltered: filterFunction(3),
-    },
-    {
-        id: 'pf2e.spells-srd',
-        name: '4th Level',
-        sourceType: SourceType.Pack,
-        itemType: ItemType.Spell,
-        weight: 1,
-        enabled: true,
-        getFiltered: filterFunction(4),
-    },
-    {
-        id: 'pf2e.spells-srd',
-        name: '5th Level',
-        sourceType: SourceType.Pack,
-        itemType: ItemType.Spell,
-        weight: 1,
-        enabled: true,
-        getFiltered: filterFunction(5),
-    },
-    {
-        id: 'pf2e.spells-srd',
-        name: '6th Level',
-        sourceType: SourceType.Pack,
-        itemType: ItemType.Spell,
-        weight: 1,
-        enabled: true,
-        getFiltered: filterFunction(6),
-    },
-    {
-        id: 'pf2e.spells-srd',
-        name: '7th Level',
-        sourceType: SourceType.Pack,
-        itemType: ItemType.Spell,
-        weight: 1,
-        enabled: true,
-        getFiltered: filterFunction(7),
-    },
-    {
-        id: 'pf2e.spells-srd',
-        name: '8th Level',
-        sourceType: SourceType.Pack,
-        itemType: ItemType.Spell,
-        weight: 1,
-        enabled: true,
-        getFiltered: filterFunction(8),
-    },
-    {
-        id: 'pf2e.spells-srd',
-        name: '9th Level',
-        sourceType: SourceType.Pack,
-        itemType: ItemType.Spell,
-        weight: 1,
-        enabled: true,
-        getFiltered: filterFunction(9),
-    },
-    {
-        id: 'pf2e.spells-srd',
-        name: '10th Level',
-        sourceType: SourceType.Pack,
-        itemType: ItemType.Spell,
-        weight: 1,
-        enabled: true,
-        getFiltered: filterFunction(10),
-    },
-];
+        getFiltered: filterFunction(level),
+    };
+};
+export const leveledSpellSources: FilteredSource<SpellSource>[] = Array.fromRange(10).map((level) => levelSpellSourceTemplate(level + 1));

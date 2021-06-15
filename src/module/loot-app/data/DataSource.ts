@@ -30,7 +30,14 @@ export enum ItemType {
     Spell = 'spell',
 }
 
-export interface DataSource extends IWeighted, IEnabled {
+export const tableStoreId = (id: string) => `table-${id}`;
+export const filterStoreId = (id: string) => `filter-${id}`;
+
+export interface IStorable {
+    id: string;
+    storeId: string;
+}
+export interface DataSource extends IStorable, IWeighted, IEnabled {
     id: string;
     sourceType: SourceType;
     itemType?: ItemType;
@@ -86,4 +93,13 @@ export type FilteredSource<TSource extends DataSource, TItem extends ItemData = 
     getFiltered: (source: TSource) => Promise<TItem[]>;
 };
 
-
+/**
+ * Convert a number to an ordinal string (1st, 2nd, 3rd...)
+ * @param n The number to convert.
+ */
+export function ordinalNumber(n: number): string {
+    const suffixes = ['th', 'st', 'nd', 'rd'];
+    const index = n % 100;
+    const ordinal = suffixes[(index - 20) % 10] || suffixes[index] || suffixes[0];
+    return `${n}${ordinal}`;
+}

@@ -16,7 +16,7 @@
 
 import { SpellSchool } from './data/Spells';
 import { IEnabled, INamed, IWeighted } from './data/Mixins';
-import { ItemType } from './data/DataSource';
+import { ItemType, ordinalNumber } from './data/DataSource';
 
 export enum FilterType {
     SpellSchool = 'school',
@@ -27,35 +27,22 @@ export interface AppFilter extends IWeighted, IEnabled, INamed {
     id: string;
     filterType: FilterType;
     filterCategory: ItemType;
-    value: number | string | boolean;
+    desiredValue: number | string | boolean;
 }
 export interface SpellFilter extends AppFilter {
     filterCategory: ItemType.Spell;
 }
 
-const levelNamesMap = {
-    1: '1st Level',
-    2: '2nd Level',
-    3: '3rd Level',
-    4: '4th Level',
-    5: '5th Level',
-    6: '6th Level',
-    7: '7th Level',
-    8: '8th Level',
-    9: '9th Level',
-    10: '10th Level',
-};
-
 const levelFilterId = (level: number) => `level-${level}`;
 const levelFilter = (level: number): SpellFilter => {
     return {
         id: levelFilterId(level),
-        name: levelNamesMap[level] ?? 'Unknown Name',
+        name: ordinalNumber(level + 1),
 
         filterType: FilterType.SpellLevel,
         filterCategory: ItemType.Spell,
 
-        value: level,
+        desiredValue: level,
 
         weight: 1,
         enabled: true,
@@ -71,7 +58,7 @@ const schoolFilter = (school: SpellSchool): SpellFilter => {
         filterType: FilterType.SpellLevel,
         filterCategory: ItemType.Spell,
 
-        value: school,
+        desiredValue: school,
 
         weight: 1,
         enabled: true,

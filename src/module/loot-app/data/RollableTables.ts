@@ -15,12 +15,13 @@
  */
 
 import { INamed } from './Mixins';
-import { PackSource, SourceType } from './DataSource';
+import { PackSource, SourceType, tableStoreId } from './DataSource';
 
 export interface RollableTableSource extends PackSource, INamed {}
 
 export const RollableTablesPack: RollableTableSource = {
     id: 'pf2e.rollable-tables',
+    storeId: tableStoreId('rollable-tables'),
     name: 'Rollable Tables',
     sourceType: SourceType.Pack,
     weight: 1,

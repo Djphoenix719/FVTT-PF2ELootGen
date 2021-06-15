@@ -21,8 +21,6 @@ import { SpellItemType, spellSources } from './data/Spells';
 import { DataSource, getPack, isPackSource, isPoolSource, isTableSource, ItemType } from './data/DataSource';
 import { ItemData } from '../../types/Items';
 import { getItemFromPack, getTableFromPack } from '../Utilities';
-import { IWeighted } from './data/Mixins';
-import { ISpecification } from '../filter/ISpecification';
 
 /**
  * Returns distinct elements of an array when used to filter an array.
@@ -296,3 +294,4 @@ export function mergeStacks(itemDatas: ItemData[], options?: MergeStacksOptions)
 export function mergeItem(a: ItemData, b: ItemData) {
     a.data.quantity.value += b.data.quantity.value;
 }
+
