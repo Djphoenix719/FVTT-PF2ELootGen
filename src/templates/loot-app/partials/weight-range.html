@@ -2,10 +2,10 @@
     <div class="weight-title">
 
         {{#if quick-roll}}
-            <i class="fas fa-dice-d20 quick-roll"></i>
+            <i class="fas fa-dice-d20 quick-roll" title="Quick Roll"></i>
         {{/if}}
 
-        <label for="{{key}}.enabled">{{name}}</label>
+        <label for="{{key}}.enabled" {{#if label}}title="{{label}}"{{/if}}>{{{name}}}</label>
         <input type="checkbox" id="{{key}}.enabled" name="{{key}}.enabled" {{checked enabled}}>
 
     </div>

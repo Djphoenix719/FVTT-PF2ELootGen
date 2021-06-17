@@ -6,7 +6,9 @@
     {{> tab-config key="consumable" }}
 
     {{#each sources.consumable as |source|}}
-        {{> weight-range key=(source-flag source) }}
+        <div class="source-wrapper" data-source="{{json source}}">
+            {{> weight-range key=(source-flag source) quick-roll=true }}
+        </div>
     {{/each}}
 
 </div>

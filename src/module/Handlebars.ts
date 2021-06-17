@@ -65,12 +65,18 @@ export async function registerHandlebarsTemplates() {
 }
 
 export function registerHandlebarsHelpers() {
+    // Stringify the object provided.
     Handlebars.registerHelper('json', (data: any) => {
         return JSON.stringify(data);
     });
 
-    Handlebars.registerHelper('default', (value, defaultValue) => {
+    // Use the provided value if it exists, otherwise default to the fallback.
+    Handlebars.registerHelper('default', (value: any, defaultValue: any) => {
         return value === undefined || value === null ? defaultValue : value;
+    });
+
+    Handlebars.registerHelper('concat', (a: string, b: string, separator: string) => {
+        return a.toString() + separator.toString() + b.toString();
     });
 
     /**

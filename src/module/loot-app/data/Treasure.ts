@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { DataSource, isTableSource, SourceType, TableSource, ItemType, tableStoreId } from './DataSource';
+import { DataSource, isTableSource, ItemType, SourceType, TableSource, tableStoreId } from './DataSource';
 import { INamed } from './Mixins';
 import { RollableTablesPack } from './RollableTables';
 
@@ -113,23 +113,27 @@ const artTables: UniqueTableData[] = [
     },
 ];
 
-const tableIds: UniqueTableData[] = [...semipreciousTables, ...preciousTables, ...artTables];
-
-/**
- * Format a roll into a value range string.
- * @param valueRoll The value string to format.
- */
-const treasureRange = (valueRoll: string) => {
-    valueRoll = valueRoll.substr('1d4*'.length);
-    const value = parseInt(valueRoll);
-    return `${value}-${value * 4}`;
+const valueMultiplier = (source: UniqueTableData): number => {
+    // TODO: Select value with a regex to avoid errors with values other than 1d4*n
+    let value = parseInt(source.value.substr('1d4*'.length));
+    switch (source.denomination) {
+        case Denomination.Copper:
+            return value / 100;
+        case Denomination.Silver:
+            return value / 10;
+        case Denomination.Gold:
+            return value;
+        case Denomination.Platinum:
+            return value * 10;
+    }
 };
+const tableIds: UniqueTableData[] = [...semipreciousTables, ...preciousTables, ...artTables].sort((a, b) => valueMultiplier(a) - valueMultiplier(b));
 
 const treasureSourceTemplate = (data: UniqueTableData): TreasureSource => {
     return {
         id: data.id,
         storeId: tableStoreId(data.id),
-        name: `${data.name} (${treasureRange(data.value)}${data.denomination})`,
+        name: data.name,
         value: data.value,
         denomination: data.denomination,
 

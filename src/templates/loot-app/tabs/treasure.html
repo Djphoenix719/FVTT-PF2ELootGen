@@ -6,7 +6,9 @@
     {{> tab-config key="treasure" }}
 
     {{#each sources.treasure as |source|}}
-        {{> weight-range key=(source-flag source) quick-roll=true }}
+        <div class="source-wrapper" data-source="{{json source}}">
+            {{> weight-range key=(source-flag source) quick-roll=true label=(concat source.value source.denomination " ") }}
+        </div>
     {{/each}}
 
 </div>
