@@ -17,11 +17,11 @@
 import { permanentSources } from './data/Permanent';
 import { consumableSources } from './data/Consumable';
 import { isTreasureSource, TreasureSource, treasureSources } from './data/Treasure';
-import { SpellItemType, spellSources } from './data/Spells';
+import { TEMPLATE_PACK_ID, scrollTemplateIds, SpellItemType, spellSources, wandTemplateIds } from './data/Spells';
 import { DataSource, getPack, isPackSource, isPoolSource, isTableSource, ItemType } from './data/DataSource';
 import { ItemData } from '../../types/Items';
 import { getItemFromPack, getTableFromPack } from '../Utilities';
-import { AppFilter, FilterType, spellFilters, spellLevelFilters, spellSchoolFilters } from './Filters';
+import { AppFilter, FilterType, spellLevelFilters, spellSchoolFilters } from './Filters';
 
 /**
  * Returns distinct elements of an array when used to filter an array.
@@ -99,7 +99,7 @@ export async function drawFromSources(count: number, sources: DataSource[], opti
         weightTotal += source.weight;
     });
 
-    const chooseTable = () => {
+    const chooseSource = () => {
         let choice = sources[0];
         const random = Math.random() * weightTotal;
         for (let i = 1; i < sources.length; i++) {
@@ -111,13 +111,13 @@ export async function drawFromSources(count: number, sources: DataSource[], opti
 
     const results: DrawResult[] = [];
     for (let i = 0; i < count; i++) {
-        const choice = chooseTable();
+        const source = chooseSource();
 
         // TODO: Something is "weird" with the table weights, seeming to prefer very high level items and large groups
         //  of the same item are being created, even with all tables enabled and evenly weighted
         let item: ItemData;
-        if (isTableSource(choice)) {
-            const table = await getTableFromPack(choice.id, choice.tableSource.id);
+        if (isTableSource(source)) {
+            const table = await getTableFromPack(source.id, source.tableSource.id);
 
             // @ts-ignore
             const draw = await table.roll({ roll: null, recursive: true });
@@ -130,19 +130,19 @@ export async function drawFromSources(count: number, sources: DataSource[], opti
                 i -= 1;
                 continue;
             }
-        } else if (isPackSource(choice)) {
+        } else if (isPackSource(source)) {
             // @ts-ignore
-            const itemId: string = chooseFromArray(getPack(choice).index.contents).key;
-            item = await getItemFromPack(choice.id, itemId);
-        } else if (isPoolSource(choice)) {
-            item = chooseFromArray(choice.elements);
+            const itemId: string = chooseFromArray(getPack(source).index.contents).key;
+            item = await getItemFromPack(source.id, itemId);
+        } else if (isPoolSource(source)) {
+            item = chooseFromArray(source.elements);
         } else {
-            throw new Error(`Unknown source type: ${choice.sourceType}`);
+            throw new Error(`Unknown source type: ${source.sourceType}`);
         }
 
         results.push({
-            itemData: item.data as unknown as ItemData,
-            source: choice,
+            itemData: item,
+            source: source,
         });
     }
 
@@ -152,9 +152,65 @@ export async function drawFromSources(count: number, sources: DataSource[], opti
     return results;
 }
 
-export async function createSpellItems(itemDatas: ItemData[], itemTypes: SpellItemType[]): Promise<ItemData[]> {
-    // TODO:
-    return undefined;
+export async function createSpellItems(itemDatas: DrawResult[], itemTypes: SpellItemType[]): Promise<ItemData[]> {
+    itemDatas = duplicate(itemDatas) as DrawResult[];
+
+    const itemType = (draw: DrawResult): SpellItemType => {
+        if (draw.itemData.data.level.value === 10) {
+            if (itemTypes.includes(SpellItemType.Scroll)) {
+                return SpellItemType.Scroll;
+            } else {
+                return undefined;
+            }
+        }
+        return chooseFromArray(itemTypes);
+    };
+
+    const itemName = (itemData: ItemData, type: SpellItemType): string => {
+        // TODO: Localization
+        switch (type) {
+            case SpellItemType.Wand:
+                return `Scroll of ${itemData.name} (Level ${itemData.data.level.value})`;
+            case SpellItemType.Scroll:
+                return `Wand of ${itemData.name} (Level ${itemData.data.level.value})`;
+        }
+    };
+
+    const templates = {
+        [SpellItemType.Wand]: (await Promise.all(Object.values(wandTemplateIds).map((id) => getItemFromPack(TEMPLATE_PACK_ID, id)))) as ItemData[],
+        [SpellItemType.Scroll]: (await Promise.all(Object.values(scrollTemplateIds).map((id) => getItemFromPack(TEMPLATE_PACK_ID, id)))) as ItemData[],
+    };
+
+    let wandMessage: boolean = false;
+    const results: ItemData[] = [];
+    while (itemDatas.length > 0) {
+        const drawResult = itemDatas.shift();
+        const type = itemType(drawResult);
+
+        if (type === undefined) {
+            if (!wandMessage) {
+                ui.notifications.warn(`Cannot create a magic wand for provided spell: ${drawResult.itemData.name}`);
+                wandMessage = true;
+            }
+            continue;
+        }
+
+        const spellData = drawResult.itemData;
+        const template: ItemData = duplicate(templates[type][drawResult.itemData.data.level.value - 1]) as ItemData;
+        template.data.traits.value.push(...spellData.data.traditions.value);
+        template.name = itemName(spellData, type);
+
+        const description = template.data.description.value;
+        template.data.description.value = `@Compendium[pf2e.spells-srd.${spellData._id}]{${spellData.name}}\n<hr/>${description}`;
+        template.data.spell = {
+            data: duplicate(spellData) as ItemData,
+            heightenedLevel: spellData.data.level.value,
+        };
+
+        results.push(template);
+    }
+
+    return results;
 }
 
 //

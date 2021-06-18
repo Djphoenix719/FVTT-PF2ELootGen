@@ -10,16 +10,19 @@
 
     {{> tab-config key="spell" }}
 
+    <h4>Data Sources</h4>
     {{#each sources.spell as |source|}}
         <div class="source-wrapper" data-source="{{json source}}">
             {{> weight-range key=(source-flag source) }}
         </div>
     {{/each}}
 
+    <h4>School Filters</h4>
     {{#each filters.spell.school as |filter|}}
         {{> weight-range key=(filter-flag filter) }}
     {{/each}}
 
+    <h4>Level Filters</h4>
     {{#each filters.spell.level as |filter|}}
         {{> weight-range key=(filter-flag filter) }}
     {{/each}}

@@ -18,15 +18,18 @@ import { ItemData } from '../../../types/Items';
 import { EqualityType } from '../EqualityType';
 import { ISpecification } from '../ISpecification';
 
-export abstract class AbstractOperation<T extends number | string | boolean> implements ISpecification<ItemData> {
-    private readonly key: string;
+export abstract class WeightedFilter<T extends number | string | boolean> implements ISpecification<ItemData> {
+    private readonly selector: string;
     private readonly desiredValue: T;
     private readonly equality: EqualityType;
+    public readonly weight: number;
 
-    protected constructor(dataPath: string, desiredValue: T, equality: EqualityType) {
-        this.key = dataPath;
+    // constructor is protected here so we can type them properly, and extend with type specific functions later
+    protected constructor(selector: string, desiredValue: T, weight: number, equalityType: EqualityType) {
+        this.selector = selector;
         this.desiredValue = desiredValue;
-        this.equality = equality;
+        this.weight = weight;
+        this.equality = equalityType;
     }
 
     /**
@@ -35,7 +38,7 @@ export abstract class AbstractOperation<T extends number | string | boolean> imp
      * @protected
      */
     protected getValue(data: ItemData): T {
-        const path: string[] = this.key.split('.');
+        const path: string[] = this.selector.split('.');
 
         let current: any = data;
         while (path.length > 0) {

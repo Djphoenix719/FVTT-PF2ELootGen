@@ -17,7 +17,7 @@
 import { ISpecification } from './ISpecification';
 import { ItemData } from '../../types/Items';
 
-export abstract class AbstractFilter implements ISpecification<ItemData> {
+export abstract class FilterGroup implements ISpecification<ItemData> {
     protected children: ISpecification<ItemData>[];
 
     protected constructor(children?: ISpecification<ItemData>[]) {
@@ -31,15 +31,15 @@ export abstract class AbstractFilter implements ISpecification<ItemData> {
     public abstract isSatisfiedBy(data: ItemData): boolean;
 
     public and(other: ISpecification<ItemData>): ISpecification<ItemData> {
-        return new AndFilter([this, other]);
+        return new AndGroup([this, other]);
     }
 
     public not(other?: ISpecification<ItemData>): ISpecification<ItemData> {
-        return new NotFilter(this);
+        return new NotGroup(this);
     }
 
     public or(other: ISpecification<ItemData>): ISpecification<ItemData> {
-        return new OrFilter([this, other]);
+        return new OrGroup([this, other]);
     }
 
     public addChildren(others: ISpecification<ItemData> | ISpecification<ItemData>[]) {
@@ -50,7 +50,7 @@ export abstract class AbstractFilter implements ISpecification<ItemData> {
     }
 }
 
-export class AndFilter extends AbstractFilter {
+export class AndGroup extends FilterGroup {
     public constructor(children?: ISpecification<ItemData>[]) {
         super(children);
     }
@@ -65,7 +65,7 @@ export class AndFilter extends AbstractFilter {
     }
 }
 
-export class NotFilter extends AbstractFilter {
+export class NotGroup extends FilterGroup {
     public constructor(filter: ISpecification<ItemData>) {
         super([filter]);
     }
@@ -75,7 +75,7 @@ export class NotFilter extends AbstractFilter {
     }
 }
 
-export class OrFilter extends AbstractFilter {
+export class OrGroup extends FilterGroup {
     public constructor(children?: ISpecification<ItemData>[]) {
         super(children);
     }

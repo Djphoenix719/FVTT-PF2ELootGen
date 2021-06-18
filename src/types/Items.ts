@@ -23,9 +23,15 @@ export interface ItemData extends Entity.Data {
         value?: { value: number };
         price?: { value: string };
         weight: { value: string | number };
+        traditions?: { value: string[] };
+        traits?: { value: string[] };
         quantity: { value: number };
         description?: { value: string };
         level?: { value: number };
         school?: { value: SpellSchool };
+        spell?: {
+            data: ItemData;
+            heightenedLevel: number;
+        };
     };
 }

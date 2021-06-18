@@ -98,6 +98,7 @@ export async function setDataSourceSetting(actor: Actor, source: DataSource | Da
     return await actor.update(updateData);
 }
 
+// TODO: Should be pretty easy to collapse buildSourceSettingUpdate + buildFilterSettingUpdate into one function.
 export type SetValueKeys = keyof IEnabled | keyof IWeighted;
 export function buildSourceSettingUpdate(actor: Actor, type: ItemType, keys: SetValueKeys | SetValueKeys[], values: any | any[]): Record<string, any> {
     if (!Array.isArray(keys)) keys = [keys];
@@ -115,7 +116,6 @@ export function buildSourceSettingUpdate(actor: Actor, type: ItemType, keys: Set
     }
     return updateData;
 }
-
 export function buildFilterSettingUpdate(actor: Actor, type: FilterType, keys: SetValueKeys | SetValueKeys[], values: any | any[]): Record<string, any> {
     if (!Array.isArray(keys)) keys = [keys];
     if (!Array.isArray(values)) values = [values];

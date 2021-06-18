@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import { AbstractOperation } from './AbstractOperation';
+import { WeightedFilter } from './WeightedFilter';
 import { EqualityType } from '../EqualityType';
 
-export class BooleanOperation extends AbstractOperation<boolean> {
-    constructor(key: string, desiredValue: boolean) {
-        super(key, desiredValue, EqualityType.EqualTo);
+export class NumberFilter extends WeightedFilter<number> {
+    public constructor(selector: string, desiredValue: number, weight: number, equalityType: EqualityType) {
+        super(selector, desiredValue, weight, equalityType);
     }
 }

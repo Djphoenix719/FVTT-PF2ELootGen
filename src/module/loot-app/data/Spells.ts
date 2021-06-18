@@ -14,15 +14,7 @@
  * limitations under the License.
  */
 
-import {
-    FilteredSource,
-    getPackSourceContents,
-    PackSource,
-    SourceType,
-    ItemType,
-    tableStoreId,
-    ordinalNumber,
-} from './DataSource';
+import { FilteredSource, getPackSourceContents, PackSource, SourceType, ItemType, tableStoreId, ordinalNumber } from './DataSource';
 import { INamed } from './Mixins';
 
 export enum SpellSchool {
@@ -55,7 +47,7 @@ export const spellSources: Record<string, SpellSource> = {
     },
 };
 
-export const SCROLL_TEMPLATE_PACK_ID = 'pf2e.equipment-srd';
+export const TEMPLATE_PACK_ID = 'pf2e.equipment-srd';
 
 export const scrollTemplateIds = {
     1: 'RjuupS9xyXDLgyIr',
@@ -80,5 +72,3 @@ export const wandTemplateIds = {
     8: 'Qs8RgNH6thRPv2jt',
     9: 'Fgv722039TVM5JTc',
 };
-
-

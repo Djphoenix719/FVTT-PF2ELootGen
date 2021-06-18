@@ -15,20 +15,22 @@
  */
 
 import { MODULE_NAME, PF2E_LOOT_SHEET_NAME } from '../Constants';
-import { FLAGS_KEY, getDataSourceSettings, getFilterSettings, buildSourceSettingUpdate, buildFilterSettingUpdate } from './Flags';
+import { buildFilterSettingUpdate, buildSourceSettingUpdate, FLAGS_KEY, getDataSourceSettings, getFilterSettings, SetValueKeys } from './Flags';
 import { TABLE_WEIGHT_MAX, TABLE_WEIGHT_MIN } from './Settings';
 import { ItemData } from '../../types/Items';
-import { dataSourcesOfType, drawFromSources, DrawResult, mergeExistingStacks, mergeStacks, rollTreasureValues } from './Utilities';
-import { DataSource, ItemType } from './data/DataSource';
+import { createSpellItems, dataSourcesOfType, drawFromSources, DrawResult, mergeExistingStacks, mergeStacks, rollTreasureValues } from './Utilities';
+import { DataSource, ItemType, PoolSource, SourceType } from './data/DataSource';
 import ModuleSettings, { FEATURE_ALLOW_MERGING } from '../settings-app/ModuleSettings';
 import { SpellItemType, spellSources } from './data/Spells';
-import { FilterType, spellLevelFilters, spellSchoolFilters } from './Filters';
-import { NumberOperation } from '../filter/Operation/NumberOperation';
-import { EqualityType } from '../filter/EqualityType';
-import { StringOperation } from '../filter/Operation/StringOperation';
+import { AppFilter, FilterType, spellLevelFilters, spellSchoolFilters } from './Filters';
 import { consumableSources } from './data/Consumable';
 import { permanentSources } from './data/Permanent';
 import { treasureSources } from './data/Treasure';
+import { NumberFilter } from '../filter/Operation/NumberFilter';
+import { StringFilter } from '../filter/Operation/StringFilter';
+import { EqualityType } from '../filter/EqualityType';
+import { AndGroup, OrGroup } from '../filter/FilterGroup';
+import { WeightedFilter } from '../filter/Operation/WeightedFilter';
 
 export enum LootAppSetting {
     Count = 'count',
@@ -48,7 +50,7 @@ export const extendLootSheet = () => {
                 {
                     navSelector: '.loot-app-nav',
                     contentSelector: '.loot-app-content',
-                    initial: 'treasure',
+                    initial: 'spell',
                 },
             ];
             return options;
@@ -183,12 +185,12 @@ export const extendLootSheet = () => {
                 await this.createItemsFromDraw(results);
             });
 
-            // quick roll button
-            html.find('.sources i.fa-dice-d20').on('click', async (event) => {
+            // quick roll button for sources
+            html.find('.treasure i.quick-roll, .permanent i.quick-roll, .consumable i.quick-roll').on('click', async (event) => {
                 event.preventDefault();
                 event.stopPropagation();
 
-                const element = $(event.currentTarget).closest('.sources-row');
+                const element = $(event.currentTarget).closest('.source-wrapper');
                 const source: DataSource = element.data('source');
 
                 let results = await drawFromSources(1, [source]);
@@ -197,34 +199,65 @@ export const extendLootSheet = () => {
             });
 
             const rollSpells = async (consumableTypes: SpellItemType[]) => {
-                // const promises: Promise<Entity[]>[] = [];
-                // for (const source of Object.values(spellSources)) {
-                //     // @ts-ignore
-                //     promises.push(game.packs.get(source.id).getDocuments());
-                // }
-                //
-                // const levelFilters = Object.values(spellLevelFilters)
-                //     .map((filter) => getFilterSettings(this.actor, filter))
-                //     .filter((filter) => filter.enabled)
-                //     .map((filter) => {
-                //         return {
-                //             weight: filter.weight,
-                //             filter: new NumberOperation('data.level.value', filter.desiredValue as number, EqualityType.EqualTo),
-                //         };
-                //     });
-                // const schoolFilters = Object.values(spellSchoolFilters)
-                //     .map((filter) => getFilterSettings(this.actor, filter))
-                //     .filter((filter) => filter.enabled)
-                //     .map((filter) => {
-                //         return {
-                //             weight: filter.weight,
-                //             filter: new StringOperation('data.school.value', filter.desiredValue as string),
-                //         };
-                //     });
-                //
-                // let spells = (await Promise.all(promises)).flat().map((spell) => spell.data) as unknown as ItemData[];
-                //
-                // console.warn(spells);
+                console.warn('rolling spells');
+                console.warn(consumableTypes);
+
+                const promises: Promise<Entity[]>[] = [];
+                for (const source of Object.values(spellSources)) {
+                    // @ts-ignore
+                    promises.push(game.packs.get(source.id).getDocuments());
+                }
+
+                const levelFilters = Object.values(spellLevelFilters)
+                    .map((filter) => getFilterSettings(this.actor, filter))
+                    .filter((filter) => filter.enabled)
+                    .map((filter) => new NumberFilter('data.level.value', filter.desiredValue as number, filter.weight, EqualityType.EqualTo));
+                const schoolFilters = Object.values(spellSchoolFilters)
+                    .map((filter) => getFilterSettings(this.actor, filter))
+                    .filter((filter) => filter.enabled)
+                    .map((filter) => new StringFilter('data.school.value', filter.desiredValue as string, filter.weight));
+
+                const isLevel = new OrGroup([...levelFilters]);
+                const isSchool = new OrGroup([...schoolFilters]);
+                const isEnabled = new AndGroup([isLevel, isSchool]);
+                const filters: WeightedFilter<number | string>[] = [...levelFilters, ...schoolFilters];
+
+                let spells = (await Promise.all(promises)).flat().map((spell) => spell.data) as unknown as ItemData[];
+                spells = spells.filter((spell) => isEnabled.isSatisfiedBy(spell));
+
+                const sources: Record<number, PoolSource> = {};
+                for (const entry of spells) {
+                    const weight = filters.reduce((prev, curr) => (curr.isSatisfiedBy(entry) ? prev + curr.weight : prev), 0);
+                    if (!sources.hasOwnProperty(weight)) {
+                        sources[weight] = {
+                            id: null,
+                            storeId: null,
+                            enabled: true,
+                            sourceType: SourceType.Pool,
+                            weight: weight,
+                            elements: [],
+                        };
+                    }
+                    sources[weight].elements.push(entry);
+                }
+
+                if (Object.values(sources).length === 0) {
+                    // TODO: Localization
+                    ui.notifications.warn('The current filters excluded all spells.', { permanent: true });
+                    return;
+                }
+
+                const drawnSpells = await drawFromSources(this.getLootAppSetting<number>(ItemType.Spell, LootAppSetting.Count), Object.values(sources));
+
+                console.warn('drawn spells');
+                console.warn(drawnSpells);
+
+                const createdItems = await createSpellItems(drawnSpells, consumableTypes);
+
+                console.warn('created spell items');
+                console.warn(createdItems);
+
+                await this.createItems(createdItems);
             };
 
             // roll scrolls
@@ -249,44 +282,35 @@ export const extendLootSheet = () => {
                 await rollSpells([SpellItemType.Scroll, SpellItemType.Wand]);
             });
 
-            // check-all button
-            html.find('.buttons .check-all').on('click', async (event) => {
+            /**
+             * Handle a settings update event, e.g. one of the check all, check none, or reset buttons are pressed.
+             * @param event The triggering even.
+             * @param keys The keys that should be updated.
+             * @param values The values that should be placed in those keys.
+             */
+            const settingsUpdate = async (event: JQuery.ClickEvent, keys: SetValueKeys[], values: any[]): Promise<void> => {
                 event.preventDefault();
                 event.stopPropagation();
 
-                let updateData = buildSourceSettingUpdate(this.actor, getType(event), 'enabled', true);
-                if (getType(event)) {
-                    updateData = { ...updateData, ...buildFilterSettingUpdate(this.actor, FilterType.SpellSchool, 'enabled', true) };
-                    updateData = { ...updateData, ...buildFilterSettingUpdate(this.actor, FilterType.SpellLevel, 'enabled', true) };
+                let updateData = buildSourceSettingUpdate(this.actor, getType(event), keys, values);
+                if (getType(event) === ItemType.Spell) {
+                    updateData = { ...updateData, ...buildFilterSettingUpdate(this.actor, FilterType.SpellSchool, keys, values) };
+                    updateData = { ...updateData, ...buildFilterSettingUpdate(this.actor, FilterType.SpellLevel, keys, values) };
                 }
-
                 await this.actor.update(updateData);
+            };
+
+            // check-all button
+            html.find('.buttons .check-all').on('click', async (event) => {
+                await settingsUpdate(event, ['enabled'], [true]);
             });
             // check-none button
             html.find('.buttons .check-none').on('click', async (event) => {
-                event.preventDefault();
-                event.stopPropagation();
-
-                let updateData = buildSourceSettingUpdate(this.actor, getType(event), 'enabled', false);
-                if (getType(event)) {
-                    updateData = { ...updateData, ...buildFilterSettingUpdate(this.actor, FilterType.SpellSchool, 'enabled', false) };
-                    updateData = { ...updateData, ...buildFilterSettingUpdate(this.actor, FilterType.SpellLevel, 'enabled', false) };
-                }
-
-                await this.actor.update(updateData);
+                await settingsUpdate(event, ['enabled'], [false]);
             });
             // reset button
             html.find('.buttons .reset').on('click', async (event) => {
-                event.preventDefault();
-                event.stopPropagation();
-
-                let updateData = buildSourceSettingUpdate(this.actor, getType(event), ['weight', 'enabled'], [1, true]);
-                if (getType(event)) {
-                    updateData = { ...updateData, ...buildFilterSettingUpdate(this.actor, FilterType.SpellSchool, ['weight', 'enabled'], [1, true]) };
-                    updateData = { ...updateData, ...buildFilterSettingUpdate(this.actor, FilterType.SpellLevel, ['weight', 'enabled'], [1, true]) };
-                }
-
-                await this.actor.update(updateData);
+                await settingsUpdate(event, ['weight', 'enabled'], [1, true]);
             });
         }
     }
