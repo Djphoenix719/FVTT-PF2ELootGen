@@ -22,7 +22,7 @@ import { createSpellItems, dataSourcesOfType, drawFromSources, DrawResult, merge
 import { DataSource, ItemType, PoolSource, SourceType } from './data/DataSource';
 import ModuleSettings, { FEATURE_ALLOW_MERGING } from '../settings-app/ModuleSettings';
 import { SpellItemType, spellSources } from './data/Spells';
-import { AppFilter, FilterType, spellLevelFilters, spellSchoolFilters } from './Filters';
+import { AppFilter, FilterType, spellLevelFilters, spellSchoolFilters, spellTraditionFilters } from './Filters';
 import { consumableSources } from './data/Consumable';
 import { permanentSources } from './data/Permanent';
 import { treasureSources } from './data/Treasure';
@@ -31,6 +31,7 @@ import { StringFilter } from '../filter/Operation/StringFilter';
 import { EqualityType } from '../filter/EqualityType';
 import { AndGroup, OrGroup } from '../filter/FilterGroup';
 import { WeightedFilter } from '../filter/Operation/WeightedFilter';
+import { ArrayIncludesFilter } from '../filter/Operation/ArrayIncludesFilter';
 
 export enum LootAppSetting {
     Count = 'count',
@@ -72,18 +73,21 @@ export const extendLootSheet = () => {
                 rangeMax: TABLE_WEIGHT_MAX,
             };
 
+            const getFilter = (filter: AppFilter): AppFilter => getFilterSettings(this.actor, filter);
             data['filters'] = {
                 spell: {
-                    school: Object.values(spellSchoolFilters).map((filter) => getFilterSettings(this.actor, filter)),
-                    level: Object.values(spellLevelFilters).map((filter) => getFilterSettings(this.actor, filter)),
+                    school: Object.values(spellSchoolFilters).map(getFilter),
+                    level: Object.values(spellLevelFilters).map(getFilter),
+                    tradition: Object.values(spellTraditionFilters).map(getFilter),
                 },
             };
 
+            const getSource = (source: DataSource): DataSource => getDataSourceSettings(this.actor, source);
             data['sources'] = {
-                [ItemType.Consumable]: Object.values(consumableSources).map((source) => getDataSourceSettings(this.actor, source)),
-                [ItemType.Permanent]: Object.values(permanentSources).map((source) => getDataSourceSettings(this.actor, source)),
-                [ItemType.Treasure]: Object.values(treasureSources).map((source) => getDataSourceSettings(this.actor, source)),
-                [ItemType.Spell]: Object.values(spellSources).map((source) => getDataSourceSettings(this.actor, source)),
+                [ItemType.Consumable]: Object.values(consumableSources).map(getSource),
+                [ItemType.Permanent]: Object.values(permanentSources).map(getSource),
+                [ItemType.Treasure]: Object.values(treasureSources).map(getSource),
+                [ItemType.Spell]: Object.values(spellSources).map(getSource),
             };
 
             data['flags'] = {
@@ -216,11 +220,16 @@ export const extendLootSheet = () => {
                     .map((filter) => getFilterSettings(this.actor, filter))
                     .filter((filter) => filter.enabled)
                     .map((filter) => new StringFilter('data.school.value', filter.desiredValue as string, filter.weight));
+                const traditionFilters = Object.values(spellTraditionFilters)
+                    .map((filter) => getFilterSettings(this.actor, filter))
+                    .filter((filter) => filter.enabled)
+                    .map((filter) => new ArrayIncludesFilter('data.traditions.value', filter.desiredValue as string, filter.weight));
 
                 const isLevel = new OrGroup([...levelFilters]);
                 const isSchool = new OrGroup([...schoolFilters]);
-                const isEnabled = new AndGroup([isLevel, isSchool]);
-                const filters: WeightedFilter<number | string>[] = [...levelFilters, ...schoolFilters];
+                const isTradition = new OrGroup([...traditionFilters]);
+                const isEnabled = new AndGroup([isLevel, isSchool, isTradition]);
+                const filters: WeightedFilter<number | string>[] = [...levelFilters, ...schoolFilters, ...traditionFilters];
 
                 let spells = (await Promise.all(promises)).flat().map((spell) => spell.data) as unknown as ItemData[];
                 spells = spells.filter((spell) => isEnabled.isSatisfiedBy(spell));
@@ -253,6 +262,8 @@ export const extendLootSheet = () => {
                 console.warn(drawnSpells);
 
                 const createdItems = await createSpellItems(drawnSpells, consumableTypes);
+
+                // TODO: Join stacks, slug needs updating to do so.
 
                 console.warn('created spell items');
                 console.warn(createdItems);
@@ -296,6 +307,7 @@ export const extendLootSheet = () => {
                 if (getType(event) === ItemType.Spell) {
                     updateData = { ...updateData, ...buildFilterSettingUpdate(this.actor, FilterType.SpellSchool, keys, values) };
                     updateData = { ...updateData, ...buildFilterSettingUpdate(this.actor, FilterType.SpellLevel, keys, values) };
+                    updateData = { ...updateData, ...buildFilterSettingUpdate(this.actor, FilterType.SpellTradition, keys, values) };
                 }
                 await this.actor.update(updateData);
             };

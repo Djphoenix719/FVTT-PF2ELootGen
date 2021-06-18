@@ -33,6 +33,13 @@ export enum SpellItemType {
     Scroll = 'scroll',
 }
 
+export enum SpellTradition {
+    Arcane = 'arcane',
+    Divine = 'divine',
+    Primal = 'primal',
+    Occult = 'occult',
+}
+
 export interface SpellSource extends PackSource, INamed {}
 
 export const spellSources: Record<string, SpellSource> = {

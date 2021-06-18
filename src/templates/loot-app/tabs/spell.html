@@ -17,6 +17,11 @@
         </div>
     {{/each}}
 
+    <h4>Tradition Filters</h4>
+    {{#each filters.spell.tradition as |filter|}}
+        {{> weight-range key=(filter-flag filter) }}
+    {{/each}}
+
     <h4>School Filters</h4>
     {{#each filters.spell.school as |filter|}}
         {{> weight-range key=(filter-flag filter) }}

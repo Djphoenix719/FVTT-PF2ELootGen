@@ -21,7 +21,7 @@ import { TEMPLATE_PACK_ID, scrollTemplateIds, SpellItemType, spellSources, wandT
 import { DataSource, getPack, isPackSource, isPoolSource, isTableSource, ItemType } from './data/DataSource';
 import { ItemData } from '../../types/Items';
 import { getItemFromPack, getTableFromPack } from '../Utilities';
-import { AppFilter, FilterType, spellLevelFilters, spellSchoolFilters } from './Filters';
+import { AppFilter, FilterType, spellLevelFilters, spellSchoolFilters, spellTraditionFilters } from './Filters';
 
 /**
  * Returns distinct elements of an array when used to filter an array.
@@ -64,6 +64,8 @@ export function filtersOfType(type: FilterType): Record<string, AppFilter> {
             return spellSchoolFilters;
         case FilterType.SpellLevel:
             return spellLevelFilters;
+        case FilterType.SpellTradition:
+            return spellTraditionFilters;
     }
 }
 
@@ -155,6 +157,8 @@ export async function drawFromSources(count: number, sources: DataSource[], opti
 export async function createSpellItems(itemDatas: DrawResult[], itemTypes: SpellItemType[]): Promise<ItemData[]> {
     itemDatas = duplicate(itemDatas) as DrawResult[];
 
+    console.warn(itemTypes);
+
     const itemType = (draw: DrawResult): SpellItemType => {
         if (draw.itemData.data.level.value === 10) {
             if (itemTypes.includes(SpellItemType.Scroll)) {
@@ -169,9 +173,9 @@ export async function createSpellItems(itemDatas: DrawResult[], itemTypes: Spell
     const itemName = (itemData: ItemData, type: SpellItemType): string => {
         // TODO: Localization
         switch (type) {
-            case SpellItemType.Wand:
-                return `Scroll of ${itemData.name} (Level ${itemData.data.level.value})`;
             case SpellItemType.Scroll:
+                return `Scroll of ${itemData.name} (Level ${itemData.data.level.value})`;
+            case SpellItemType.Wand:
                 return `Wand of ${itemData.name} (Level ${itemData.data.level.value})`;
         }
     };
@@ -198,6 +202,7 @@ export async function createSpellItems(itemDatas: DrawResult[], itemTypes: Spell
         const spellData = drawResult.itemData;
         const template: ItemData = duplicate(templates[type][drawResult.itemData.data.level.value - 1]) as ItemData;
         template.data.traits.value.push(...spellData.data.traditions.value);
+        template.data.traits.rarity.value = spellData.data.traits.rarity.value;
         template.name = itemName(spellData, type);
 
         const description = template.data.description.value;

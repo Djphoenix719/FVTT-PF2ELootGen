@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-import { SpellSchool } from './data/Spells';
+import { SpellSchool, SpellTradition } from './data/Spells';
 import { IEnabled, INamed, IWeighted } from './data/Mixins';
 import { ItemType, ordinalNumber } from './data/DataSource';
 
 export enum FilterType {
     SpellSchool = 'school',
     SpellLevel = 'level',
+    SpellTradition = 'tradition',
 }
 
 export interface AppFilter extends IWeighted, IEnabled, INamed {
@@ -65,6 +66,22 @@ const schoolFilter = (school: SpellSchool): SpellFilter => {
     };
 };
 
+const traditionFilterId = (tradition: SpellTradition) => `${tradition}`;
+const traditionFilter = (tradition: SpellTradition): SpellFilter => {
+    return {
+        id: traditionFilterId(tradition),
+        name: tradition.capitalize(),
+
+        filterType: FilterType.SpellTradition,
+        filterCategory: ItemType.Spell,
+
+        desiredValue: tradition,
+
+        weight: 1,
+        enabled: true,
+    };
+};
+
 export const spellLevelFilters: Record<string, AppFilter> = Array.fromRange(10).reduce(
     (prev, curr) =>
         mergeObject(prev, {
@@ -81,4 +98,12 @@ export const spellSchoolFilters: Record<string, AppFilter> = Object.values(Spell
     {},
 );
 
-export const spellFilters = { ...spellLevelFilters, ...spellSchoolFilters };
+export const spellTraditionFilters: Record<string, AppFilter> = Object.values(SpellTradition).reduce(
+    (prev, curr) =>
+        mergeObject(prev, {
+            [traditionFilterId(curr)]: traditionFilter(curr),
+        }),
+    {},
+);
+
+export const spellFilters = { ...spellLevelFilters, ...spellSchoolFilters, ...spellTraditionFilters };

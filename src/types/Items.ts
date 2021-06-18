@@ -15,6 +15,7 @@
  */
 
 import { SpellSchool } from '../module/loot-app/data/Spells';
+import { Rarity } from '../module/loot-app/data/Materials';
 
 export interface ItemData extends Entity.Data {
     data: {
@@ -24,7 +25,10 @@ export interface ItemData extends Entity.Data {
         price?: { value: string };
         weight: { value: string | number };
         traditions?: { value: string[] };
-        traits?: { value: string[] };
+        traits?: {
+            rarity: { value: Rarity };
+            value: string[];
+        };
         quantity: { value: number };
         description?: { value: string };
         level?: { value: number };

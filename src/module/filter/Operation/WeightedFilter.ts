@@ -19,9 +19,9 @@ import { EqualityType } from '../EqualityType';
 import { ISpecification } from '../ISpecification';
 
 export abstract class WeightedFilter<T extends number | string | boolean> implements ISpecification<ItemData> {
-    private readonly selector: string;
-    private readonly desiredValue: T;
-    private readonly equality: EqualityType;
+    protected readonly selector: string;
+    protected readonly desiredValue: T;
+    protected readonly equality: EqualityType;
     public readonly weight: number;
 
     // constructor is protected here so we can type them properly, and extend with type specific functions later
