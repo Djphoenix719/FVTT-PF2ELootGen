@@ -2,13 +2,15 @@
 <div class="tab-container" data-type="permanent">
 
     {{> tab-buttons }}
-
     {{> tab-config key="permanent" }}
 
-    {{#each sources.permanent as |source|}}
-        <div class="source-wrapper" data-source="{{json source}}">
-            {{> weight-range key=(source-flag source) quick-roll=true }}
-        </div>
-    {{/each}}
+    {{#set-block "collapse-content"}}
+        {{#each @root.sources.permanent as |source|}}
+            <div class="source-wrapper" data-source="{{json source}}">
+                {{> weight-range key=(source-flag source) quick-roll=true }}
+            </div>
+        {{/each}}
+    {{/set-block}}
+    {{> collapsible title="Data Sources" id="permanent-sources" }}
 
 </div>

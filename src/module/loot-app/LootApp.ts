@@ -65,6 +65,9 @@ export const extendLootSheet = () => {
             return `modules/${MODULE_NAME}/templates/loot-app/index.html`;
         }
 
+        // mapping of collapse-ids to hidden or not states
+        protected collapsibles: Record<string, boolean> = {};
+
         public getData(options?: Application.RenderOptions) {
             const data = super.getData(options);
 
@@ -72,6 +75,7 @@ export const extendLootSheet = () => {
                 rangeMin: TABLE_WEIGHT_MIN,
                 rangeMax: TABLE_WEIGHT_MAX,
             };
+            data['collapsibles'] = { ...data['collapsibles'], ...this.collapsibles };
 
             const getFilter = (filter: AppFilter): AppFilter => getFilterSettings(this.actor, filter);
             data['filters'] = {
@@ -130,15 +134,6 @@ export const extendLootSheet = () => {
             await this.updateItems(itemsToUpdate);
             await this.createItems(itemsToCreate);
         }
-
-        // private async createSpellItemsFromDraws(results: DrawResult[]) {
-        //     for (let i = 0; i < results.length; i++) {
-        //         const itemData = results[i].itemData;
-        //     }
-        //
-        //     const itemDatas = await this.createItemsFromDraw(results);
-        //     await this.createItems(itemDatas);
-        // }
 
         /**
          * Helper function to retrieve certain settings from the flags store.
@@ -323,6 +318,18 @@ export const extendLootSheet = () => {
             // reset button
             html.find('.buttons .reset').on('click', async (event) => {
                 await settingsUpdate(event, ['weight', 'enabled'], [1, true]);
+            });
+
+            // collapsibles
+            html.find('.collapsible h4').on('click', async (event) => {
+                const header = $(event.currentTarget);
+                const container = header.closest('.collapsible');
+                const wrapper = header.next('.collapse-content');
+
+                const id: string = container.data('collapse-id');
+                wrapper.toggle('fast', 'swing', () => {
+                    this.collapsibles[id] = wrapper.css('display') === 'none';
+                });
             });
         }
     }

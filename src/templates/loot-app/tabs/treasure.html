@@ -5,10 +5,13 @@
 
     {{> tab-config key="treasure" }}
 
-    {{#each sources.treasure as |source|}}
-        <div class="source-wrapper" data-source="{{json source}}">
-            {{> weight-range key=(source-flag source) quick-roll=true label=(concat source.value source.denomination " ") }}
-        </div>
-    {{/each}}
+    {{#set-block "collapse-content"}}
+        {{#each @root.sources.treasure as |source|}}
+            <div class="source-wrapper" data-source="{{json source}}">
+                {{> weight-range key=(source-flag source) quick-roll=true label=(concat source.value source.denomination " ") }}
+            </div>
+        {{/each}}
+    {{/set-block}}
+    {{> collapsible title="Data Sources" id="treasure-sources" }}
 
 </div>

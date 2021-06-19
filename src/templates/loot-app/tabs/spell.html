@@ -7,7 +7,6 @@
             <button class="roll-both" title="Scroll or Wand"><i class="fas fa-scroll"></i><i class="fas fa-magic"></i></button>
     {{/set-block}}
     {{> tab-buttons roll=false }}
-
     {{> tab-config key="spell" }}
 
     {{#set-block "collapse-content"}}
@@ -17,27 +16,27 @@
             </div>
         {{/each}}
     {{/set-block}}
-    {{> collapsible title="Data Sources" id="spell-data-sources" default=false }}
+    {{> collapsible title="Data Sources" id="spell-data-sources" }}
 
     {{#set-block "collapse-content"}}
-        {{#each filters.spell.tradition as |filter|}}
+        {{#each @root.filters.spell.tradition as |filter|}}
             {{> weight-range key=(filter-flag filter) }}
         {{/each}}
     {{/set-block}}
-    {{> collapsible title="Tradition Filters" id="spell-tradition-filters" default=false }}
+    {{> collapsible title="Tradition Filters" id="spell-tradition-filters" }}
 
     {{#set-block "collapse-content"}}
         {{#each @root.filters.spell.school as |filter|}}
             {{> weight-range key=(filter-flag filter) }}
         {{/each}}
     {{/set-block}}
-    {{> collapsible title="School Filters" id="spell-school-filters" default=false }}
+    {{> collapsible title="School Filters" id="spell-school-filters" }}
 
     {{#set-block "collapse-content"}}
         {{#each @root.filters.spell.level as |filter|}}
             {{> weight-range key=(filter-flag filter) }}
         {{/each}}
     {{/set-block}}
-    {{> collapsible title="Level Filters" id="spell-level-filters" default=false }}
+    {{> collapsible title="Level Filters" id="spell-level-filters" }}
 
 </div>

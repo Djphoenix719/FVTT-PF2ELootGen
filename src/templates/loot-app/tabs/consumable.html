@@ -5,10 +5,13 @@
 
     {{> tab-config key="consumable" }}
 
-    {{#each sources.consumable as |source|}}
-        <div class="source-wrapper" data-source="{{json source}}">
-            {{> weight-range key=(source-flag source) quick-roll=true }}
-        </div>
-    {{/each}}
+    {{#set-block "collapse-content"}}
+        {{#each @root.sources.consumable as |source|}}
+            <div class="source-wrapper" data-source="{{json source}}">
+                {{> weight-range key=(source-flag source) quick-roll=true }}
+            </div>
+        {{/each}}
+    {{/set-block}}
+    {{> collapsible title="Data Sources" id="consumable-sources" }}
 
 </div>
