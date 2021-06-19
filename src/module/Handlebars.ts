@@ -40,6 +40,7 @@ export async function registerHandlebarsTemplates() {
         'weight-range': `templates/loot-app/partials/weight-range.html`,
         'tab-buttons': `templates/loot-app/tabs/partials/tab-buttons.html`,
         'tab-config': `templates/loot-app/tabs/partials/tab-config.html`,
+        'collapsible': `templates/loot-app/partials/collapsible.html`,
     };
 
     const templatePaths = [
@@ -113,10 +114,12 @@ export function registerHandlebarsHelpers() {
     /**
      * Set a block, so the next call to get-block renders the provided content.
      * @param name The name of the block to set.
-     * @param context The handlebars context where the block is being set.
+     * @param parentContext The handlebars context where the block is being set.
      */
-    const setBlock = (name: string, context: HandlebarsContext) => {
-        Handlebars.registerPartial(blockKey(name), context.fn);
+    const setBlock = (name: string, parentContext: HandlebarsContext) => {
+        Handlebars.registerPartial(blockKey(name), (childContext: HandlebarsContext) => {
+            return parentContext.fn(mergeObject(parentContext, childContext));
+        });
     };
     /**
      * Get and render a block by it's name.

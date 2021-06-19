@@ -10,26 +10,34 @@
 
     {{> tab-config key="spell" }}
 
-    <h4>Data Sources</h4>
-    {{#each sources.spell as |source|}}
-        <div class="source-wrapper" data-source="{{json source}}">
-            {{> weight-range key=(source-flag source) }}
-        </div>
-    {{/each}}
+    {{#set-block "collapse-content"}}
+        {{#each @root.sources.spell as |source|}}
+            <div class="source-wrapper" data-source="{{json source}}">
+                {{> weight-range key=(source-flag source) }}
+            </div>
+        {{/each}}
+    {{/set-block}}
+    {{> collapsible title="Data Sources" id="spell-data-sources" default=false }}
 
-    <h4>Tradition Filters</h4>
-    {{#each filters.spell.tradition as |filter|}}
-        {{> weight-range key=(filter-flag filter) }}
-    {{/each}}
+    {{#set-block "collapse-content"}}
+        {{#each filters.spell.tradition as |filter|}}
+            {{> weight-range key=(filter-flag filter) }}
+        {{/each}}
+    {{/set-block}}
+    {{> collapsible title="Tradition Filters" id="spell-tradition-filters" default=false }}
 
-    <h4>School Filters</h4>
-    {{#each filters.spell.school as |filter|}}
-        {{> weight-range key=(filter-flag filter) }}
-    {{/each}}
+    {{#set-block "collapse-content"}}
+        {{#each @root.filters.spell.school as |filter|}}
+            {{> weight-range key=(filter-flag filter) }}
+        {{/each}}
+    {{/set-block}}
+    {{> collapsible title="School Filters" id="spell-school-filters" default=false }}
 
-    <h4>Level Filters</h4>
-    {{#each filters.spell.level as |filter|}}
-        {{> weight-range key=(filter-flag filter) }}
-    {{/each}}
+    {{#set-block "collapse-content"}}
+        {{#each @root.filters.spell.level as |filter|}}
+            {{> weight-range key=(filter-flag filter) }}
+        {{/each}}
+    {{/set-block}}
+    {{> collapsible title="Level Filters" id="spell-level-filters" default=false }}
 
 </div>
