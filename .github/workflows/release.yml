@@ -69,7 +69,7 @@ jobs:
         with:
           author_name: Github Workflow
           message: "Github Workflow"
-          ref: 'master'
+          ref: 'main'
           add: module.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
