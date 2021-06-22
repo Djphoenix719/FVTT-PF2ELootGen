@@ -15,7 +15,7 @@
  */
 
 import { MODULE_NAME } from './Constants';
-import { ItemType } from './loot-app/data/DataSource';
+import { GenType } from './loot-app/data/DataSource';
 
 export interface HandlebarsContext {
     data: Record<string, any> & {
@@ -54,7 +54,7 @@ export async function registerHandlebarsTemplates() {
 
         `templates/loot-app/tabs/settings.html`,
 
-        ...Object.values(ItemType).map((type) => `templates/loot-app/tabs/${type}.html`),
+        ...Object.values(GenType).map((type) => `templates/loot-app/tabs/${type}.html`),
         ...Object.values(partials),
     ].map(templatePath);
 

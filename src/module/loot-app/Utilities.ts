@@ -18,7 +18,7 @@ import { permanentSources } from './data/Permanent';
 import { consumableSources } from './data/Consumable';
 import { isTreasureSource, TreasureSource, treasureSources } from './data/Treasure';
 import { TEMPLATE_PACK_ID, scrollTemplateIds, SpellItemType, spellSources, wandTemplateIds } from './data/Spells';
-import { DataSource, getPack, isPackSource, isPoolSource, isTableSource, ItemType } from './data/DataSource';
+import { DataSource, getPack, isPackSource, isPoolSource, isTableSource, GenType } from './data/DataSource';
 import { ItemData } from '../../types/Items';
 import { getItemFromPack, getTableFromPack } from '../Utilities';
 import { AppFilter, FilterType, spellLevelFilters, spellSchoolFilters, spellTraditionFilters } from './Filters';
@@ -45,15 +45,15 @@ function chooseFromArray<T>(choices: T[]): T {
  * Return the correct source map for the given item type.
  * @param type Type of sources to fetch.
  */
-export function dataSourcesOfType(type: ItemType): Record<string, DataSource> {
+export function dataSourcesOfType(type: GenType): Record<string, DataSource> {
     switch (type) {
-        case ItemType.Treasure:
+        case GenType.Treasure:
             return treasureSources;
-        case ItemType.Permanent:
+        case GenType.Permanent:
             return permanentSources;
-        case ItemType.Consumable:
+        case GenType.Consumable:
             return consumableSources;
-        case ItemType.Spell:
+        case GenType.Spell:
             return spellSources;
     }
 }

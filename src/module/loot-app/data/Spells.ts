@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { FilteredSource, getPackSourceContents, PackSource, SourceType, ItemType, tableStoreId, ordinalNumber } from './DataSource';
+import { FilteredSource, getPackSourceContents, PackSource, SourceType, GenType, tableStoreId, ordinalNumber } from './DataSource';
 import { INamed } from './Mixins';
 
 export enum SpellSchool {
@@ -48,7 +48,7 @@ export const spellSources: Record<string, SpellSource> = {
         storeId: tableStoreId('spells-srd'),
         name: 'SRD Spells',
         sourceType: SourceType.Pack,
-        itemType: ItemType.Spell,
+        itemType: GenType.Spell,
         weight: 1,
         enabled: true,
     },

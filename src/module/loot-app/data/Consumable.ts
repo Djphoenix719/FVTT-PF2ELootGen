@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { SourceType, TableSource, ItemType, tableStoreId, ordinalNumber } from './DataSource';
+import { SourceType, TableSource, GenType, tableStoreId, ordinalNumber } from './DataSource';
 import { INamed } from './Mixins';
 import { RollableTablesPack } from './RollableTables';
 
@@ -49,7 +49,7 @@ const consumableSourceTemplate = (level: number): ConsumableSource => {
         name: `${ordinalNumber(level + 1)}-Level`,
         tableSource: RollableTablesPack,
         sourceType: SourceType.Table,
-        itemType: ItemType.Permanent,
+        itemType: GenType.Permanent,
         weight: 1,
         enabled: true,
     };

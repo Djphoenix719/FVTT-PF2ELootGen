@@ -19,7 +19,7 @@ import { buildFilterSettingUpdate, buildSourceSettingUpdate, FLAGS_KEY, getDataS
 import { TABLE_WEIGHT_MAX, TABLE_WEIGHT_MIN } from './Settings';
 import { ItemData } from '../../types/Items';
 import { createSpellItems, dataSourcesOfType, drawFromSources, DrawResult, mergeExistingStacks, mergeStacks, rollTreasureValues } from './Utilities';
-import { DataSource, ItemType, PoolSource, SourceType } from './data/DataSource';
+import { DataSource, GenType, PoolSource, SourceType } from './data/DataSource';
 import ModuleSettings, {
     FEATURE_ALLOW_MERGING,
     FEATURE_QUICK_ROLL_CONTROL,
@@ -93,10 +93,10 @@ export const extendLootSheet = () => {
 
             const getSource = (source: DataSource): DataSource => getDataSourceSettings(this.actor, source);
             data['sources'] = {
-                [ItemType.Consumable]: Object.values(consumableSources).map(getSource),
-                [ItemType.Permanent]: Object.values(permanentSources).map(getSource),
-                [ItemType.Treasure]: Object.values(treasureSources).map(getSource),
-                [ItemType.Spell]: Object.values(spellSources).map(getSource),
+                [GenType.Consumable]: Object.values(consumableSources).map(getSource),
+                [GenType.Permanent]: Object.values(permanentSources).map(getSource),
+                [GenType.Treasure]: Object.values(treasureSources).map(getSource),
+                [GenType.Spell]: Object.values(spellSources).map(getSource),
             };
 
             data['flags'] = {
@@ -146,7 +146,7 @@ export const extendLootSheet = () => {
          * @param key The setting key.
          * @private
          */
-        private getLootAppSetting<T = any>(type: ItemType, key: LootAppSetting): T {
+        private getLootAppSetting<T = any>(type: GenType, key: LootAppSetting): T {
             return this.actor.getFlag(MODULE_NAME, `config.${type}.${key}`) as T;
         }
 
@@ -192,7 +192,7 @@ export const extendLootSheet = () => {
 
             const getType = (event: JQuery.ClickEvent) => {
                 const { container } = getContainer(event);
-                return container.data('type') as ItemType;
+                return container.data('type') as GenType;
             };
 
             // group roll button
@@ -201,7 +201,7 @@ export const extendLootSheet = () => {
                 event.stopPropagation();
 
                 const { container } = getContainer(event);
-                const type = container.data('type') as ItemType;
+                const type = container.data('type') as GenType;
 
                 const sources = Object.values(dataSourcesOfType(type))
                     .map((source) => getDataSourceSettings(this.actor, source))
@@ -279,7 +279,7 @@ export const extendLootSheet = () => {
                     return;
                 }
 
-                const drawnSpells = await drawFromSources(this.getLootAppSetting<number>(ItemType.Spell, LootAppSetting.Count), Object.values(sources));
+                const drawnSpells = await drawFromSources(this.getLootAppSetting<number>(GenType.Spell, LootAppSetting.Count), Object.values(sources));
 
                 console.warn('drawn spells');
                 console.warn(drawnSpells);
@@ -327,7 +327,7 @@ export const extendLootSheet = () => {
                 event.stopPropagation();
 
                 let updateData = buildSourceSettingUpdate(this.actor, getType(event), keys, values);
-                if (getType(event) === ItemType.Spell) {
+                if (getType(event) === GenType.Spell) {
                     updateData = { ...updateData, ...buildFilterSettingUpdate(this.actor, FilterType.SpellSchool, keys, values) };
                     updateData = { ...updateData, ...buildFilterSettingUpdate(this.actor, FilterType.SpellLevel, keys, values) };
                     updateData = { ...updateData, ...buildFilterSettingUpdate(this.actor, FilterType.SpellTradition, keys, values) };

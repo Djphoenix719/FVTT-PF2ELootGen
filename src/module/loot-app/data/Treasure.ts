@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { DataSource, isTableSource, ItemType, SourceType, TableSource, tableStoreId } from './DataSource';
+import { DataSource, isTableSource, GenType, SourceType, TableSource, tableStoreId } from './DataSource';
 import { INamed } from './Mixins';
 import { RollableTablesPack } from './RollableTables';
 
@@ -139,7 +139,7 @@ const treasureSourceTemplate = (data: UniqueTableData): TreasureSource => {
 
         tableSource: RollableTablesPack,
         sourceType: SourceType.Table,
-        itemType: ItemType.Permanent,
+        itemType: GenType.Permanent,
         weight: 1,
         enabled: true,
     };

@@ -16,7 +16,7 @@
 
 import { SpellSchool, SpellTradition } from './data/Spells';
 import { IEnabled, INamed, IWeighted } from './data/Mixins';
-import { ItemType, ordinalNumber } from './data/DataSource';
+import { GenType, ordinalNumber } from './data/DataSource';
 
 export enum FilterType {
     SpellSchool = 'school',
@@ -27,11 +27,11 @@ export enum FilterType {
 export interface AppFilter extends IWeighted, IEnabled, INamed {
     id: string;
     filterType: FilterType;
-    filterCategory: ItemType;
+    filterCategory: GenType;
     desiredValue: number | string | boolean;
 }
 export interface SpellFilter extends AppFilter {
-    filterCategory: ItemType.Spell;
+    filterCategory: GenType.Spell;
 }
 
 const levelFilterId = (level: number) => `level-${level}`;
@@ -41,7 +41,7 @@ const levelFilter = (level: number): SpellFilter => {
         name: `${ordinalNumber(level)}-Level`,
 
         filterType: FilterType.SpellLevel,
-        filterCategory: ItemType.Spell,
+        filterCategory: GenType.Spell,
 
         desiredValue: level,
 
@@ -57,7 +57,7 @@ const schoolFilter = (school: SpellSchool): SpellFilter => {
         name: school.capitalize(),
 
         filterType: FilterType.SpellLevel,
-        filterCategory: ItemType.Spell,
+        filterCategory: GenType.Spell,
 
         desiredValue: school,
 
@@ -73,7 +73,7 @@ const traditionFilter = (tradition: SpellTradition): SpellFilter => {
         name: tradition.capitalize(),
 
         filterType: FilterType.SpellTradition,
-        filterCategory: ItemType.Spell,
+        filterCategory: GenType.Spell,
 
         desiredValue: tradition,
 

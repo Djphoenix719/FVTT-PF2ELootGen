@@ -15,7 +15,7 @@
  */
 
 import { MODULE_NAME } from '../Constants';
-import { DataSource, ItemType } from './data/DataSource';
+import { DataSource, GenType } from './data/DataSource';
 import { dataSourcesOfType, filtersOfType } from './Utilities';
 import { AppFilter, FilterType } from './Filters';
 import { IEnabled, IWeighted } from './data/Mixins';
@@ -34,7 +34,7 @@ export interface LootAppFlags {
         [storeId: string]: LootStoredData;
     };
     config: {
-        [TKey in ItemType]: LootCategoryConfig;
+        [TKey in GenType]: LootCategoryConfig;
     };
 }
 
@@ -100,7 +100,7 @@ export async function setDataSourceSetting(actor: Actor, source: DataSource | Da
 
 // TODO: Should be pretty easy to collapse buildSourceSettingUpdate + buildFilterSettingUpdate into one function.
 export type SetValueKeys = keyof IEnabled | keyof IWeighted;
-export function buildSourceSettingUpdate(actor: Actor, type: ItemType, keys: SetValueKeys | SetValueKeys[], values: any | any[]): Record<string, any> {
+export function buildSourceSettingUpdate(actor: Actor, type: GenType, keys: SetValueKeys | SetValueKeys[], values: any | any[]): Record<string, any> {
     if (!Array.isArray(keys)) keys = [keys];
     if (!Array.isArray(values)) values = [values];
     if (keys.length !== values.length) {
