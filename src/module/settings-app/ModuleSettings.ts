@@ -68,6 +68,11 @@ export const ATTR_REOPEN_SHEET_REQUIRED: IFeatureAttribute = {
 };
 
 export const FEATURE_ALLOW_MERGING = 'allow-merging';
+
+export const FEATURE_QUICK_ROLL_MODIFIERS = 'quick-roll-modifiers-enabled';
+export const FEATURE_QUICK_ROLL_CONTROL = 'quick-roll-control-count';
+export const FEATURE_QUICK_ROLL_SHIFT = 'quick-roll-shift-count';
+
 export const FEATURES: IFeatureDefinition[] = [
     {
         id: FEATURE_ALLOW_MERGING,
@@ -83,6 +88,41 @@ export const FEATURES: IFeatureDefinition[] = [
         help:
             'PF2E Lootgen will not check for modifications on existing items, so if you expect to change' +
             ' them this may result in improper treasure values, item descriptions, etc. for generated items.',
+    },
+    {
+        id: FEATURE_QUICK_ROLL_MODIFIERS,
+        title: 'Quick Roll Key Modifiers',
+        attributes: [],
+        description: 'When a key is held when using the quick roll buttons on the loot generator, these settings determine how many items should be rolled.',
+        inputs: [
+            {
+                name: FEATURE_QUICK_ROLL_CONTROL,
+                label: 'Control',
+                type: 'number',
+                value: 10,
+                min: 1,
+            },
+            {
+                name: FEATURE_QUICK_ROLL_SHIFT,
+                label: 'Shift',
+                type: 'number',
+                value: 5,
+                min: 1,
+            },
+        ],
+        register: [
+            {
+                name: FEATURE_QUICK_ROLL_CONTROL,
+                type: Number,
+                default: 10,
+            },
+            {
+                name: FEATURE_QUICK_ROLL_SHIFT,
+                type: Number,
+                default: 5,
+            },
+        ],
+        help: 'Holding down multiple keys will multiply together the modifiers.',
     },
 ];
 

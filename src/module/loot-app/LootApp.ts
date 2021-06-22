@@ -20,7 +20,12 @@ import { TABLE_WEIGHT_MAX, TABLE_WEIGHT_MIN } from './Settings';
 import { ItemData } from '../../types/Items';
 import { createSpellItems, dataSourcesOfType, drawFromSources, DrawResult, mergeExistingStacks, mergeStacks, rollTreasureValues } from './Utilities';
 import { DataSource, ItemType, PoolSource, SourceType } from './data/DataSource';
-import ModuleSettings, { FEATURE_ALLOW_MERGING } from '../settings-app/ModuleSettings';
+import ModuleSettings, {
+    FEATURE_ALLOW_MERGING,
+    FEATURE_QUICK_ROLL_CONTROL,
+    FEATURE_QUICK_ROLL_MODIFIERS,
+    FEATURE_QUICK_ROLL_SHIFT,
+} from '../settings-app/ModuleSettings';
 import { SpellItemType, spellSources } from './data/Spells';
 import { AppFilter, FilterType, spellLevelFilters, spellSchoolFilters, spellTraditionFilters } from './Filters';
 import { consumableSources } from './data/Consumable';
@@ -51,7 +56,7 @@ export const extendLootSheet = () => {
                 {
                     navSelector: '.loot-app-nav',
                     contentSelector: '.loot-app-content',
-                    initial: 'spell',
+                    initial: 'settings',
                 },
             ];
             return options;
@@ -157,11 +162,34 @@ export const extendLootSheet = () => {
                 await this._updateObject(new Event('submit'), this._getSubmitData());
             }
 
+            /**
+             * Calculate quick roll count by checking event modifiers and the module settings.
+             * @param event
+             */
+            const getQuickRollCount = (event: JQuery.ClickEvent): number => {
+                if (!ModuleSettings.get(FEATURE_QUICK_ROLL_MODIFIERS)) {
+                    return 1;
+                }
+
+                let count = 1;
+                if (event.shiftKey) {
+                    count *= ModuleSettings.get(FEATURE_QUICK_ROLL_SHIFT) as number;
+                }
+                if (event.ctrlKey) {
+                    count *= ModuleSettings.get(FEATURE_QUICK_ROLL_CONTROL) as number;
+                }
+                return count;
+            };
+            /**
+             * Get the closest container and element for an event.
+             * @param event
+             */
             const getContainer = (event: JQuery.ClickEvent) => {
                 const element = $(event.currentTarget);
                 const container = element.closest('.tab-container');
                 return { element, container };
             };
+
             const getType = (event: JQuery.ClickEvent) => {
                 const { container } = getContainer(event);
                 return container.data('type') as ItemType;
@@ -192,7 +220,7 @@ export const extendLootSheet = () => {
                 const element = $(event.currentTarget).closest('.source-wrapper');
                 const source: DataSource = element.data('source');
 
-                let results = await drawFromSources(1, [source]);
+                let results = await drawFromSources(getQuickRollCount(event), [source]);
                 results = await rollTreasureValues(results);
                 await this.createItemsFromDraw(results);
             });
