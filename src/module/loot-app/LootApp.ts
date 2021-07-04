@@ -17,7 +17,7 @@
 import { MODULE_NAME, PF2E_LOOT_SHEET_NAME } from '../Constants';
 import { buildFilterSettingUpdate, buildSourceSettingUpdate, FLAGS_KEY, getDataSourceSettings, getFilterSettings, SetValueKeys } from './Flags';
 import { TABLE_WEIGHT_MAX, TABLE_WEIGHT_MIN } from './Settings';
-import { ItemData } from '../../types/Items';
+import { CreateType, isArmorData, isShieldData, isWeaponData, ItemData } from '../../types/Items';
 import { createSpellItems, dataSourcesOfType, drawFromSources, DrawResult, mergeExistingStacks, mergeStacks, rollTreasureValues } from './Utilities';
 import { DataSource, GenType, PoolSource, SourceType } from './data/DataSource';
 import ModuleSettings, {
@@ -37,6 +37,7 @@ import { EqualityType } from '../filter/EqualityType';
 import { AndGroup, OrGroup } from '../filter/FilterGroup';
 import { WeightedFilter } from '../filter/Operation/WeightedFilter';
 import { ArrayIncludesFilter } from '../filter/Operation/ArrayIncludesFilter';
+import DragEvent = JQuery.DragEvent;
 
 export enum LootAppSetting {
     Count = 'count',
@@ -56,7 +57,7 @@ export const extendLootSheet = () => {
                 {
                     navSelector: '.loot-app-nav',
                     contentSelector: '.loot-app-content',
-                    initial: 'settings',
+                    initial: 'create',
                 },
             ];
             return options;
@@ -70,8 +71,25 @@ export const extendLootSheet = () => {
             return `modules/${MODULE_NAME}/templates/loot-app/index.html`;
         }
 
+        // base item data dragged from somewhere
+        protected createBaseItem: ItemData;
+
         // mapping of collapse-ids to hidden or not states
         protected collapsibles: Record<string, boolean> = {};
+
+        protected getCreateData() {
+            const data = {};
+
+            if (isWeaponData(this.createBaseItem)) {
+                data['type'] = CreateType.Weapon;
+            } else if (isShieldData(this.createBaseItem)) {
+                data['type'] = CreateType.Shield;
+            } else if (isArmorData(this.createBaseItem)) {
+                data['type'] = CreateType.Armor;
+            }
+
+            return data;
+        }
 
         public getData(options?: Application.RenderOptions) {
             const data = super.getData(options);
@@ -103,6 +121,8 @@ export const extendLootSheet = () => {
                 ...data['flags'],
                 ...data['actor']['flags'][FLAGS_KEY],
             };
+
+            data['create'] = this.getCreateData();
 
             console.warn(data);
 
@@ -148,6 +168,28 @@ export const extendLootSheet = () => {
          */
         private getLootAppSetting<T = any>(type: GenType, key: LootAppSetting): T {
             return this.actor.getFlag(MODULE_NAME, `config.${type}.${key}`) as T;
+        }
+
+        protected override async _onDropItem(event: any, data: any) {
+            console.warn('event');
+            console.warn(event);
+            console.warn('data');
+            console.warn(data);
+
+            const dragEvent: DragEvent = event as DragEvent;
+            const dropRegion = $(this.element).find('div.template-drop');
+            const dropTarget = dropRegion.find(dragEvent.target);
+
+            const isTemplateDrop = dropTarget.length > 0;
+
+            if (isTemplateDrop) {
+                const item = await Item.fromDropData(data);
+                this.createBaseItem = item.data;
+                await this.render(true);
+                return;
+            }
+
+            return super._onDropItem(event, data);
         }
 
         public async activateListeners(html: JQuery) {

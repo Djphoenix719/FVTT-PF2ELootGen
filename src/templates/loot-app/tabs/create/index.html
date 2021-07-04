@@ -1,0 +1,26 @@
+<!-- TODO: Localization -->
+<div class="tab-container" data-type="create">
+
+    <div class="template-drop">
+
+        <div class="help">
+            <p>Drop an item here and drag it away when you're done</p>
+            <a class="item-control inventory-browse" title="Open Inventory Browser" data-type="weapon"><i class="fas fa-search"></i></a>
+        </div>
+
+        <div class="item" draggable="true">
+            <img class="profile item-profile" src="systems/pf2e/icons/default-icons/weapon.svg"/>
+            <h4 class="entity-name">Template Item</h4>
+        </div>
+
+    </div>
+
+    <div class="create-settings">
+
+        {{#if (eq create.type "weapon")}}WEAPON{{/if}}
+        {{#if (eq create.type "armor")}}ARMOR{{/if}}
+        {{#if (eq create.type "shield")}}SHIELD{{/if}}
+
+    </div>
+
+</div>

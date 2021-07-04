@@ -20,8 +20,12 @@
 @import 'animation';
 @import 'weight-range';
 @import 'collapsible';
+@import 'create';
 
 form.loot-app {
+    section.sidebar div.loot-app-content.sheet-content-loot {
+        flex: 1;
+    }
     nav.sheet-tabs {
         top: 4px;
         position: sticky;

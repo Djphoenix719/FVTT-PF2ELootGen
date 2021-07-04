@@ -18,6 +18,7 @@ import ModuleSettings from './settings-app/ModuleSettings';
 import { registerHandlebarsHelpers, registerHandlebarsTemplates } from './Handlebars';
 import { extendLootSheet } from './loot-app/LootApp';
 import { MODULE_NAME } from './Constants';
+import { distinct } from './loot-app/Utilities';
 
 Hooks.on('init', ModuleSettings.registerAllSettings);
 
@@ -40,4 +41,5 @@ Hooks.on('ready', async () => {
     // @ts-ignore
     await Actor.create({ name: 'Lootboi', type: 'loot', ['flags.core.sheetClass']: 'pf2e-lootgen.LootApp' });
     await game.actors.getName('Lootboi').sheet.render(true);
+    window['distinct'] = distinct;
 });

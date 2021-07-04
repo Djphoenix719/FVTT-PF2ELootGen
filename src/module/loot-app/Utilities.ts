@@ -29,7 +29,7 @@ import { AppFilter, FilterType, spellLevelFilters, spellSchoolFilters, spellTrad
  * @param index
  * @param array
  */
-function distinct<T>(value: T, index: number, array: T[]): boolean {
+export function distinct<T>(value: T, index: number, array: T[]): boolean {
     return array.indexOf(value) === index;
 }
 

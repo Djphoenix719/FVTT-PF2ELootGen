@@ -48,11 +48,14 @@ export async function registerHandlebarsTemplates() {
         `templates/settings-app/tabs/About.html`,
         `templates/settings-app/tabs/Features.html`,
         `templates/settings-app/tabs/License.html`,
+
         `templates/loot-app/inventory.html`,
         `templates/loot-app/sidebar.html`,
         `templates/loot-app/partials/loot-profile.html`,
 
         `templates/loot-app/tabs/settings.html`,
+
+        `templates/loot-app/tabs/create/index.html`,
 
         ...Object.values(GenType).map((type) => `templates/loot-app/tabs/${type}.html`),
         ...Object.values(partials),
@@ -75,9 +78,26 @@ export function registerHandlebarsHelpers() {
     Handlebars.registerHelper('default', (value: any, defaultValue: any) => {
         return value === undefined || value === null ? defaultValue : value;
     });
-
+    // concat strings together with a separator
     Handlebars.registerHelper('concat', (a: string, b: string, separator: string) => {
         return a.toString() + separator.toString() + b.toString();
+    });
+
+    // assorted helpers for dealing with equality in templates
+    Handlebars.registerHelper('eq', (lhs: any, rhs: any, context: HandlebarsContext) => {
+        return lhs === rhs;
+    });
+    Handlebars.registerHelper('lt', (lhs: number, rhs: number, context: HandlebarsContext) => {
+        return lhs < rhs;
+    });
+    Handlebars.registerHelper('gt', (lhs: number, rhs: number, context: HandlebarsContext) => {
+        return lhs > rhs;
+    });
+    Handlebars.registerHelper('lteq', (lhs: number, rhs: number, context: HandlebarsContext) => {
+        return lhs <= rhs;
+    });
+    Handlebars.registerHelper('lteq', (lhs: number, rhs: number, context: HandlebarsContext) => {
+        return lhs >= rhs;
     });
 
     /**
@@ -103,7 +123,6 @@ export function registerHandlebarsHelpers() {
         }
         return current;
     };
-
     Handlebars.registerHelper('walk', walk);
 
     // When working with keys in the partial system, append the module name
