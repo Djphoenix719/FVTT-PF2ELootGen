@@ -15,7 +15,7 @@
  */
 
 import { ArmorData, EquipmentData, isArmorData, isWeaponData, ItemData, ResilientRuneType, StrikingRuneType, WeaponData } from '../../../types/Items';
-import { AllMaterials, BuilderType, FundamentalRune, IMaterial, IMaterialMap, IRuneMap, ItemRunes, MaterialGrade, Rune } from '../data/Materials';
+import { ItemMaterials, BuilderType, FundamentalRune, IMaterial, IMaterialMap, IRuneMap, ItemRunes, MaterialGrade, Rune } from '../data/Materials';
 import { Exception } from 'handlebars';
 
 /**
@@ -24,7 +24,7 @@ import { Exception } from 'handlebars';
  */
 function getMaterialsOfType(type: BuilderType): IMaterialMap {
     let materials: IMaterialMap = {};
-    for (const material of Object.values(AllMaterials)) {
+    for (const material of Object.values(ItemMaterials)) {
         if (material.hasOwnProperty(type)) {
             materials[material.slug] = material;
         }
@@ -87,7 +87,7 @@ export abstract class ItemBuilder<T extends EquipmentData> {
         if (this.materialSlug === undefined || this.materialGrade === undefined) {
             return undefined;
         }
-        return AllMaterials[this.materialSlug];
+        return ItemMaterials[this.materialSlug];
     }
 
     public setMaterial(materialSlug: string, materialGrade: MaterialGrade): ItemBuilder<T> {

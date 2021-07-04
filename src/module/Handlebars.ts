@@ -40,6 +40,7 @@ export async function registerHandlebarsTemplates() {
         'weight-range': `templates/loot-app/partials/weight-range.html`,
         'tab-buttons': `templates/loot-app/tabs/partials/tab-buttons.html`,
         'tab-config': `templates/loot-app/tabs/partials/tab-config.html`,
+        'create-select': `templates/loot-app/tabs/partials/create-select.html`,
         'collapsible': `templates/loot-app/partials/collapsible.html`,
     };
 
@@ -56,6 +57,9 @@ export async function registerHandlebarsTemplates() {
         `templates/loot-app/tabs/settings.html`,
 
         `templates/loot-app/tabs/create/index.html`,
+        `templates/loot-app/tabs/create/weapon.html`,
+        `templates/loot-app/tabs/create/armor.html`,
+        `templates/loot-app/tabs/create/shield.html`,
 
         ...Object.values(GenType).map((type) => `templates/loot-app/tabs/${type}.html`),
         ...Object.values(partials),

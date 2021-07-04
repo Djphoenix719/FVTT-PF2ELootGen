@@ -17,9 +17,17 @@
 
     <div class="create-settings">
 
-        {{#if (eq create.type "weapon")}}WEAPON{{/if}}
-        {{#if (eq create.type "armor")}}ARMOR{{/if}}
-        {{#if (eq create.type "shield")}}SHIELD{{/if}}
+        {{#if (eq create.type "weapon")}}
+            {{> modules/pf2e-lootgen/templates/loot-app/tabs/create/weapon.html }}
+        {{/if}}
+
+        {{#if (eq create.type "armor")}}
+            {{> modules/pf2e-lootgen/templates/loot-app/tabs/create/armor.html }}
+        {{/if}}
+
+        {{#if (eq create.type "shield")}}
+            {{> modules/pf2e-lootgen/templates/loot-app/tabs/create/shield.html }}
+        {{/if}}
 
     </div>
 

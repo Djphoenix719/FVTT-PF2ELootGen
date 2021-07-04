@@ -17,7 +17,7 @@
 import { MODULE_NAME, PF2E_LOOT_SHEET_NAME } from '../Constants';
 import { buildFilterSettingUpdate, buildSourceSettingUpdate, FLAGS_KEY, getDataSourceSettings, getFilterSettings, SetValueKeys } from './Flags';
 import { TABLE_WEIGHT_MAX, TABLE_WEIGHT_MIN } from './Settings';
-import { CreateType, isArmorData, isShieldData, isWeaponData, ItemData } from '../../types/Items';
+import { isArmorData, isShieldData, isWeaponData, ItemData } from '../../types/Items';
 import { createSpellItems, dataSourcesOfType, drawFromSources, DrawResult, mergeExistingStacks, mergeStacks, rollTreasureValues } from './Utilities';
 import { DataSource, GenType, PoolSource, SourceType } from './data/DataSource';
 import ModuleSettings, {
@@ -37,6 +37,7 @@ import { EqualityType } from '../filter/EqualityType';
 import { AndGroup, OrGroup } from '../filter/FilterGroup';
 import { WeightedFilter } from '../filter/Operation/WeightedFilter';
 import { ArrayIncludesFilter } from '../filter/Operation/ArrayIncludesFilter';
+import { BuilderType, ItemMaterials, ItemRunes } from './data/Materials';
 import DragEvent = JQuery.DragEvent;
 
 export enum LootAppSetting {
@@ -80,12 +81,22 @@ export const extendLootSheet = () => {
         protected getCreateData() {
             const data = {};
 
+            const filteredMaterials = (type: BuilderType) => {
+                return Object.values(ItemMaterials).filter((material) => material.hasOwnProperty(type));
+            };
+
             if (isWeaponData(this.createBaseItem)) {
-                data['type'] = CreateType.Weapon;
+                data['type'] = BuilderType.Weapon;
+                data['materials'] = filteredMaterials(BuilderType.Weapon);
+                data['runes'] = ItemRunes['weapon'];
             } else if (isShieldData(this.createBaseItem)) {
-                data['type'] = CreateType.Shield;
+                data['type'] = BuilderType.Shield;
+                data['materials'] = filteredMaterials(BuilderType.Shield);
+                data['runes'] = ItemRunes['shield'];
             } else if (isArmorData(this.createBaseItem)) {
-                data['type'] = CreateType.Armor;
+                data['type'] = BuilderType.Armor;
+                data['materials'] = filteredMaterials(BuilderType.Armor);
+                data['runes'] = ItemRunes['armor'];
             }
 
             return data;
@@ -185,7 +196,7 @@ export const extendLootSheet = () => {
             if (isTemplateDrop) {
                 const item = await Item.fromDropData(data);
                 this.createBaseItem = item.data;
-                await this.render(true);
+                await this.actor.unsetFlag(FLAGS_KEY, 'create');
                 return;
             }
 

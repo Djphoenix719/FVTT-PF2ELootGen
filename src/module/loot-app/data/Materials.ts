@@ -94,6 +94,7 @@ export const durability = (hardness: number): IDurability => {
 export type IMaterial = Readonly<{
     slug: string;
     label: string;
+    value: string;
     defaultGrade: MaterialGrade;
     item?: ISpecialData &
         {
@@ -126,9 +127,10 @@ export type IMaterial = Readonly<{
 // TODO: Descriptions w/ links for weapons, embed in description
 // TODO: Descriptions w/ links for armors, embed in description
 
-export const MaterialCloth: IMaterial = {
-    slug: 'cloth',
-    label: 'Cloth',
+export const MaterialNone: IMaterial = {
+    slug: 'none',
+    label: 'None',
+    value: '',
     defaultGrade: MaterialGrade.Standard,
     item: {
         [MaterialGrade.Standard]: {
@@ -153,27 +155,7 @@ export const MaterialCloth: IMaterial = {
             bulkPrice: 0,
         },
     },
-};
-export const MaterialLeather: IMaterial = {
-    slug: 'leather',
-    label: 'Leather',
-    defaultGrade: MaterialGrade.Standard,
-    item: {
-        [MaterialGrade.Standard]: {
-            level: 0,
-            basePrice: 0,
-            bulkPrice: 0,
-            items: { hardness: 4, hitPoints: 16, breakThreshold: 8 },
-        },
-    },
-    [BuilderType.Weapon]: {
-        [MaterialGrade.Standard]: {
-            level: 0,
-            basePrice: 0,
-            bulkPrice: 0,
-        },
-    },
-    [BuilderType.Armor]: {
+    [BuilderType.Shield]: {
         [MaterialGrade.Standard]: {
             level: 0,
             basePrice: 0,
@@ -181,63 +163,11 @@ export const MaterialLeather: IMaterial = {
         },
     },
 };
-export const MaterialMetal: IMaterial = {
-    slug: 'metal',
-    label: 'Metal',
-    defaultGrade: MaterialGrade.Standard,
-    item: {
-        [MaterialGrade.Standard]: {
-            level: 0,
-            basePrice: 0,
-            bulkPrice: 0,
-            items: { hardness: 9, hitPoints: 36, breakThreshold: 18 },
-        },
-    },
-    [BuilderType.Weapon]: {
-        [MaterialGrade.Standard]: {
-            level: 0,
-            basePrice: 0,
-            bulkPrice: 0,
-        },
-    },
-    [BuilderType.Armor]: {
-        [MaterialGrade.Standard]: {
-            level: 0,
-            basePrice: 0,
-            bulkPrice: 0,
-        },
-    },
-};
-export const MaterialWood: IMaterial = {
-    slug: 'wood',
-    label: 'Wood',
-    defaultGrade: MaterialGrade.Standard,
-    item: {
-        [MaterialGrade.Standard]: {
-            level: 0,
-            basePrice: 0,
-            bulkPrice: 0,
-            items: { hardness: 5, hitPoints: 20, breakThreshold: 10 },
-        },
-    },
-    [BuilderType.Weapon]: {
-        [MaterialGrade.Standard]: {
-            level: 0,
-            basePrice: 0,
-            bulkPrice: 0,
-        },
-    },
-    [BuilderType.Armor]: {
-        [MaterialGrade.Standard]: {
-            level: 0,
-            basePrice: 0,
-            bulkPrice: 0,
-        },
-    },
-};
+
 export const MaterialAdamantine: IMaterial = {
     slug: 'adamantine',
     label: 'Adamantine',
+    value: 'adamantine',
     defaultGrade: MaterialGrade.Standard,
     item: {
         [MaterialGrade.Standard]: {
@@ -286,6 +216,7 @@ export const MaterialAdamantine: IMaterial = {
 export const MaterialColdIron: IMaterial = {
     slug: 'coldIron',
     label: 'Cold Iron',
+    value: 'coldIron',
     defaultGrade: MaterialGrade.Standard,
     item: {
         [MaterialGrade.Low]: {
@@ -351,6 +282,7 @@ export const MaterialColdIron: IMaterial = {
 export const MaterialDarkwood: IMaterial = {
     slug: 'darkwood',
     label: 'Darkwood',
+    value: 'darkwood',
     defaultGrade: MaterialGrade.Standard,
     item: {
         [MaterialGrade.Standard]: {
@@ -398,6 +330,7 @@ export const MaterialDarkwood: IMaterial = {
 export const MaterialDragonhide: IMaterial = {
     slug: 'dragonhide',
     label: 'Dragonhide',
+    value: 'dragonhide',
     defaultGrade: MaterialGrade.Standard,
     item: {
         [MaterialGrade.Standard]: {
@@ -434,6 +367,7 @@ export const MaterialDragonhide: IMaterial = {
 export const MaterialMithral: IMaterial = {
     slug: 'mithral',
     label: 'Mithral',
+    value: 'mithral',
     defaultGrade: MaterialGrade.Standard,
     item: {
         [MaterialGrade.Standard]: {
@@ -482,6 +416,7 @@ export const MaterialMithral: IMaterial = {
 export const MaterialOrichalcum: IMaterial = {
     slug: 'orichalcum',
     label: 'Orichalcum',
+    value: 'orichalcum',
     defaultGrade: MaterialGrade.High,
     item: {
         [MaterialGrade.High]: {
@@ -513,6 +448,7 @@ export const MaterialOrichalcum: IMaterial = {
 export const MaterialSilver: IMaterial = {
     slug: 'silver',
     label: 'Silver',
+    value: 'silver',
     defaultGrade: MaterialGrade.Standard,
     item: {
         [MaterialGrade.Low]: {
@@ -578,6 +514,7 @@ export const MaterialSilver: IMaterial = {
 export const MaterialSovereignSteel: IMaterial = {
     slug: 'sovereignSteel',
     label: 'Sovereign Steel',
+    value: 'sovereignSteel',
     defaultGrade: MaterialGrade.Standard,
     item: {
         [MaterialGrade.Standard]: {
@@ -603,7 +540,7 @@ export const MaterialSovereignSteel: IMaterial = {
             basePrice: 2400,
             bulkPrice: 240,
         },
-        [MaterialGrade.Standard]: {
+        [MaterialGrade.High]: {
             level: 20,
             basePrice: 50000,
             bulkPrice: 5000,
@@ -625,6 +562,7 @@ export const MaterialSovereignSteel: IMaterial = {
 export const MaterialWarpglass: IMaterial = {
     slug: 'warpglass',
     label: 'Warpglass',
+    value: 'warpglass',
     defaultGrade: MaterialGrade.Standard,
     item: {
         [MaterialGrade.High]: {
@@ -645,11 +583,8 @@ export const MaterialWarpglass: IMaterial = {
     },
 };
 
-export const AllMaterials: IMaterialMap = {
-    cloth: MaterialCloth,
-    leather: MaterialLeather,
-    metal: MaterialMetal,
-    wood: MaterialWood,
+export const ItemMaterials: IMaterialMap = {
+    none: MaterialNone,
     adamantine: MaterialAdamantine,
     coldIron: MaterialColdIron,
     darkwood: MaterialDarkwood,

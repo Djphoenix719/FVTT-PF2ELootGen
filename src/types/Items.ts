@@ -15,19 +15,13 @@
  */
 
 import { SpellSchool } from '../module/loot-app/data/Spells';
-import { MaterialGrade, AllMaterials, Rarity } from '../module/loot-app/data/Materials';
+import { MaterialGrade, ItemMaterials, Rarity } from '../module/loot-app/data/Materials';
 
 export type ResilientRuneType = 'resilient' | 'greaterResilient' | 'majorResilient';
 export type StrikingRuneType = 'striking' | 'greaterStriking' | 'majorStriking';
 
 export type ArmorType = 'shield' | 'unarmored' | 'light' | 'medium' | 'heavy';
 export type WeaponType = 'unarmed' | 'simple' | 'advanced' | 'martial';
-
-export enum CreateType {
-    Weapon = 'weapon',
-    Armor = 'armor',
-    Shield = 'shield',
-}
 
 export interface ItemDataData {
     slug: string;
@@ -55,7 +49,7 @@ export interface ItemData extends Entity.Data {
 }
 
 export interface EquipmentDataData extends ItemDataData {
-    preciousMaterial: { value: typeof AllMaterials[string]['slug'] };
+    preciousMaterial: { value: typeof ItemMaterials[string]['slug'] };
     preciousMaterialGrade: { value: MaterialGrade };
 
     potencyRune: { value: number };

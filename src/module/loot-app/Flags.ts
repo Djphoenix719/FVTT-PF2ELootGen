@@ -38,9 +38,6 @@ export interface LootAppFlags {
     };
 }
 
-// TODO: Should EVERY storable setting have a unique key, so we can handle all data save and load the same way?
-//  > Probably!
-
 export function sourceFlagPath(source: DataSource, withFlags: boolean = false): string {
     let path = `sources.${source.storeId}`;
     if (withFlags) {
@@ -55,9 +52,17 @@ export function filterFlagPath(filter: AppFilter, withFlags: boolean = false): s
     }
     return path;
 }
+export function createFlagPath(name: string, withFlags: boolean = false): string {
+    let path = `create.${name}`;
+    if (withFlags) {
+        path = `flags.${FLAGS_KEY}.${path}`;
+    }
+    return path;
+}
 
 Handlebars.registerHelper('source-flag', (source: DataSource) => sourceFlagPath(source, true));
 Handlebars.registerHelper('filter-flag', (filter: AppFilter) => filterFlagPath(filter, true));
+Handlebars.registerHelper('create-flag', (name: string) => createFlagPath(name, true));
 
 /**
  * Get a filter with the saved weight and enabled status from an actor.
