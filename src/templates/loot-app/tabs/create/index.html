@@ -8,9 +8,14 @@
             <a class="item-control inventory-browse" title="Open Inventory Browser" data-type="weapon"><i class="fas fa-search"></i></a>
         </div>
 
-        <div class="item" draggable="true">
-            <img class="profile item-profile" src="systems/pf2e/icons/default-icons/weapon.svg"/>
-            <h4 class="entity-name">Template Item</h4>
+        <div class="item">
+            {{#if create.template }}
+                <img class="profile item-profile" src="{{ create.template.img }}"/>
+                {{{ enrichHTML create.itemLink }}}
+            {{else}}
+                <img class="profile item-profile" src="systems/pf2e/icons/default-icons/weapon.svg"/>
+                <h4 class="entity-name">Template Item</h4>
+            {{/if}}
         </div>
 
     </div>

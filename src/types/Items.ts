@@ -62,6 +62,17 @@ export interface EquipmentDataData extends ItemDataData {
 export interface EquipmentData extends ItemData {
     data: EquipmentDataData;
 }
+export function isEquipmentData(itemData?: ItemData): itemData is EquipmentData {
+    return (
+        itemData.data.hasOwnProperty('preciousMaterial') &&
+        itemData.data.hasOwnProperty('preciousMaterialGrade') &&
+        itemData.data.hasOwnProperty('potencyRune') &&
+        itemData.data.hasOwnProperty('propertyRune1') &&
+        itemData.data.hasOwnProperty('propertyRune2') &&
+        itemData.data.hasOwnProperty('propertyRune3') &&
+        itemData.data.hasOwnProperty('propertyRune4')
+    );
+}
 
 export interface ArmorDataData extends EquipmentDataData {
     armorType: { value: ArmorType | '' };

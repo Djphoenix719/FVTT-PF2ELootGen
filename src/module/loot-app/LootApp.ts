@@ -17,7 +17,7 @@
 import { MODULE_NAME, PF2E_LOOT_SHEET_NAME } from '../Constants';
 import { buildFilterSettingUpdate, buildSourceSettingUpdate, FLAGS_KEY, getDataSourceSettings, getFilterSettings, SetValueKeys } from './Flags';
 import { TABLE_WEIGHT_MAX, TABLE_WEIGHT_MIN } from './Settings';
-import { isArmorData, isShieldData, isWeaponData, ItemData } from '../../types/Items';
+import { isArmorData, isEquipmentData, isShieldData, isWeaponData, ItemData } from '../../types/Items';
 import { createSpellItems, dataSourcesOfType, drawFromSources, DrawResult, mergeExistingStacks, mergeStacks, rollTreasureValues } from './Utilities';
 import { DataSource, GenType, PoolSource, SourceType } from './data/DataSource';
 import ModuleSettings, {
@@ -37,7 +37,7 @@ import { EqualityType } from '../filter/EqualityType';
 import { AndGroup, OrGroup } from '../filter/FilterGroup';
 import { WeightedFilter } from '../filter/Operation/WeightedFilter';
 import { ArrayIncludesFilter } from '../filter/Operation/ArrayIncludesFilter';
-import { BuilderType, ItemMaterials, ItemRunes } from './data/Materials';
+import { BuilderType, ItemMaterials, ItemRunes, MaterialGrade } from './data/Materials';
 import DragEvent = JQuery.DragEvent;
 
 export enum LootAppSetting {
@@ -73,7 +73,27 @@ export const extendLootSheet = () => {
         }
 
         // base item data dragged from somewhere
-        protected createBaseItem: ItemData;
+        protected _createBaseItem: ItemData;
+
+        protected get createBaseItem() {
+            return this._createBaseItem;
+        }
+
+        protected set createBaseItem(value: ItemData) {
+            // delete local old base item to prevent memory leak
+            if (this.createBaseItem !== undefined && this.createBaseItem !== null) {
+                game.items.delete(this.createBaseItem._id);
+            }
+
+            value = duplicate(value) as unknown as ItemData;
+            value._id = foundry.utils.randomID(16);
+            value['flags'] = { ...value['flags'], [FLAGS_KEY]: { temporary: true } };
+
+            // @ts-ignore
+            const item: Item = new game.items.documentClass(value);
+            game.items.set(value._id, item);
+            this._createBaseItem = value;
+        }
 
         // mapping of collapse-ids to hidden or not states
         protected collapsibles: Record<string, boolean> = {};
@@ -81,22 +101,46 @@ export const extendLootSheet = () => {
         protected getCreateData() {
             const data = {};
 
+            const getFlag = (key: string): string => {
+                return this.actor.getFlag(MODULE_NAME, `create.${key}`) as string;
+            };
+
             const filteredMaterials = (type: BuilderType) => {
                 return Object.values(ItemMaterials).filter((material) => material.hasOwnProperty(type));
+            };
+
+            const material = getFlag('preciousMaterial');
+            data['preciousMaterial'] = material;
+
+            const grade = getFlag('materialGrade');
+            data['materialGrade'] = grade;
+
+            const filteredGrades = (type: BuilderType) => {
+                if (material === undefined) return [];
+                if (material === '') return [];
+                return Object.values(ItemMaterials[material]?.[type]);
             };
 
             if (isWeaponData(this.createBaseItem)) {
                 data['type'] = BuilderType.Weapon;
                 data['materials'] = filteredMaterials(BuilderType.Weapon);
+                data['grades'] = filteredGrades(BuilderType.Weapon);
                 data['runes'] = ItemRunes['weapon'];
             } else if (isShieldData(this.createBaseItem)) {
                 data['type'] = BuilderType.Shield;
                 data['materials'] = filteredMaterials(BuilderType.Shield);
+                data['grades'] = filteredGrades(BuilderType.Shield);
                 data['runes'] = ItemRunes['shield'];
             } else if (isArmorData(this.createBaseItem)) {
                 data['type'] = BuilderType.Armor;
                 data['materials'] = filteredMaterials(BuilderType.Armor);
+                data['grades'] = filteredGrades(BuilderType.Armor);
                 data['runes'] = ItemRunes['armor'];
+            }
+
+            if (this.createBaseItem) {
+                data['template'] = this.createBaseItem;
+                data['itemLink'] = `@Item[${this.createBaseItem._id}]{${this.createBaseItem.name}}`;
             }
 
             return data;
@@ -182,11 +226,6 @@ export const extendLootSheet = () => {
         }
 
         protected override async _onDropItem(event: any, data: any) {
-            console.warn('event');
-            console.warn(event);
-            console.warn('data');
-            console.warn(data);
-
             const dragEvent: DragEvent = event as DragEvent;
             const dropRegion = $(this.element).find('div.template-drop');
             const dropTarget = dropRegion.find(dragEvent.target);
@@ -194,9 +233,36 @@ export const extendLootSheet = () => {
             const isTemplateDrop = dropTarget.length > 0;
 
             if (isTemplateDrop) {
-                const item = await Item.fromDropData(data);
-                this.createBaseItem = item.data;
-                await this.actor.unsetFlag(FLAGS_KEY, 'create');
+                const item = (await Item.fromDropData(data)) as unknown as Entity;
+                const itemData = item.data as ItemData;
+
+                if (isWeaponData(itemData) || isArmorData(itemData)) {
+                    this.createBaseItem = itemData;
+                    await this.actor.unsetFlag(FLAGS_KEY, 'create');
+                } else {
+                    ui.notifications.warn('The item creator only supports weapons, armor, and shields right now.');
+                    return;
+                }
+
+                const flags = {};
+                if (isEquipmentData(itemData)) {
+                    flags['preciousMaterial'] = itemData.data.preciousMaterial.value ?? '';
+                    flags['preciousMaterialGrade'] = itemData.data.preciousMaterialGrade.value ?? '';
+                    flags['propertyRune1'] = itemData.data.propertyRune1.value ?? '';
+                    flags['propertyRune2'] = itemData.data.propertyRune2.value ?? '';
+                    flags['propertyRune3'] = itemData.data.propertyRune3.value ?? '';
+                    flags['propertyRune4'] = itemData.data.propertyRune4.value ?? '';
+                    flags['potencyRune'] = itemData.data.potencyRune.value ?? '';
+
+                    if (isWeaponData(itemData)) {
+                        flags['strikingRune'] = itemData.data.strikingRune.value ?? '';
+                    } else if (isArmorData(itemData)) {
+                        flags['resiliencyRune'] = itemData.data.resiliencyRune.value ?? '';
+                    }
+                }
+
+                await this.actor.setFlag(FLAGS_KEY, 'create', flags);
+
                 return;
             }
 

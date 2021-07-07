@@ -1,7 +1,7 @@
 <div class="form-group">
     <label for="{{create-flag name}}">{{label}}</label>
     <select id="{{create-flag name}}" name="{{create-flag name}}">
-        {{#select (default (walk @root.actor (create-flag name)) defaultValue)}}
+        {{#select (walk @root.actor (create-flag name))}}
             {{#each options as |option|}}
                 <option value="{{option.slug}}">{{option.label}}</option>
             {{/each}}

@@ -104,6 +104,9 @@ export function registerHandlebarsHelpers() {
         return lhs >= rhs;
     });
 
+    // enrich html
+    Handlebars.registerHelper('enrichHTML', (htmlString: string) => TextEditor.enrichHTML(htmlString));
+
     /**
      * Walk an object tree. Mostly exists for convenience so lookup does not need to be chained.
      * @param data The data to walk over.
