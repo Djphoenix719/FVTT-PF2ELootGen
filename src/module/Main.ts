@@ -19,6 +19,7 @@ import { registerHandlebarsHelpers, registerHandlebarsTemplates } from './Handle
 import { extendLootSheet } from './loot-app/LootApp';
 import { MODULE_NAME } from './Constants';
 import { distinct } from './loot-app/Utilities';
+import { FLAGS_KEY } from './loot-app/Flags';
 
 Hooks.on('init', ModuleSettings.registerAllSettings);
 
@@ -41,5 +42,15 @@ Hooks.on('ready', async () => {
     // @ts-ignore
     await Actor.create({ name: 'Lootboi', type: 'loot', ['flags.core.sheetClass']: 'pf2e-lootgen.LootApp' });
     await game.actors.getName('Lootboi').sheet.render(true);
-    window['distinct'] = distinct;
+});
+
+// TODO: Move to a better place for this
+Hooks.on('renderItemDirectory', (itemDirectory: any, html: JQuery, options: any) => {
+    const lis: JQuery = html.find('ol.directory-list li.directory-item.item');
+    for (const element of lis) {
+        const item: Item = game.items.get(element.getAttribute('data-entity-id'));
+        if (item.getFlag(FLAGS_KEY, 'temporary')) {
+            $(element).remove();
+        }
+    }
 });
