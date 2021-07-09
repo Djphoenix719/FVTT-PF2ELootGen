@@ -20,12 +20,6 @@ import { TABLE_WEIGHT_MAX, TABLE_WEIGHT_MIN } from './Settings';
 import { isArmorData, isEquipmentData, isShieldData, isWeaponData, ItemData } from '../../types/Items';
 import { createSpellItems, dataSourcesOfType, drawFromSources, DrawResult, mergeExistingStacks, mergeStacks, rollTreasureValues } from './Utilities';
 import { DataSource, GenType, PoolSource, SourceType } from './data/DataSource';
-import ModuleSettings, {
-    FEATURE_ALLOW_MERGING,
-    FEATURE_QUICK_ROLL_CONTROL,
-    FEATURE_QUICK_ROLL_MODIFIERS,
-    FEATURE_QUICK_ROLL_SHIFT,
-} from '../../../FVTT-Common/src/module/settings-app/ModuleSettings';
 import { SpellItemType, spellSources } from './data/Spells';
 import { AppFilter, FilterType, spellLevelFilters, spellSchoolFilters, spellTraditionFilters } from './Filters';
 import { consumableSources } from './data/Consumable';
@@ -39,6 +33,8 @@ import { WeightedFilter } from '../filter/Operation/WeightedFilter';
 import { ArrayIncludesFilter } from '../filter/Operation/ArrayIncludesFilter';
 import { BuilderType, ItemMaterials, ItemRunes, MaterialGrade } from './data/Materials';
 import DragEvent = JQuery.DragEvent;
+import ModuleSettings from '../../../FVTT-Common/src/module/settings-app/ModuleSettings';
+import { FEATURE_ALLOW_MERGING, FEATURE_QUICK_ROLL_CONTROL, FEATURE_QUICK_ROLL_MODIFIERS, FEATURE_QUICK_ROLL_SHIFT } from '../Setup';
 
 export enum LootAppSetting {
     Count = 'count',
@@ -206,7 +202,7 @@ export const extendLootSheet = () => {
         private async createItemsFromDraw(results: DrawResult[]) {
             let itemsToUpdate: ItemData[];
             let itemsToCreate = results.map((d) => d.itemData);
-            if (ModuleSettings.get(FEATURE_ALLOW_MERGING)) {
+            if (ModuleSettings.instance.get(FEATURE_ALLOW_MERGING)) {
                 const existing = this.actor.data.items.map((item) => item.data);
                 [itemsToUpdate, itemsToCreate] = mergeExistingStacks(existing, itemsToCreate);
             } else {
@@ -289,21 +285,22 @@ export const extendLootSheet = () => {
                 await this._updateObject(new Event('submit'), this._getSubmitData());
             }
 
+            // TODO: Move to utility file
             /**
              * Calculate quick roll count by checking event modifiers and the module settings.
              * @param event
              */
             const getQuickRollCount = (event: JQuery.ClickEvent): number => {
-                if (!ModuleSettings.get(FEATURE_QUICK_ROLL_MODIFIERS)) {
+                if (!ModuleSettings.instance.get(FEATURE_QUICK_ROLL_MODIFIERS)) {
                     return 1;
                 }
 
                 let count = 1;
                 if (event.shiftKey) {
-                    count *= ModuleSettings.get(FEATURE_QUICK_ROLL_SHIFT) as number;
+                    count *= ModuleSettings.instance.get(FEATURE_QUICK_ROLL_SHIFT) as number;
                 }
                 if (event.ctrlKey) {
-                    count *= ModuleSettings.get(FEATURE_QUICK_ROLL_CONTROL) as number;
+                    count *= ModuleSettings.instance.get(FEATURE_QUICK_ROLL_CONTROL) as number;
                 }
                 return count;
             };

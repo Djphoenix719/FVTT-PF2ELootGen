@@ -14,18 +14,13 @@
  * limitations under the License.
  */
 
-import ModuleSettings from '../../FVTT-Common/src/module/settings-app/ModuleSettings';
 import { registerHandlebarsHelpers, registerHandlebarsTemplates } from './Handlebars';
 import { extendLootSheet } from './loot-app/LootApp';
 import { MODULE_NAME } from './Constants';
-import { distinct } from './loot-app/Utilities';
 import { FLAGS_KEY } from './loot-app/Flags';
+import { setup } from './Setup';
 
-Hooks.on('init', ModuleSettings.registerAllSettings);
-
-Hooks.on('init', ModuleSettings.onInit);
-Hooks.on('setup', ModuleSettings.onSetup);
-Hooks.on('ready', ModuleSettings.onReady);
+setup();
 
 Hooks.on('setup', registerHandlebarsTemplates);
 Hooks.on('setup', registerHandlebarsHelpers);
