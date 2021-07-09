@@ -100,7 +100,7 @@ export function registerHandlebarsHelpers() {
     Handlebars.registerHelper('lteq', (lhs: number, rhs: number, context: HandlebarsContext) => {
         return lhs <= rhs;
     });
-    Handlebars.registerHelper('lteq', (lhs: number, rhs: number, context: HandlebarsContext) => {
+    Handlebars.registerHelper('gteq', (lhs: number, rhs: number, context: HandlebarsContext) => {
         return lhs >= rhs;
     });
 

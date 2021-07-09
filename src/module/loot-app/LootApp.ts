@@ -25,7 +25,7 @@ import ModuleSettings, {
     FEATURE_QUICK_ROLL_CONTROL,
     FEATURE_QUICK_ROLL_MODIFIERS,
     FEATURE_QUICK_ROLL_SHIFT,
-} from '../settings-app/ModuleSettings';
+} from '../../../FVTT-Common/src/module/settings-app/ModuleSettings';
 import { SpellItemType, spellSources } from './data/Spells';
 import { AppFilter, FilterType, spellLevelFilters, spellSchoolFilters, spellTraditionFilters } from './Filters';
 import { consumableSources } from './data/Consumable';
@@ -104,21 +104,25 @@ export const extendLootSheet = () => {
             const getFlag = (key: string): string => {
                 return this.actor.getFlag(MODULE_NAME, `create.${key}`) as string;
             };
-
             const filteredMaterials = (type: BuilderType) => {
                 return Object.values(ItemMaterials).filter((material) => material.hasOwnProperty(type));
             };
 
             const material = getFlag('preciousMaterial');
             data['preciousMaterial'] = material;
-
             const grade = getFlag('materialGrade');
             data['materialGrade'] = grade;
 
             const filteredGrades = (type: BuilderType) => {
                 if (material === undefined) return [];
                 if (material === '') return [];
-                return Object.values(ItemMaterials[material]?.[type]);
+                let grades = Object.entries(ItemMaterials[material]?.[type]);
+                grades = grades.map(([key, value]) => {
+                    value['label'] = key.capitalize();
+                    value['slug'] = key;
+                    return value;
+                });
+                return grades;
             };
 
             if (isWeaponData(this.createBaseItem)) {
@@ -238,6 +242,7 @@ export const extendLootSheet = () => {
 
                 if (isWeaponData(itemData) || isArmorData(itemData)) {
                     this.createBaseItem = itemData;
+                    console.warn('unsetting create flag');
                     await this.actor.unsetFlag(FLAGS_KEY, 'create');
                 } else {
                     ui.notifications.warn('The item creator only supports weapons, armor, and shields right now.');
@@ -247,7 +252,7 @@ export const extendLootSheet = () => {
                 const flags = {};
                 if (isEquipmentData(itemData)) {
                     flags['preciousMaterial'] = itemData.data.preciousMaterial.value ?? '';
-                    flags['preciousMaterialGrade'] = itemData.data.preciousMaterialGrade.value ?? '';
+                    flags['materialGrade'] = itemData.data.preciousMaterialGrade.value ?? MaterialGrade.Standard;
                     flags['propertyRune1'] = itemData.data.propertyRune1.value ?? '';
                     flags['propertyRune2'] = itemData.data.propertyRune2.value ?? '';
                     flags['propertyRune3'] = itemData.data.propertyRune3.value ?? '';
@@ -261,6 +266,8 @@ export const extendLootSheet = () => {
                     }
                 }
 
+                console.warn('setting create flag');
+                console.warn(flags);
                 await this.actor.setFlag(FLAGS_KEY, 'create', flags);
 
                 return;
@@ -277,7 +284,8 @@ export const extendLootSheet = () => {
             //  we will submit the form to get a default set of data stored on the server.
             //  This is done in activateListeners so we can ensure we get the proper HTML
             //  to derive the form data from.
-            if (!this.actor.getFlag(MODULE_NAME, 'settings')) {
+            if (!this.actor.getFlag(MODULE_NAME, 'config')) {
+                console.warn('updating config flag, they do not exist');
                 await this._updateObject(new Event('submit'), this._getSubmitData());
             }
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import ModuleSettings from './settings-app/ModuleSettings';
+import ModuleSettings from '../../FVTT-Common/src/module/settings-app/ModuleSettings';
 import { registerHandlebarsHelpers, registerHandlebarsTemplates } from './Handlebars';
 import { extendLootSheet } from './loot-app/LootApp';
 import { MODULE_NAME } from './Constants';
