@@ -16,6 +16,7 @@
 
 import { MODULE_NAME } from './Constants';
 import { GenType } from './loot-app/data/DataSource';
+import { Exception } from 'handlebars';
 
 export interface HandlebarsContext {
     data: Record<string, any> & {
@@ -78,6 +79,11 @@ export function registerHandlebarsHelpers() {
         return JSON.stringify(data);
     });
 
+    // Object exists and is not null or empty
+    Handlebars.registerHelper('defined', (data: any) => {
+        return data !== undefined && data !== null && data !== '' && data !== 0;
+    });
+
     // Use the provided value if it exists, otherwise default to the fallback.
     Handlebars.registerHelper('default', (value: any, defaultValue: any) => {
         return value === undefined || value === null ? defaultValue : value;
@@ -117,9 +123,9 @@ export function registerHandlebarsHelpers() {
         let current = data;
         const parts = path.split('.');
         while (parts.length > 0) {
-            let key = parts.shift();
+            let key = parts.shift() as string;
 
-            if (key.startsWith('$')) {
+            if (context.hash && key.startsWith('$')) {
                 key = context.hash[key.substr(1)];
             }
             current = current[key];
@@ -144,7 +150,7 @@ export function registerHandlebarsHelpers() {
      */
     const setBlock = (name: string, parentContext: HandlebarsContext) => {
         Handlebars.registerPartial(blockKey(name), (childContext: HandlebarsContext) => {
-            return parentContext.fn(mergeObject(parentContext, childContext));
+            return parentContext.fn!(mergeObject(parentContext, childContext));
         });
     };
     /**
@@ -163,6 +169,7 @@ export function registerHandlebarsHelpers() {
         };
 
         const partial = loadPartial(blockKey(name)) || context.fn;
+        // @ts-ignore
         return partial(this, { data: context.hash });
     };
     /**

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { ResilientRuneType, StrikingRuneType } from '../../../types/Items';
+import { ResiliencyRuneType, StrikingRuneType } from '../../../types/PF2E';
 
 export type Bulk = 'L' | number;
 export type IMaterialMap = Record<string, IMaterial>;
@@ -70,6 +70,7 @@ export interface IDurability {
 //   Level
 
 export interface IPriceData {
+    price?: string;
     basePrice: number;
     bulkPrice: number;
 }
@@ -596,6 +597,20 @@ export const ItemMaterials: IMaterialMap = {
     warpglass: MaterialWarpglass,
 };
 
+for (const material of Object.values(ItemMaterials)) {
+    for (const builderType of Object.values(BuilderType)) {
+        if (material.hasOwnProperty(builderType)) {
+            const builderTypeData = material[builderType]!;
+            for (const materialGrade of Object.values(MaterialGrade)) {
+                if (builderTypeData.hasOwnProperty(materialGrade)) {
+                    const materialGradeData = builderTypeData[materialGrade]!;
+                    materialGradeData.price = `${materialGradeData.basePrice} + ${materialGradeData.bulkPrice}/bulk`;
+                }
+            }
+        }
+    }
+}
+
 export interface Rune {
     slug: string;
     index?: number;
@@ -613,7 +628,7 @@ const CREATE_OBJECT_NONE: Rune = {
     level: 0,
 };
 
-export type FundamentalRune = StrikingRuneType | ResilientRuneType;
+export type FundamentalRune = StrikingRuneType | ResiliencyRuneType;
 
 export interface IRuneMap {
     potency: Record<string, Rune>;
@@ -665,21 +680,21 @@ export const ItemRunes: ItemRunes = {
                 ...CREATE_OBJECT_NONE,
             },
             striking: {
-                slug: '1',
+                slug: 'striking',
                 index: 1,
                 label: 'striking',
                 price: 65,
                 level: 4,
             },
             greaterStriking: {
-                slug: '2',
+                slug: 'greaterStriking',
                 index: 2,
                 label: 'greater striking',
                 price: 1065,
                 level: 12,
             },
             majorStriking: {
-                slug: '3',
+                slug: 'majorStriking',
                 index: 3,
                 label: 'major striking',
                 price: 31065,

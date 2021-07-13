@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import { ItemData } from '../../../types/Items';
 import { EqualityType } from '../EqualityType';
 import { ISpecification } from '../ISpecification';
+import { PF2EItem } from '../../../types/PF2E';
 
-export abstract class WeightedFilter<T extends number | string | boolean> implements ISpecification<ItemData> {
+export abstract class WeightedFilter<T extends number | string | boolean> implements ISpecification<PF2EItem> {
     protected readonly selector: string;
     protected readonly desiredValue: T;
     protected readonly equality: EqualityType;
@@ -37,12 +37,12 @@ export abstract class WeightedFilter<T extends number | string | boolean> implem
      * @param data The data to fetch the value from.
      * @protected
      */
-    protected getValue(data: ItemData): T {
+    protected getValue(data: PF2EItem): T {
         const path: string[] = this.selector.split('.');
 
         let current: any = data;
         while (path.length > 0) {
-            const key = path.shift();
+            const key = path.shift() as string;
             current = current[key];
         }
         return current;
@@ -69,7 +69,7 @@ export abstract class WeightedFilter<T extends number | string | boolean> implem
      * Return true if this operation is satisfied by the data.
      * @param data The data to test.
      */
-    public isSatisfiedBy(data: ItemData): boolean {
+    public isSatisfiedBy(data: PF2EItem): boolean {
         return this.compareTo(this.getValue(data));
     }
 }

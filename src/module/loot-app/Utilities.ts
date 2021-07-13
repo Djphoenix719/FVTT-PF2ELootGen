@@ -19,9 +19,9 @@ import { consumableSources } from './data/Consumable';
 import { isTreasureSource, TreasureSource, treasureSources } from './data/Treasure';
 import { TEMPLATE_PACK_ID, scrollTemplateIds, SpellItemType, spellSources, wandTemplateIds } from './data/Spells';
 import { DataSource, getPack, isPackSource, isPoolSource, isTableSource, GenType } from './data/DataSource';
-import { ItemData } from '../../types/Items';
 import { getItemFromPack, getTableFromPack } from '../Utilities';
 import { AppFilter, FilterType, spellLevelFilters, spellSchoolFilters, spellTraditionFilters } from './Filters';
+import { ConsumableItem, isPhysicalItem, isSpell, isTreasure, PF2EItem, PhysicalItem, SpellItem } from '../../types/PF2E';
 
 /**
  * Returns distinct elements of an array when used to filter an array.
@@ -73,7 +73,7 @@ export interface DrawOptions {
     displayChat?: boolean;
 }
 export interface DrawResult {
-    itemData: ItemData;
+    itemData: PF2EItem;
     source: DataSource;
 }
 export interface SpellDrawResult extends DrawResult {}
@@ -117,7 +117,7 @@ export async function drawFromSources(count: number, sources: DataSource[], opti
 
         // TODO: Something is "weird" with the table weights, seeming to prefer very high level items and large groups
         //  of the same item are being created, even with all tables enabled and evenly weighted
-        let item: ItemData;
+        let item: PF2EItem;
         if (isTableSource(source)) {
             const table = await getTableFromPack(source.id, source.tableSource.id);
 
@@ -154,13 +154,13 @@ export async function drawFromSources(count: number, sources: DataSource[], opti
     return results;
 }
 
-export async function createSpellItems(itemDatas: DrawResult[], itemTypes: SpellItemType[]): Promise<ItemData[]> {
+export async function createSpellItems(itemDatas: DrawResult[], itemTypes: SpellItemType[]): Promise<PF2EItem[]> {
     itemDatas = duplicate(itemDatas) as DrawResult[];
 
     console.warn(itemTypes);
 
-    const itemType = (draw: DrawResult): SpellItemType => {
-        if (draw.itemData.data.level.value === 10) {
+    const itemType = (draw: DrawResult): SpellItemType | undefined => {
+        if (draw.itemData.data.level?.value === 10) {
             if (itemTypes.includes(SpellItemType.Scroll)) {
                 return SpellItemType.Scroll;
             } else {
@@ -170,88 +170,55 @@ export async function createSpellItems(itemDatas: DrawResult[], itemTypes: Spell
         return chooseFromArray(itemTypes);
     };
 
-    const itemName = (itemData: ItemData, type: SpellItemType): string => {
+    const itemName = (itemData: PF2EItem, type: SpellItemType): string => {
         // TODO: Localization
         switch (type) {
             case SpellItemType.Scroll:
-                return `Scroll of ${itemData.name} (Level ${itemData.data.level.value})`;
+                return `Scroll of ${itemData.name} (Level ${itemData.data.level?.value})`;
             case SpellItemType.Wand:
-                return `Wand of ${itemData.name} (Level ${itemData.data.level.value})`;
+                return `Wand of ${itemData.name} (Level ${itemData.data.level?.value})`;
         }
     };
 
-    const templates = {
-        [SpellItemType.Wand]: (await Promise.all(Object.values(wandTemplateIds).map((id) => getItemFromPack(TEMPLATE_PACK_ID, id)))) as ItemData[],
-        [SpellItemType.Scroll]: (await Promise.all(Object.values(scrollTemplateIds).map((id) => getItemFromPack(TEMPLATE_PACK_ID, id)))) as ItemData[],
+    const templates: Record<SpellItemType, ConsumableItem[]> = {
+        [SpellItemType.Wand]: (await Promise.all(Object.values(wandTemplateIds).map((id) => getItemFromPack(TEMPLATE_PACK_ID, id)))) as ConsumableItem[],
+        [SpellItemType.Scroll]: (await Promise.all(Object.values(scrollTemplateIds).map((id) => getItemFromPack(TEMPLATE_PACK_ID, id)))) as ConsumableItem[],
     };
 
     let wandMessage: boolean = false;
-    const results: ItemData[] = [];
+    const results: PF2EItem[] = [];
     while (itemDatas.length > 0) {
-        const drawResult = itemDatas.shift();
+        const drawResult = itemDatas.shift() as DrawResult;
         const type = itemType(drawResult);
 
         if (type === undefined) {
             if (!wandMessage) {
-                ui.notifications.warn(`Cannot create a magic wand for provided spell: ${drawResult.itemData.name}`);
+                ui.notifications?.warn(`Cannot create a magic wand for provided spell: ${drawResult.itemData.name}`);
                 wandMessage = true;
             }
             continue;
         }
 
-        const spellData = drawResult.itemData;
-        const template: ItemData = duplicate(templates[type][drawResult.itemData.data.level.value - 1]) as ItemData;
-        template.data.traits.value.push(...spellData.data.traditions.value);
-        template.data.traits.rarity.value = spellData.data.traits.rarity.value;
-        template.name = itemName(spellData, type);
+        if (isSpell(drawResult.itemData)) {
+            const spellData = drawResult.itemData as SpellItem;
+            const template = duplicate(templates[type][drawResult.itemData.data.level.value - 1]) as ConsumableItem;
+            template.data.traits.value.push(...spellData.data.traditions.value);
+            template.data.traits.rarity.value = spellData.data.traits.rarity.value;
+            template.name = itemName(spellData, type);
 
-        const description = template.data.description.value;
-        template.data.description.value = `@Compendium[pf2e.spells-srd.${spellData._id}]{${spellData.name}}\n<hr/>${description}`;
-        template.data.spell = {
-            data: duplicate(spellData) as ItemData,
-            heightenedLevel: spellData.data.level.value,
-        };
+            const description = template.data.description.value;
+            template.data.description.value = `@Compendium[pf2e.spells-srd.${spellData._id}]{${spellData.name}}\n<hr/>${description}`;
+            template.data.spell = {
+                data: duplicate(spellData) as SpellItem,
+                heightenedLevel: spellData.data.level.value,
+            };
 
-        results.push(template);
+            results.push(template);
+        }
     }
 
     return results;
 }
-
-//
-// /**
-//  * Build a rollable table results message
-//  * @param results
-//  */
-// export async function buildRollTableMessage(results: TableDrawResult[]) {
-//     const pool = PoolTerm.fromRolls(results.map((r) => r.roll));
-//     const roll = Roll.fromTerms([pool]);
-//     const uniqueTables = results.map((result) => result.tableId).filter(distinct);
-//     const messageData = {
-//         flavor: `Drew ${results.length} result(s) from ${uniqueTables.length} table(s).`,
-//         user: game.user.id,
-//         type: CONST.CHAT_MESSAGE_TYPES.ROLL,
-//         roll: roll,
-//         sound: CONFIG.sounds.dice,
-//         content: '',
-//         flags: { 'core.RollTable': null },
-//     };
-//
-//     messageData.content = await renderTemplate(CONFIG.RollTable.resultTemplate, {
-//         results: results.map((result) => {
-//             return {
-//                 id: result.resultId,
-//                 text: `@Compendium[${result.collection}.${result.resultId}]{${result.itemData.name}}`,
-//                 icon: result.itemData['img'],
-//             };
-//         }),
-//         table: null,
-//     });
-//     messageData.content = TextEditor.enrichHTML(messageData.content, { entities: true });
-//
-//     // @ts-ignore
-//     return ChatMessage.create(messageData, {});
-//
 
 /**
  * Roll and create a new set of item data for the values of treasure items in the results
@@ -259,15 +226,14 @@ export async function createSpellItems(itemDatas: DrawResult[], itemTypes: Spell
  */
 export async function rollTreasureValues(results: DrawResult[]) {
     const rollValue = async (source: TreasureSource): Promise<number> => {
-        // @ts-ignore
         const roll = await new Roll(source.value).roll({ async: true });
-        return roll.total;
+        return roll.total!;
     };
 
     results = duplicate(results) as DrawResult[];
     for (const result of results) {
-        if (isTreasureSource(result.source)) {
-            result.itemData['data']['value']['value'] = await rollValue(result.source);
+        if (isTreasureSource(result.source) && isTreasure(result.itemData)) {
+            result.itemData.data.value.value = await rollValue(result.source);
         }
     }
 
@@ -289,9 +255,16 @@ const getSlugFunction = (options: MergeStacksOptions) => {
     // Our slugs are human readable unique ids, in our case when we want to
     // compare the values as well we can append the value to the slug and get
     // a pseudo-hash to use for comparison instead
-    let getSlug: (i: ItemData) => string;
+    let getSlug: (i: PF2EItem) => string;
     if (options.compareValues) {
-        getSlug = (i) => `${i.data.slug}-${i.data.value?.value ?? i.data.price?.value}`;
+        getSlug = (i: PF2EItem) => {
+            if (isPhysicalItem(i)) {
+                // TODO: Need to convert currency types.
+                return `${i.data.slug}-${i.data.price}`;
+            } else {
+                return i.data.slug;
+            }
+        };
     } else {
         getSlug = (i) => i.data.slug;
     }
@@ -308,15 +281,15 @@ const getSlugFunction = (options: MergeStacksOptions) => {
  *  merged: The successfully merged old + new items
  *  remaining: items that could not be merged.
  */
-export function mergeExistingStacks(oldDatas: ItemData[], newDatas: ItemData[], options?: MergeStacksOptions) {
+export function mergeExistingStacks(oldDatas: PF2EItem[], newDatas: PF2EItem[], options?: MergeStacksOptions) {
     if (options === undefined) {
         options = { compareValues: true };
     }
 
     const getSlug = getSlugFunction(options);
 
-    oldDatas = duplicate(oldDatas) as ItemData[];
-    newDatas = duplicate(newDatas) as ItemData[];
+    oldDatas = duplicate(oldDatas) as PF2EItem[];
+    newDatas = duplicate(newDatas) as PF2EItem[];
 
     const oldSlugs = oldDatas.map(getSlug);
     const newSlugs = newDatas.map(getSlug);
@@ -324,7 +297,14 @@ export function mergeExistingStacks(oldDatas: ItemData[], newDatas: ItemData[], 
     for (let i = newSlugs.length - 1; i >= 0; i--) {
         const index = oldSlugs.indexOf(newSlugs[i]);
         if (index === -1) continue;
-        mergeItem(oldDatas[index], newDatas[i]);
+
+        const sourceItem = oldDatas[index];
+        const targetItem = newDatas[i];
+
+        if (!isPhysicalItem(sourceItem)) continue;
+        if (!isPhysicalItem(targetItem)) continue;
+
+        mergeItem(sourceItem, targetItem);
         newDatas.splice(i, 1);
     }
 
@@ -339,12 +319,12 @@ export function mergeExistingStacks(oldDatas: ItemData[], newDatas: ItemData[], 
  * @param itemDatas
  * @param options
  */
-export function mergeStacks(itemDatas: ItemData[], options?: MergeStacksOptions) {
+export function mergeStacks(itemDatas: PF2EItem[], options?: MergeStacksOptions) {
     if (options === undefined) {
         options = { compareValues: true };
     }
 
-    itemDatas = duplicate(itemDatas) as ItemData[];
+    itemDatas = duplicate(itemDatas) as PF2EItem[];
 
     const getSlug = getSlugFunction(options);
 
@@ -353,10 +333,18 @@ export function mergeStacks(itemDatas: ItemData[], options?: MergeStacksOptions)
     for (const slug of unqSlugs) {
         // we'll keep the first item in the array, and discard the rest
         const first = allSlugs.indexOf(slug);
+        const sourceItem = itemDatas[first];
+
+        if (!isPhysicalItem(sourceItem)) continue;
+
         for (let i = itemDatas.length - 1; i > first; i--) {
-            const itemData = itemDatas[i];
-            if (getSlug(itemData) !== slug) continue;
-            mergeItem(itemDatas[first], itemData);
+            const targetItem = itemDatas[i];
+
+            if (!isPhysicalItem(targetItem)) continue;
+            if (getSlug(targetItem) !== slug) continue;
+
+            mergeItem(sourceItem, targetItem);
+
             itemDatas.splice(i, 1);
             allSlugs.splice(i, 1);
         }
@@ -370,6 +358,6 @@ export function mergeStacks(itemDatas: ItemData[], options?: MergeStacksOptions)
  * @param a The target item
  * @param b The item to increase the target by
  */
-export function mergeItem(a: ItemData, b: ItemData) {
+export function mergeItem(a: PhysicalItem, b: PhysicalItem) {
     a.data.quantity.value += b.data.quantity.value;
 }

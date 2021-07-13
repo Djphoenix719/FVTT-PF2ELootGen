@@ -1,14 +1,27 @@
-{{> create-select name="preciousMaterial" options=create.materials          label="Material"    }}
-{{> create-select name="materialGrade"    options=create.grades             label="Grade"       }}
-{{> create-select name="potencyRune"      options=create.runes.potency      label="Potency"     }}
-{{> create-select name="strikingRune"     options=create.runes.fundamental  label="Fundamental" }}
+{{> create-select name="preciousMaterial" options=create.materials label="Material" }}
+
+{{#if (defined (walk @root.actor (create-flag "preciousMaterial")))}}
+    {{> create-select name="materialGrade" options=create.grades label="Grade" }}
+{{/if}}
+
+{{> create-select name="potencyRune" options=create.runes.potency label="Potency" }}
+
+{{#if (gteq (walk @root.actor (create-flag "potencyRune")) 1)}}
+    {{> create-select name="strikingRune" options=create.runes.fundamental label="Fundamental" }}
+{{/if}}
 
 {{#if (gteq (walk @root.actor (create-flag "potencyRune")) 1)}}
     {{> create-select name="propertyRune1" options=create.runes.property label="Property 1" }}
 {{/if}}
+
 {{#if (gteq (walk @root.actor (create-flag "potencyRune")) 2)}}
     {{> create-select name="propertyRune2" options=create.runes.property label="Property 2" }}
 {{/if}}
+
 {{#if (gteq (walk @root.actor (create-flag "potencyRune")) 3)}}
     {{> create-select name="propertyRune3" options=create.runes.property label="Property 3" }}
+{{/if}}
+
+{{#if (gteq (walk @root.actor (create-flag "potencyRune")) 4)}}
+    {{> create-select name="propertyRune4" options=create.runes.property label="Property 4" }}
 {{/if}}

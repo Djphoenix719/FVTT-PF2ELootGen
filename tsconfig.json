@@ -1,17 +1,18 @@
 {
     "compilerOptions": {
-      "target": "es2020",
-      "strict": false,
+      "target": "es2019",
+      "strict": true,
       "strictBindCallApply": true,
-      "strictNullChecks": false,
+      "strictNullChecks": true,
       "alwaysStrict": true,
       "types": [
+        "@league-of-foundry-developers/foundry-vtt-types",
         "src/types",
-        "fvtt-types/src",
-        "handlebars",
-        "pixi.js"
+        "./FVTT-Common/src/types",
+        "handlebars"
       ],
       "baseUrl": "src/module",
+      "moduleResolution": "node",
       "paths": { }
     },
   "exclude": ["fvtt-types/test-d"]

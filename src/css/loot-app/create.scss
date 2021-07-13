@@ -24,6 +24,7 @@ form.loot-app .sheet-sidebar .tab.create {
         height: 100%;
 
         div.template-drop {
+            top: 38px;
             position: sticky;
             text-align: justify;
             background: url(/systems/pf2e/assets/sheet/parchment.webp) repeat;
@@ -44,7 +45,7 @@ form.loot-app .sheet-sidebar .tab.create {
                     border: 2px groove #f0f0e0;
                 }
             }
-            div.item {
+            div.item div.item-link {
                 display: flex;
                 justify-content: space-evenly;
                 align-items: center;
@@ -68,8 +69,20 @@ form.loot-app .sheet-sidebar .tab.create {
             height: 80%;
         }
 
-        div.template-drop {
-            top: 38px;
+        div.create-select {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+
+            div.input-group,
+            div.info-group {
+                display: flex;
+                justify-content: space-between;
+            }
+            div.input-group {
+            }
+            div.info-group {
+            }
         }
     }
 }

@@ -15,4 +15,5 @@
  */
 
 export const MODULE_NAME = `pf2e-lootgen`;
+export const MODULE_TITLE = `PF2E Loot Generator`;
 export const PF2E_LOOT_SHEET_NAME = `LootSheetPF2e`;

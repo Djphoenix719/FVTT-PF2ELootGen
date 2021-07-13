@@ -14,34 +14,36 @@
  * limitations under the License.
  */
 
-import { MODULE_NAME, PF2E_LOOT_SHEET_NAME } from '../Constants';
-import { buildFilterSettingUpdate, buildSourceSettingUpdate, FLAGS_KEY, getDataSourceSettings, getFilterSettings, SetValueKeys } from './Flags';
-import { TABLE_WEIGHT_MAX, TABLE_WEIGHT_MIN } from './Settings';
-import { isArmorData, isEquipmentData, isShieldData, isWeaponData, ItemData } from '../../types/Items';
-import { createSpellItems, dataSourcesOfType, drawFromSources, DrawResult, mergeExistingStacks, mergeStacks, rollTreasureValues } from './Utilities';
+import { FEATURE_ALLOW_MERGING, FEATURE_QUICK_ROLL_CONTROL, FEATURE_QUICK_ROLL_MODIFIERS, FEATURE_QUICK_ROLL_SHIFT } from '../Setup';
+import ModuleSettings from '../../../FVTT-Common/src/module/ModuleSettings';
 import { DataSource, GenType, PoolSource, SourceType } from './data/DataSource';
-import { SpellItemType, spellSources } from './data/Spells';
-import { AppFilter, FilterType, spellLevelFilters, spellSchoolFilters, spellTraditionFilters } from './Filters';
-import { consumableSources } from './data/Consumable';
+import { buildFilterSettingUpdate, buildSourceSettingUpdate, FLAGS_KEY, getDataSourceSettings, getFilterSettings, SetValueKeys } from './Flags';
 import { permanentSources } from './data/Permanent';
 import { treasureSources } from './data/Treasure';
-import { NumberFilter } from '../filter/Operation/NumberFilter';
-import { StringFilter } from '../filter/Operation/StringFilter';
-import { EqualityType } from '../filter/EqualityType';
 import { AndGroup, OrGroup } from '../filter/FilterGroup';
-import { WeightedFilter } from '../filter/Operation/WeightedFilter';
-import { ArrayIncludesFilter } from '../filter/Operation/ArrayIncludesFilter';
+import { createSpellItems, dataSourcesOfType, drawFromSources, DrawResult, mergeExistingStacks, mergeStacks, rollTreasureValues } from './Utilities';
+import { SpellItemType, spellSources } from './data/Spells';
 import { BuilderType, ItemMaterials, ItemRunes, MaterialGrade } from './data/Materials';
-import DragEvent = JQuery.DragEvent;
-import ModuleSettings from '../../../FVTT-Common/src/module/settings-app/ModuleSettings';
-import { FEATURE_ALLOW_MERGING, FEATURE_QUICK_ROLL_CONTROL, FEATURE_QUICK_ROLL_MODIFIERS, FEATURE_QUICK_ROLL_SHIFT } from '../Setup';
+import { TABLE_WEIGHT_MAX, TABLE_WEIGHT_MIN } from './Settings';
+import { MODULE_NAME, PF2E_LOOT_SHEET_NAME } from '../Constants';
+import { AppFilter, FilterType, spellLevelFilters, spellSchoolFilters, spellTraditionFilters } from './Filters';
+import { NumberFilter } from '../filter/Operation/NumberFilter';
+import { ArrayIncludesFilter } from '../filter/Operation/ArrayIncludesFilter';
+import { StringFilter } from '../filter/Operation/StringFilter';
+import { consumableSources } from './data/Consumable';
+import { WeightedFilter } from '../filter/Operation/WeightedFilter';
+import { EqualityType } from '../filter/EqualityType';
+import { isArmor, isEquipment, isShield, isWeapon, PF2EItem, PreciousMaterial } from '../../types/PF2E';
+import { ItemBuilder } from './create/ItemBuilder';
 
 export enum LootAppSetting {
     Count = 'count',
 }
 
 export const extendLootSheet = () => {
-    type ActorSheetConstructor = new (...args: any[]) => ActorSheet;
+    type ActorSheetConstructor = new (...args: any[]) => ActorSheet<ActorSheet.Options, any>;
+
+    // @ts-ignore
     const extendMe: ActorSheetConstructor = CONFIG.Actor.sheetClasses['loot'][`pf2e.${PF2E_LOOT_SHEET_NAME}`].cls;
     class LootApp extends extendMe {
         static get defaultOptions() {
@@ -69,25 +71,26 @@ export const extendLootSheet = () => {
         }
 
         // base item data dragged from somewhere
-        protected _createBaseItem: ItemData;
+        protected _createBaseItem: PF2EItem | undefined;
 
-        protected get createBaseItem() {
-            return this._createBaseItem;
+        protected get createBaseItem(): PF2EItem | undefined {
+            if (this._createBaseItem) return duplicate(this._createBaseItem);
+            else return undefined;
         }
 
-        protected set createBaseItem(value: ItemData) {
+        protected set createBaseItem(value: PF2EItem | undefined) {
             // delete local old base item to prevent memory leak
             if (this.createBaseItem !== undefined && this.createBaseItem !== null) {
-                game.items.delete(this.createBaseItem._id);
+                game.items?.delete(this.createBaseItem._id);
             }
 
-            value = duplicate(value) as unknown as ItemData;
+            value = duplicate(value) as unknown as PF2EItem;
             value._id = foundry.utils.randomID(16);
             value['flags'] = { ...value['flags'], [FLAGS_KEY]: { temporary: true } };
 
             // @ts-ignore
-            const item: Item = new game.items.documentClass(value);
-            game.items.set(value._id, item);
+            const item: Item = new (game.items as Items).documentClass(value);
+            game.items?.set(value._id, item);
             this._createBaseItem = value;
         }
 
@@ -95,13 +98,21 @@ export const extendLootSheet = () => {
         protected collapsibles: Record<string, boolean> = {};
 
         protected getCreateData() {
-            const data = {};
+            const data: Record<string, any> = {};
 
             const getFlag = (key: string): string => {
                 return this.actor.getFlag(MODULE_NAME, `create.${key}`) as string;
             };
             const filteredMaterials = (type: BuilderType) => {
-                return Object.values(ItemMaterials).filter((material) => material.hasOwnProperty(type));
+                return Object.values(ItemMaterials)
+                    .filter((material) => material.hasOwnProperty(type))
+                    .reduce(
+                        (prev, curr) =>
+                            mergeObject(prev, {
+                                [curr.slug]: curr,
+                            }),
+                        {},
+                    );
             };
 
             const material = getFlag('preciousMaterial');
@@ -112,26 +123,31 @@ export const extendLootSheet = () => {
             const filteredGrades = (type: BuilderType) => {
                 if (material === undefined) return [];
                 if (material === '') return [];
-                let grades = Object.entries(ItemMaterials[material]?.[type]);
-                grades = grades.map(([key, value]) => {
+                let grades = Object.entries(ItemMaterials[material][type]!).map(([key, value]) => {
                     value['label'] = key.capitalize();
                     value['slug'] = key;
                     return value;
                 });
-                return grades;
+                return grades.reduce(
+                    (prev, curr) =>
+                        mergeObject(prev, {
+                            [curr.slug]: curr,
+                        }),
+                    {},
+                );
             };
 
-            if (isWeaponData(this.createBaseItem)) {
+            if (isWeapon(this.createBaseItem)) {
                 data['type'] = BuilderType.Weapon;
                 data['materials'] = filteredMaterials(BuilderType.Weapon);
                 data['grades'] = filteredGrades(BuilderType.Weapon);
                 data['runes'] = ItemRunes['weapon'];
-            } else if (isShieldData(this.createBaseItem)) {
+            } else if (isShield(this.createBaseItem)) {
                 data['type'] = BuilderType.Shield;
                 data['materials'] = filteredMaterials(BuilderType.Shield);
                 data['grades'] = filteredGrades(BuilderType.Shield);
                 data['runes'] = ItemRunes['shield'];
-            } else if (isArmorData(this.createBaseItem)) {
+            } else if (isArmor(this.createBaseItem)) {
                 data['type'] = BuilderType.Armor;
                 data['materials'] = filteredMaterials(BuilderType.Armor);
                 data['grades'] = filteredGrades(BuilderType.Armor);
@@ -139,15 +155,29 @@ export const extendLootSheet = () => {
             }
 
             if (this.createBaseItem) {
+                const link = (item: PF2EItem) => `@Item[${item._id}]{${item.name}}`;
+
                 data['template'] = this.createBaseItem;
-                data['itemLink'] = `@Item[${this.createBaseItem._id}]{${this.createBaseItem.name}}`;
+                data['templateLink'] = link(this.createBaseItem);
+
+                let builtItem = this.createBaseItem;
+
+                const builder = ItemBuilder.MakeBuilder(builtItem);
+                if (builder) {
+                    builder.setChecks(false);
+                    builder.setMaterial(getFlag('preciousMaterial') as PreciousMaterial, getFlag('materialGrade') as MaterialGrade);
+                    builtItem = builder.build();
+                }
+
+                data['product'] = builtItem;
+                data['productLink'] = link(builtItem);
             }
 
             return data;
         }
 
         public getData(options?: Application.RenderOptions) {
-            const data = super.getData(options);
+            const data = super.getData(options) as Record<string, any>;
 
             data['constants'] = {
                 rangeMin: TABLE_WEIGHT_MIN,
@@ -184,12 +214,12 @@ export const extendLootSheet = () => {
             return data;
         }
 
-        private async createItems(datas: ItemData[]) {
+        private async createItems(datas: PF2EItem[]) {
             //@ts-ignore
             await this.actor.createEmbeddedDocuments('Item', datas);
         }
 
-        private async updateItems(datas: ItemData[]) {
+        private async updateItems(datas: PF2EItem[]) {
             //@ts-ignore
             await this.actor.updateEmbeddedDocuments('Item', datas);
         }
@@ -200,10 +230,10 @@ export const extendLootSheet = () => {
          * @private
          */
         private async createItemsFromDraw(results: DrawResult[]) {
-            let itemsToUpdate: ItemData[];
+            let itemsToUpdate: PF2EItem[] | undefined = undefined;
             let itemsToCreate = results.map((d) => d.itemData);
             if (ModuleSettings.instance.get(FEATURE_ALLOW_MERGING)) {
-                const existing = this.actor.data.items.map((item) => item.data);
+                const existing = this.actor.data.items.map((item) => item.data as PF2EItem);
                 [itemsToUpdate, itemsToCreate] = mergeExistingStacks(existing, itemsToCreate);
             } else {
                 itemsToCreate = mergeStacks(itemsToCreate);
@@ -211,7 +241,9 @@ export const extendLootSheet = () => {
 
             itemsToCreate.sort((a, b) => a.data.slug.localeCompare(b.data.slug));
 
-            await this.updateItems(itemsToUpdate);
+            if (itemsToUpdate !== undefined) {
+                await this.updateItems(itemsToUpdate);
+            }
             await this.createItems(itemsToCreate);
         }
 
@@ -228,42 +260,39 @@ export const extendLootSheet = () => {
         protected override async _onDropItem(event: any, data: any) {
             const dragEvent: DragEvent = event as DragEvent;
             const dropRegion = $(this.element).find('div.template-drop');
-            const dropTarget = dropRegion.find(dragEvent.target);
+            const dropTarget = dropRegion.find(dragEvent.target as any);
 
             const isTemplateDrop = dropTarget.length > 0;
 
             if (isTemplateDrop) {
-                const item = (await Item.fromDropData(data)) as unknown as Entity;
-                const itemData = item.data as ItemData;
+                const item = (await Item.fromDropData(data))?.data as PF2EItem;
 
-                if (isWeaponData(itemData) || isArmorData(itemData)) {
-                    this.createBaseItem = itemData;
+                if (isWeapon(item) || isArmor(item)) {
+                    this.createBaseItem = item;
                     console.warn('unsetting create flag');
                     await this.actor.unsetFlag(FLAGS_KEY, 'create');
                 } else {
-                    ui.notifications.warn('The item creator only supports weapons, armor, and shields right now.');
+                    ui.notifications?.warn('The item creator only supports weapons, armor, and shields right now.');
                     return;
                 }
 
-                const flags = {};
-                if (isEquipmentData(itemData)) {
-                    flags['preciousMaterial'] = itemData.data.preciousMaterial.value ?? '';
-                    flags['materialGrade'] = itemData.data.preciousMaterialGrade.value ?? MaterialGrade.Standard;
-                    flags['propertyRune1'] = itemData.data.propertyRune1.value ?? '';
-                    flags['propertyRune2'] = itemData.data.propertyRune2.value ?? '';
-                    flags['propertyRune3'] = itemData.data.propertyRune3.value ?? '';
-                    flags['propertyRune4'] = itemData.data.propertyRune4.value ?? '';
-                    flags['potencyRune'] = itemData.data.potencyRune.value ?? '';
+                const flags: Record<string, any> = {};
+                if (isEquipment(item)) {
+                    flags['preciousMaterial'] = item.data.preciousMaterial.value ?? '';
+                    flags['materialGrade'] = item.data.preciousMaterialGrade.value ?? MaterialGrade.Standard;
+                    flags['propertyRune1'] = item.data.propertyRune1.value ?? '';
+                    flags['propertyRune2'] = item.data.propertyRune2.value ?? '';
+                    flags['propertyRune3'] = item.data.propertyRune3.value ?? '';
+                    flags['propertyRune4'] = item.data.propertyRune4.value ?? '';
+                    flags['potencyRune'] = item.data.potencyRune.value ?? '';
 
-                    if (isWeaponData(itemData)) {
-                        flags['strikingRune'] = itemData.data.strikingRune.value ?? '';
-                    } else if (isArmorData(itemData)) {
-                        flags['resiliencyRune'] = itemData.data.resiliencyRune.value ?? '';
+                    if (isWeapon(item)) {
+                        flags['strikingRune'] = item.data.strikingRune.value ?? '';
+                    } else if (isArmor(item)) {
+                        flags['resiliencyRune'] = item.data.resiliencyRune.value ?? '';
                     }
                 }
 
-                console.warn('setting create flag');
-                console.warn(flags);
                 await this.actor.setFlag(FLAGS_KEY, 'create', flags);
 
                 return;
@@ -378,7 +407,7 @@ export const extendLootSheet = () => {
                 const isEnabled = new AndGroup([isLevel, isSchool, isTradition]);
                 const filters: WeightedFilter<number | string>[] = [...levelFilters, ...schoolFilters, ...traditionFilters];
 
-                let spells = (await Promise.all(promises)).flat().map((spell) => spell.data) as unknown as ItemData[];
+                let spells = (await Promise.all(promises)).flat().map((spell) => spell.data) as unknown as PF2EItem[];
                 spells = spells.filter((spell) => isEnabled.isSatisfiedBy(spell));
 
                 const sources: Record<number, PoolSource> = {};
@@ -399,7 +428,7 @@ export const extendLootSheet = () => {
 
                 if (Object.values(sources).length === 0) {
                     // TODO: Localization
-                    ui.notifications.warn('The current filters excluded all spells.', { permanent: true });
+                    ui.notifications?.warn('The current filters excluded all spells.', { permanent: true });
                     return;
                 }
 

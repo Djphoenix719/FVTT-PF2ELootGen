@@ -15,12 +15,12 @@
  */
 
 import { ISpecification } from './ISpecification';
-import { ItemData } from '../../types/Items';
+import { PF2EItem } from '../../types/PF2E';
 
-export abstract class FilterGroup implements ISpecification<ItemData> {
-    protected children: ISpecification<ItemData>[];
+export abstract class FilterGroup implements ISpecification<PF2EItem> {
+    protected children: ISpecification<PF2EItem>[];
 
-    protected constructor(children?: ISpecification<ItemData>[]) {
+    protected constructor(children?: ISpecification<PF2EItem>[]) {
         if (children === undefined) {
             children = [];
         }
@@ -28,21 +28,21 @@ export abstract class FilterGroup implements ISpecification<ItemData> {
         this.children = children;
     }
 
-    public abstract isSatisfiedBy(data: ItemData): boolean;
+    public abstract isSatisfiedBy(data: PF2EItem): boolean;
 
-    public and(other: ISpecification<ItemData>): ISpecification<ItemData> {
+    public and(other: ISpecification<PF2EItem>): ISpecification<PF2EItem> {
         return new AndGroup([this, other]);
     }
 
-    public not(other?: ISpecification<ItemData>): ISpecification<ItemData> {
+    public not(other?: ISpecification<PF2EItem>): ISpecification<PF2EItem> {
         return new NotGroup(this);
     }
 
-    public or(other: ISpecification<ItemData>): ISpecification<ItemData> {
+    public or(other: ISpecification<PF2EItem>): ISpecification<PF2EItem> {
         return new OrGroup([this, other]);
     }
 
-    public addChildren(others: ISpecification<ItemData> | ISpecification<ItemData>[]) {
+    public addChildren(others: ISpecification<PF2EItem> | ISpecification<PF2EItem>[]) {
         if (!Array.isArray(others)) {
             others = [others];
         }
@@ -51,11 +51,11 @@ export abstract class FilterGroup implements ISpecification<ItemData> {
 }
 
 export class AndGroup extends FilterGroup {
-    public constructor(children?: ISpecification<ItemData>[]) {
+    public constructor(children?: ISpecification<PF2EItem>[]) {
         super(children);
     }
 
-    public isSatisfiedBy(data: ItemData): boolean {
+    public isSatisfiedBy(data: PF2EItem): boolean {
         for (const child of this.children) {
             if (!child.isSatisfiedBy(data)) {
                 return false;
@@ -66,21 +66,21 @@ export class AndGroup extends FilterGroup {
 }
 
 export class NotGroup extends FilterGroup {
-    public constructor(filter: ISpecification<ItemData>) {
+    public constructor(filter: ISpecification<PF2EItem>) {
         super([filter]);
     }
 
-    public isSatisfiedBy(data: ItemData): boolean {
+    public isSatisfiedBy(data: PF2EItem): boolean {
         return !this.children[0].isSatisfiedBy(data);
     }
 }
 
 export class OrGroup extends FilterGroup {
-    public constructor(children?: ISpecification<ItemData>[]) {
+    public constructor(children?: ISpecification<PF2EItem>[]) {
         super(children);
     }
 
-    public isSatisfiedBy(data: ItemData): boolean {
+    public isSatisfiedBy(data: PF2EItem): boolean {
         for (const child of this.children) {
             if (child.isSatisfiedBy(data)) {
                 return true;

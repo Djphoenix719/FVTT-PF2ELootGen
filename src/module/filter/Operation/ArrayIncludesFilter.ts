@@ -16,18 +16,18 @@
 
 import { WeightedFilter } from './WeightedFilter';
 import { EqualityType } from '../EqualityType';
-import { ItemData } from '../../../types/Items';
+import { PF2EItem } from '../../../types/PF2E';
 
 export class ArrayIncludesFilter extends WeightedFilter<string> {
     constructor(selector: string, desiredValue: string, weight: number) {
         super(selector, desiredValue, weight, EqualityType.EqualTo);
     }
 
-    protected getValue(data: ItemData): string {
+    protected getValue(data: PF2EItem): string {
         const value = super.getValue(data);
         if (Array.isArray(value)) {
-            return value.includes(this.desiredValue) ? this.desiredValue : undefined;
+            return value.includes(this.desiredValue) ? this.desiredValue : '';
         }
-        return undefined;
+        return '';
     }
 }

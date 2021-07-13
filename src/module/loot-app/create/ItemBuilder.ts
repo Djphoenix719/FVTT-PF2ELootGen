@@ -14,9 +14,26 @@
  * limitations under the License.
  */
 
-import { ArmorData, EquipmentData, isArmorData, isWeaponData, ItemData, ResilientRuneType, StrikingRuneType, WeaponData } from '../../../types/Items';
-import { ItemMaterials, BuilderType, FundamentalRune, IMaterial, IMaterialMap, IRuneMap, ItemRunes, MaterialGrade, Rune } from '../data/Materials';
+import { BuilderType, FundamentalRune, IMaterial, IMaterialMap, IRuneMap, ItemMaterials, ItemRunes, MaterialGrade } from '../data/Materials';
 import { Exception } from 'handlebars';
+import {
+    Armor,
+    BaseArmor,
+    EquipmentItem,
+    isArmor,
+    isEquipment,
+    isShield,
+    isWeapon,
+    PF2EItem,
+    PreciousMaterial,
+    PreciousMaterialGrade,
+    ResiliencyRuneType,
+    Shield,
+    StrikingRuneType,
+    Weapon,
+    WeaponPropertyType,
+    ZeroToFour,
+} from '../../../types/PF2E';
 
 /**
  * Fetch all materials from the material map which have associated data for a builder type.
@@ -42,32 +59,31 @@ function getRunesOfType(type: BuilderType): IRuneMap {
 
 export class ItemBuilderException extends Exception {}
 
-export abstract class ItemBuilder<T extends EquipmentData> {
+export abstract class ItemBuilder<T extends EquipmentItem> {
     protected readonly baseItem: Readonly<T>;
 
-    protected potencyValue: number;
-    protected fundamentalValue: FundamentalRune;
-    protected materialSlug: string;
-    protected materialGrade: MaterialGrade;
-    protected propertySlugs: string[];
+    protected potencyRune: ZeroToFour;
+    protected materialSlug: PreciousMaterial;
+    protected materialGrade: PreciousMaterialGrade;
     protected checksEnabled: boolean = true;
 
-    public static MakeBuilder(baseItem: ItemData) {
-        if (isArmorData(baseItem)) {
-            if (baseItem.data.armorType.value === 'shield') {
-                return new ShieldBuilder(baseItem);
-            } else {
-                return new ArmorBuilder(baseItem);
-            }
+    public static MakeBuilder(baseItem: PF2EItem) {
+        if (isShield(baseItem)) {
+            return new ShieldBuilder(baseItem);
         }
-        if (isWeaponData(baseItem)) {
+        if (isArmor(baseItem)) {
+            return new ArmorBuilder(baseItem);
+        }
+        if (isWeapon(baseItem)) {
             return new WeaponBuilder(baseItem);
         }
     }
 
     protected constructor(baseItem: T) {
         this.baseItem = baseItem;
-        this.reset();
+        this.materialSlug = '';
+        this.materialGrade = MaterialGrade.Standard;
+        this.potencyRune = 0;
     }
 
     /**
@@ -83,14 +99,14 @@ export abstract class ItemBuilder<T extends EquipmentData> {
     /**
      * Get the material data for the current material.
      */
-    public get material(): IMaterial {
+    public get material(): IMaterial | undefined {
         if (this.materialSlug === undefined || this.materialGrade === undefined) {
             return undefined;
         }
         return ItemMaterials[this.materialSlug];
     }
 
-    public setMaterial(materialSlug: string, materialGrade: MaterialGrade): ItemBuilder<T> {
+    public setMaterial(materialSlug: PreciousMaterial, materialGrade: MaterialGrade): ItemBuilder<T> {
         this.materialSlug = materialSlug;
         this.materialGrade = materialGrade;
         if (this.checksEnabled) {
@@ -101,28 +117,13 @@ export abstract class ItemBuilder<T extends EquipmentData> {
         return this;
     }
 
-    public setPotency(value: number): ItemBuilder<T> {
+    public setPotency(value: ZeroToFour): ItemBuilder<T> {
         if (this.checksEnabled) {
             if (value < 0 || value > 4) {
                 throw new ItemBuilderException(`Potency value must be >= 0 and <= 4, but "${value}" was provided.`);
             }
         }
-        this.potencyValue = value;
-        return this;
-    }
-
-    public setFundamental(value: FundamentalRune): ItemBuilder<T> {
-        if (this.checksEnabled) {
-            if (this.potencyValue === undefined) {
-                throw new ItemBuilderException(`Potency must be set before setting fundamental.`);
-            }
-
-            const runes = this.validRunes;
-            if (!runes['fundamental'].hasOwnProperty(value)) {
-                throw new ItemBuilderException(`${value} is not a valid fundamental value for this item type.`);
-            }
-        }
-        this.fundamentalValue = value;
+        this.potencyRune = value;
         return this;
     }
 
@@ -135,33 +136,52 @@ export abstract class ItemBuilder<T extends EquipmentData> {
         return this;
     }
 
-    public reset(): ItemBuilder<T> {
-        this.potencyValue = undefined;
-        this.fundamentalValue = undefined;
-        this.materialSlug = undefined;
-        this.materialGrade = undefined;
-        this.propertySlugs = ['', '', '', ''];
-        return this;
-    }
-
     public build(): T {
         let item: T = duplicate(this.baseItem) as T;
 
+        item._id = foundry.utils.randomID(16);
+
         item.data.preciousMaterial.value = this.materialSlug;
         item.data.preciousMaterialGrade.value = this.materialGrade;
-        item.data.potencyRune.value = this.potencyValue;
-
-        item.data.propertyRune1.value = this.propertySlugs[0];
-        item.data.propertyRune2.value = this.propertySlugs[1];
-        item.data.propertyRune3.value = this.propertySlugs[2];
-        item.data.propertyRune4.value = this.propertySlugs[3];
 
         return item;
     }
 }
 
-export class WeaponBuilder extends ItemBuilder<WeaponData> {
-    protected fundamentalValue: StrikingRuneType;
+abstract class EquipmentBuilder<T extends EquipmentItem> extends ItemBuilder<T> {
+    protected propertySlugs: [WeaponPropertyType, WeaponPropertyType, WeaponPropertyType, WeaponPropertyType];
+
+    protected constructor(baseItem: T) {
+        super(baseItem);
+        this.propertySlugs = [
+            baseItem.data.propertyRune1.value,
+            baseItem.data.propertyRune2.value,
+            baseItem.data.propertyRune3.value,
+            baseItem.data.propertyRune4.value,
+        ];
+    }
+
+    public build(): T {
+        let item = super.build();
+
+        if (isEquipment(item)) {
+            item.data.propertyRune1.value = this.propertySlugs[0];
+            item.data.propertyRune2.value = this.propertySlugs[1];
+            item.data.propertyRune3.value = this.propertySlugs[2];
+            item.data.propertyRune4.value = this.propertySlugs[3];
+        }
+
+        return item;
+    }
+}
+
+export class WeaponBuilder extends EquipmentBuilder<Weapon> {
+    protected strikingRune: StrikingRuneType;
+
+    public constructor(baseItem: Weapon) {
+        super(baseItem);
+        this.strikingRune = baseItem.data.strikingRune.value;
+    }
 
     public get validMaterials(): IMaterialMap {
         return getMaterialsOfType(BuilderType.Weapon);
@@ -171,21 +191,57 @@ export class WeaponBuilder extends ItemBuilder<WeaponData> {
         return getRunesOfType(BuilderType.Weapon);
     }
 
-    public setFundamental(id: StrikingRuneType): ItemBuilder<WeaponData> {
-        return super.setFundamental(id);
+    public setStrikingRune(value: StrikingRuneType): ItemBuilder<Weapon> {
+        if (this.checksEnabled) {
+            if (this.potencyRune === undefined) {
+                throw new ItemBuilderException(`Potency must be set before setting fundamental.`);
+            }
+
+            const runes = this.validRunes;
+            if (!runes['fundamental'].hasOwnProperty(value)) {
+                throw new ItemBuilderException(`${value} is not a valid fundamental value for this item type.`);
+            }
+        }
+        this.strikingRune = value;
+        return this;
     }
 
-    public build(): WeaponData {
+    public build(): Weapon {
         let item = super.build();
 
-        item.data.strikingRune.value = this.fundamentalValue;
+        item.data.strikingRune.value = this.strikingRune;
 
         return item;
     }
 }
 
-export class ArmorBuilder extends ItemBuilder<ArmorData> {
-    protected fundamentalValue: ResilientRuneType;
+abstract class BaseArmorBuilder<T extends BaseArmor> extends ItemBuilder<T> {
+    protected dex: number;
+    protected strength: number;
+
+    protected constructor(baseItem: T) {
+        super(baseItem);
+        this.dex = baseItem.data.dex.value;
+        this.strength = baseItem.data.strength.value;
+    }
+
+    public build(): T {
+        const item = super.build();
+
+        item.data.dex.value = this.dex;
+        item.data.strength.value = this.strength;
+
+        return item;
+    }
+}
+
+export class ArmorBuilder extends BaseArmorBuilder<Armor> {
+    protected resiliencyRune: ResiliencyRuneType;
+
+    public constructor(baseItem: Armor) {
+        super(baseItem);
+        this.resiliencyRune = baseItem.data.resiliencyRune.value;
+    }
 
     public get validMaterials(): IMaterialMap {
         return getMaterialsOfType(BuilderType.Armor);
@@ -195,20 +251,35 @@ export class ArmorBuilder extends ItemBuilder<ArmorData> {
         return getRunesOfType(BuilderType.Armor);
     }
 
-    public setFundamental(id: ResilientRuneType): ItemBuilder<ArmorData> {
-        return super.setFundamental(id);
+    public setResiliencyRune(value: ResiliencyRuneType): ItemBuilder<Armor> {
+        if (this.checksEnabled) {
+            if (this.potencyRune === undefined) {
+                throw new ItemBuilderException(`Potency must be set before setting fundamental.`);
+            }
+
+            const runes = this.validRunes;
+            if (!runes['fundamental'].hasOwnProperty(value)) {
+                throw new ItemBuilderException(`${value} is not a valid fundamental value for this item type.`);
+            }
+        }
+        this.resiliencyRune = value;
+        return this;
     }
 
-    public build(): ArmorData {
+    public build(): Armor {
         let item = super.build();
 
-        item.data.resiliencyRune.value = this.fundamentalValue;
+        item.data.resiliencyRune.value = this.resiliencyRune;
 
         return item;
     }
 }
 
-export class ShieldBuilder extends ArmorBuilder {
+export class ShieldBuilder extends BaseArmorBuilder<Shield> {
+    public constructor(baseItem: Shield) {
+        super(baseItem);
+    }
+
     public get validMaterials(): IMaterialMap {
         return getMaterialsOfType(BuilderType.Shield);
     }

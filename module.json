@@ -8,7 +8,7 @@
     "esmodules": ["./bundle.js"],
     "styles": ["./bundle.css"],
     "socket": true,
-    "systems": ["pf2e"],
+    "system": ["pf2e"],
     "compatibleCoreVersion": "0.8.6",
     "minimumCoreVersion": "0.8.0",
     "manifest": "https://raw.githubusercontent.com/Djphoenix719/FVTT-PF2EToolbox/master/module.json",

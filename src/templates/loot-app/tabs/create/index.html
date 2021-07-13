@@ -10,11 +10,19 @@
 
         <div class="item">
             {{#if create.template }}
-                <img class="profile item-profile" src="{{ create.template.img }}"/>
-                {{{ enrichHTML create.itemLink }}}
+                <div class="item-link">
+                    <img class="profile item-profile" src="{{ create.template.img }}"/>
+                    {{{ enrichHTML create.templateLink }}}
+                </div>
+                <div class="item-link">
+                    <img class="profile item-profile" src="{{ create.product.img }}"/>
+                    {{{ enrichHTML create.productLink }}}
+                </div>
             {{else}}
-                <img class="profile item-profile" src="systems/pf2e/icons/default-icons/weapon.svg"/>
-                <h4 class="entity-name">Template Item</h4>
+                <div class="item-link">
+                    <img class="profile item-profile" src="systems/pf2e/icons/default-icons/weapon.svg"/>
+                    <h4 class="entity-name">Template Item</h4>
+                </div>
             {{/if}}
         </div>
 

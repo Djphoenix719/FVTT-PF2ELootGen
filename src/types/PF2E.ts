@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
-import { SpellSchool } from '../module/loot-app/data/Spells';
+import { SpellSchool, SpellTradition } from '../module/loot-app/data/Spells';
+import { Rarity } from '../module/loot-app/data/Materials';
 
 export type EquipmentItemType = 'armor' | 'weapon';
-export type PhysicalItemType = EquipmentItemType | 'consumable' | 'equipment';
+export type PhysicalItemType = EquipmentItemType | 'consumable' | 'equipment' | 'treasure';
 export type ItemType = PhysicalItemType | 'spell';
 
-export type ResiliencyRuneType = 'resilient' | 'greaterResilient' | 'majorResilient';
-export type StrikingRuneType = 'striking' | 'greaterStriking' | 'majorStriking';
+export type ResiliencyRuneType = 'resilient' | 'greaterResilient' | 'majorResilient' | '';
+export type StrikingRuneType = 'striking' | 'greaterStriking' | 'majorStriking' | '';
 export type ArmorType = 'shield' | 'unarmored' | 'light' | 'medium' | 'heavy';
 export type WeaponType = 'unarmed' | 'simple' | 'advanced' | 'martial';
 
-export type WeaponPropertyTypes =
+export type WeaponPropertyType =
+    | null
     | 'kinWarding'
     | 'returning'
     | 'ghostTouch'
@@ -65,6 +67,8 @@ export type WeaponPropertyTypes =
 
 export type SpellType = 'attack' | 'save' | 'utility' | 'heal';
 
+export type ConsumableType = 'ammo' | 'potion' | 'oil' | 'scroll' | 'talisman' | 'snare' | 'drug' | 'elixir' | 'mutagen' | 'other' | 'poison' | 'tool' | 'wand';
+
 export type ZeroToFour = 0 | 1 | 2 | 3 | 4;
 
 export type CurrencyType = 'cp' | 'sp' | 'gp' | 'pp';
@@ -73,7 +77,17 @@ export type PriceString = `${number} ${CurrencyType}`;
 export type WeightType = 'L';
 export type WeightString = `${number}${WeightType | ''}`;
 
-export type PreciousMaterial = 'adamantine' | 'coldIron' | 'darkwood' | 'dragonhide' | 'mithral' | 'orichalcum' | 'silver' | 'sovereignSteel' | 'warpglass';
+export type PreciousMaterial =
+    | 'adamantine'
+    | 'coldIron'
+    | 'darkwood'
+    | 'dragonhide'
+    | 'mithral'
+    | 'orichalcum'
+    | 'silver'
+    | 'sovereignSteel'
+    | 'warpglass'
+    | '';
 export type PreciousMaterialGrade = 'low' | 'standard' | 'high';
 
 export type IdentificationStatus = 'identified' | 'unidentified';
@@ -110,19 +124,21 @@ export interface PF2EItemData {
     description: Value<string>;
     source: Value<string>;
     traits: Value<Array<string>> & {
-        rarity: Value<string>;
+        rarity: Value<Rarity>;
     };
 }
 
-export interface Spell extends PF2EItem {
+export interface SpellItem extends PF2EItem {
     type: 'spell';
     data: SpellData;
 }
 export interface SpellData extends PF2EItemData {
     spellType: Value<SpellType>;
     school: Value<SpellSchool>;
+    traditions: Value<Array<SpellTradition>>;
 }
-export function isSpell(item: PF2EItem): item is Spell {
+export function isSpell(item: PF2EItem | undefined): item is SpellItem {
+    if (item === undefined) return false;
     return item.data.hasOwnProperty('spellType');
 }
 
@@ -147,6 +163,45 @@ export interface PhysicalItemData extends PF2EItemData {
     preciousMaterial: Value<PreciousMaterial>;
     preciousMaterialGrade: Value<PreciousMaterialGrade>;
 }
+const physicalCheckProperties = ['hp', 'maxHp', 'price', 'weight'];
+export function isPhysicalItem(item: PF2EItem | undefined): item is PhysicalItem {
+    if (item === undefined) return false;
+    for (let i = 0; i < physicalCheckProperties.length; i++) {
+        if (!item.data.hasOwnProperty(physicalCheckProperties[i])) {
+            return false;
+        }
+    }
+    return true;
+}
+
+export interface TreasureItem extends PhysicalItem {
+    type: 'treasure';
+    data: TreasureItemData;
+}
+export interface TreasureItemData extends PhysicalItemData {
+    value: Value<number>;
+}
+export function isTreasure(item: PF2EItem | undefined): item is TreasureItem {
+    if (item === undefined) return false;
+    return isPhysicalItem(item) && item.data.hasOwnProperty('value');
+}
+
+export interface ConsumableItem extends PhysicalItem {
+    type: 'consumable';
+    data: ConsumableItemData;
+}
+interface ConsumableSpellData {
+    data: SpellItem;
+    heightenedLevel: number;
+}
+interface NoConsumableSpellData {
+    data: null;
+    heightenedLevel: null;
+}
+export interface ConsumableItemData extends PhysicalItemData {
+    consumableType: Value<ConsumableType>;
+    spell: ConsumableSpellData | NoConsumableSpellData;
+}
 
 export interface EquipmentItem extends PhysicalItem {
     type: EquipmentItemType;
@@ -154,13 +209,24 @@ export interface EquipmentItem extends PhysicalItem {
 }
 export interface EquipmentItemData extends PhysicalItemData {
     equippedBulk: Value<WeightString | ''>;
-    propertyRune1: Value<WeaponPropertyTypes | null>;
-    propertyRune2: Value<WeaponPropertyTypes | null>;
-    propertyRune3: Value<WeaponPropertyTypes | null>;
-    propertyRune4: Value<WeaponPropertyTypes | null>;
+    propertyRune1: Value<WeaponPropertyType | null>;
+    propertyRune2: Value<WeaponPropertyType | null>;
+    propertyRune3: Value<WeaponPropertyType | null>;
+    propertyRune4: Value<WeaponPropertyType | null>;
+}
+const equipmentCheckProperties = ['equippedBulk', 'propertyRune1', 'propertyRune2'];
+export function isEquipment(item: PF2EItem | undefined): item is EquipmentItem {
+    if (item === undefined) return false;
+    if (!isPhysicalItem(item)) return false;
+    for (let i = 0; i < physicalCheckProperties.length; i++) {
+        if (!item.data.hasOwnProperty(equipmentCheckProperties[i])) {
+            return false;
+        }
+    }
+    return true;
 }
 
-export interface Weapon extends PhysicalItem {
+export interface Weapon extends EquipmentItem {
     type: 'weapon';
     data: WeaponData;
 }
@@ -169,15 +235,16 @@ export interface WeaponData extends EquipmentItemData {
     potencyRune: Value<ZeroToFour>;
     strikingRune: Value<StrikingRuneType>;
 }
-export function isWeapon(data: PF2EItem): data is Weapon {
-    return data.type === 'weapon';
+export function isWeapon(item: PF2EItem | undefined): item is Weapon {
+    if (item === undefined) return false;
+    return item.type === 'weapon';
 }
 
-interface BaseArmor extends PhysicalItem {
+export interface BaseArmor extends EquipmentItem {
     type: 'armor';
     data: ArmorData | ShieldData;
 }
-interface BaseArmorData extends EquipmentItemData {
+export interface BaseArmorData extends EquipmentItemData {
     armorType: Value<ArmorType>;
     strength: Value<number>;
     dex: Value<number>;
@@ -190,7 +257,8 @@ export interface ArmorData extends BaseArmorData {
     potencyRune: Value<ZeroToFour>;
     resiliencyRune: Value<ResiliencyRuneType>;
 }
-export function isArmor(item: PF2EItem): item is Armor {
+export function isArmor(item: PF2EItem | undefined): item is Armor {
+    if (item === undefined) return false;
     return item.type === 'armor';
 }
 
@@ -198,6 +266,7 @@ export interface Shield extends BaseArmor {
     data: ShieldData;
 }
 export interface ShieldData extends BaseArmorData {}
-export function isShield(item: PF2EItem): item is Shield {
+export function isShield(item: PF2EItem | undefined): item is Shield {
+    if (item === undefined) return false;
     return isArmor(item) && item.data.armorType.value === 'shield';
 }

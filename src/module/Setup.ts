@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import ModuleSettings, { IFeatureDefinition } from '../../FVTT-Common/src/module/settings-app/ModuleSettings';
-import { MODULE_NAME } from './Constants';
+import ModuleSettings, { IFeatureDefinition } from '../../FVTT-Common/src/module/ModuleSettings';
+import { MODULE_NAME, MODULE_TITLE } from './Constants';
 
 export const FEATURE_ALLOW_MERGING = 'allow-merging';
 
@@ -77,7 +77,13 @@ export const FEATURES: IFeatureDefinition[] = [
 ];
 
 export const setup = () => {
-    Hooks.on('init', () => ModuleSettings.instance.registerAllSettings(MODULE_NAME, FEATURES));
+    Hooks.on('init', () =>
+        ModuleSettings.initialize({
+            moduleName: MODULE_NAME,
+            moduleTitle: MODULE_TITLE,
+            features: FEATURES,
+        }),
+    );
 
     Hooks.on('init', () => ModuleSettings.instance.onInit());
     Hooks.on('setup', () => ModuleSettings.instance.onSetup());

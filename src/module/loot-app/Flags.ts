@@ -100,7 +100,7 @@ export async function setDataSourceSetting(actor: Actor, source: DataSource | Da
             }),
         {},
     );
-    return await actor.update(updateData);
+    return (await actor.update(updateData))!;
 }
 
 // TODO: Should be pretty easy to collapse buildSourceSettingUpdate + buildFilterSettingUpdate into one function.

@@ -15,7 +15,7 @@
  */
 
 import { IEnabled, IWeighted } from './Mixins';
-import { ItemData } from '../../../types/Items';
+import { PF2EItem } from '../../../types/PF2E';
 
 export enum SourceType {
     Table = 'table',
@@ -34,11 +34,11 @@ export const tableStoreId = (id: string) => `table-${id}`;
 export const filterStoreId = (id: string) => `filter-${id}`;
 
 export interface IStorable {
-    id: string;
-    storeId: string;
+    id: string | null;
+    storeId: string | null;
 }
 export interface DataSource extends IStorable, IWeighted, IEnabled {
-    id: string;
+    id: string | null;
     sourceType: SourceType;
     itemType?: GenType;
 }
@@ -68,12 +68,12 @@ export function isPackSource(source: DataSource): source is PackSource {
 export function getPack(source: PackSource) {
     return game.packs.get(source.id);
 }
-export async function getFromPackSource<TResult = ItemData>(source: PackSource, documentId: string): Promise<TResult> {
+export async function getFromPackSource<TResult = PF2EItem>(source: PackSource, documentId: string): Promise<TResult> {
     const pack = game.packs.get(source.id);
     // @ts-ignore
     return await pack.getDocument(documentId);
 }
-export async function getPackSourceContents(source: PackSource): Promise<ItemData[]> {
+export async function getPackSourceContents(source: PackSource): Promise<PF2EItem[]> {
     const pack = game.packs.get(source.id);
     // @ts-ignore
     return await pack.getDocuments();
@@ -83,13 +83,13 @@ export interface PoolSource extends DataSource {
     // id will be null in this case
     id: null;
     sourceType: SourceType.Pool;
-    elements: ItemData[];
+    elements: PF2EItem[];
 }
 export function isPoolSource(source: DataSource): source is PoolSource {
     return source.sourceType === SourceType.Pool;
 }
 
-export type FilteredSource<TSource extends DataSource, TItem extends ItemData = ItemData> = TSource & {
+export type FilteredSource<TSource extends DataSource, TItem extends PF2EItem = PF2EItem> = TSource & {
     getFiltered: (source: TSource) => Promise<TItem[]>;
 };
 

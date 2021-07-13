@@ -27,23 +27,23 @@ Hooks.on('setup', registerHandlebarsHelpers);
 
 Hooks.on('ready', async () => {
     const extendedSheet = extendLootSheet();
+    // @ts-ignore
     Actors.registerSheet(MODULE_NAME, extendedSheet, {
         label: 'PF2E Loot Generator',
         types: ['loot'],
         makeDefault: false,
     });
 
-    await game.actors.getName('Lootboi').delete();
-    // @ts-ignore
+    await game.actors?.getName('Lootboi')?.delete();
     await Actor.create({ name: 'Lootboi', type: 'loot', ['flags.core.sheetClass']: 'pf2e-lootgen.LootApp' });
-    await game.actors.getName('Lootboi').sheet.render(true);
+    await game.actors?.getName('Lootboi')?.sheet?.render(true);
 });
 
 // TODO: Move to a better place for this
 Hooks.on('renderItemDirectory', (itemDirectory: any, html: JQuery, options: any) => {
     const lis: JQuery = html.find('ol.directory-list li.directory-item.item');
     for (const element of lis) {
-        const item: Item = game.items.get(element.getAttribute('data-entity-id'));
+        const item = game.items?.get(element.getAttribute('data-entity-id') as string) as Item;
         if (item.getFlag(FLAGS_KEY, 'temporary')) {
             $(element).remove();
         }
