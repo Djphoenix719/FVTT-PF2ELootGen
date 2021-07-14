@@ -1,0 +1,12 @@
+<div class="info-group">
+    <span class="level">
+            {{#if (gt level 0)}}
+                <i class="fas fa-level-up-alt"></i>{{level}}
+            {{/if}}
+        </span>
+    <span class="value">
+        {{#if (defined price)}}
+            <i class="fas fa-coins"></i>{{commas price}}{{#if (ends-with price "bulk")}}{{else}}gp{{/if}}
+        {{/if}}
+    </span>
+</div>

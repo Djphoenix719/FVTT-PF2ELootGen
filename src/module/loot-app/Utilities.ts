@@ -21,7 +21,7 @@ import { TEMPLATE_PACK_ID, scrollTemplateIds, SpellItemType, spellSources, wandT
 import { DataSource, getPack, isPackSource, isPoolSource, isTableSource, GenType } from './data/DataSource';
 import { getItemFromPack, getTableFromPack } from '../Utilities';
 import { AppFilter, FilterType, spellLevelFilters, spellSchoolFilters, spellTraditionFilters } from './Filters';
-import { ConsumableItem, isPhysicalItem, isSpell, isTreasure, PF2EItem, PhysicalItem, SpellItem } from '../../types/PF2E';
+import { ConsumableItem, isPhysicalItem, isSpell, isTreasure, PF2EItem, PhysicalItem, PriceString, SpellItem } from '../../types/PF2E';
 
 /**
  * Returns distinct elements of an array when used to filter an array.
@@ -360,4 +360,28 @@ export function mergeStacks(itemDatas: PF2EItem[], options?: MergeStacksOptions)
  */
 export function mergeItem(a: PhysicalItem, b: PhysicalItem) {
     a.data.quantity.value += b.data.quantity.value;
+}
+
+/**
+ * Parse a price ending in cp, sp, gp, or pp to gp
+ * @param price
+ */
+export function parsePrice(price: PriceString): number {
+    const multiples: Record<string, number> = {
+        cp: 1 / 100,
+        sp: 1 / 10,
+        gp: 1,
+        pp: 10,
+    };
+
+    const matches = price.match(/([0-9]+)(.*)(cp|sp|gp|pp)/);
+    if (matches === null) {
+        return NaN;
+    }
+
+    const priceString = matches[0];
+    const denomString = matches[2];
+    const priceValue = parseInt(priceString);
+    const denomValue = multiples[denomString];
+    return priceValue * denomValue;
 }

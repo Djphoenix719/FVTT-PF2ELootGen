@@ -72,7 +72,7 @@ export type ConsumableType = 'ammo' | 'potion' | 'oil' | 'scroll' | 'talisman' |
 export type ZeroToFour = 0 | 1 | 2 | 3 | 4;
 
 export type CurrencyType = 'cp' | 'sp' | 'gp' | 'pp';
-export type PriceString = `${number} ${CurrencyType}`;
+export type PriceString = `${number} ${CurrencyType}` | `${number}${CurrencyType}`;
 
 export type WeightType = 'L';
 export type WeightString = `${number}${WeightType | ''}`;
@@ -88,7 +88,7 @@ export type PreciousMaterial =
     | 'sovereignSteel'
     | 'warpglass'
     | '';
-export type PreciousMaterialGrade = 'low' | 'standard' | 'high';
+export type PreciousMaterialGrade = 'low' | 'standard' | 'high' | '';
 
 export type IdentificationStatus = 'identified' | 'unidentified';
 
@@ -218,7 +218,7 @@ const equipmentCheckProperties = ['equippedBulk', 'propertyRune1', 'propertyRune
 export function isEquipment(item: PF2EItem | undefined): item is EquipmentItem {
     if (item === undefined) return false;
     if (!isPhysicalItem(item)) return false;
-    for (let i = 0; i < physicalCheckProperties.length; i++) {
+    for (let i = 0; i < equipmentCheckProperties.length; i++) {
         if (!item.data.hasOwnProperty(equipmentCheckProperties[i])) {
             return false;
         }

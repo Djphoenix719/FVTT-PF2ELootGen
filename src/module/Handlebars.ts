@@ -17,6 +17,7 @@
 import { MODULE_NAME } from './Constants';
 import { GenType } from './loot-app/data/DataSource';
 import { Exception } from 'handlebars';
+import { numericCommas } from './Utilities';
 
 export interface HandlebarsContext {
     data: Record<string, any> & {
@@ -42,6 +43,7 @@ export async function registerHandlebarsTemplates() {
         'tab-buttons': `templates/loot-app/tabs/partials/tab-buttons.html`,
         'tab-config': `templates/loot-app/tabs/partials/tab-config.html`,
         'create-select': `templates/loot-app/tabs/partials/create-select.html`,
+        'rune-stats': `templates/loot-app/tabs/partials/rune-stats.html`,
         'collapsible': `templates/loot-app/partials/collapsible.html`,
     };
 
@@ -81,7 +83,7 @@ export function registerHandlebarsHelpers() {
 
     // Object exists and is not null or empty
     Handlebars.registerHelper('defined', (data: any) => {
-        return data !== undefined && data !== null && data !== '' && data !== 0;
+        return data !== undefined && data !== null && data !== '' && data !== 0 && !isNaN(data);
     });
 
     // Use the provided value if it exists, otherwise default to the fallback.
@@ -91,6 +93,18 @@ export function registerHandlebarsHelpers() {
     // concat strings together with a separator
     Handlebars.registerHelper('concat', (a: string, b: string, separator: string) => {
         return a.toString() + separator.toString() + b.toString();
+    });
+    // string ends with
+    Handlebars.registerHelper('ends-with', (a: any, b: string) => {
+        if (typeof a === 'string') {
+            return a.endsWith(b);
+        } else {
+            return false;
+        }
+    });
+    // separate hundreds groups in numbers with commas
+    Handlebars.registerHelper('commas', (a: string | number) => {
+        return numericCommas(a);
     });
 
     // assorted helpers for dealing with equality in templates

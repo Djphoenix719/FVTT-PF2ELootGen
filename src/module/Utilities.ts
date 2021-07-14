@@ -33,3 +33,11 @@ export const getItemFromPack = async (packId: string, itemId: string): Promise<a
 export const getTableFromPack = async (tableId: string, packId: string): Promise<RollTable> => {
     return await getItemFromPack(packId, tableId);
 };
+
+/**
+ * Replace numbers in a string with commas.
+ * @param value
+ */
+export const numericCommas = (value: string | number) => {
+    return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+};

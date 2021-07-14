@@ -84,5 +84,15 @@ form.loot-app .sheet-sidebar .tab.create {
             div.info-group {
             }
         }
+        div.final-select {
+            margin: 8px 0;
+            padding: 8px 0;
+            border-top: 1px solid var(--secondary);
+            border-bottom: 1px solid var(--secondary);
+
+            span.final-value {
+                font-weight: bold;
+            }
+        }
     }
 }

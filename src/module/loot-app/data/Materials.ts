@@ -604,7 +604,7 @@ for (const material of Object.values(ItemMaterials)) {
             for (const materialGrade of Object.values(MaterialGrade)) {
                 if (builderTypeData.hasOwnProperty(materialGrade)) {
                     const materialGradeData = builderTypeData[materialGrade]!;
-                    materialGradeData.price = `${materialGradeData.basePrice} + ${materialGradeData.bulkPrice}/bulk`;
+                    materialGradeData.price = `${materialGradeData.basePrice}gp + ${materialGradeData.bulkPrice}gp/bulk`;
                 }
             }
         }
