@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { SpellSchool, SpellTradition } from './data/Spells';
-import { IEnabled, INamed, IWeighted } from './data/Mixins';
-import { GenType, ordinalNumber } from './data/DataSource';
+import { SpellSchool, SpellTradition } from './source/Spells';
+import { IEnabled, INamed, IWeighted } from './source/Mixins';
+import { GenType, ordinalNumber } from './source/DataSource';
 
 export enum FilterType {
     SpellSchool = 'school',

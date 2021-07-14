@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { SpellSchool, SpellTradition } from '../module/loot-app/data/Spells';
+import { SpellSchool, SpellTradition } from '../module/loot-app/source/Spells';
 import { Rarity } from '../module/loot-app/data/Materials';
 
 export type EquipmentItemType = 'armor' | 'weapon';
@@ -26,8 +26,8 @@ export type StrikingRuneType = 'striking' | 'greaterStriking' | 'majorStriking' 
 export type ArmorType = 'shield' | 'unarmored' | 'light' | 'medium' | 'heavy';
 export type WeaponType = 'unarmed' | 'simple' | 'advanced' | 'martial';
 
-export type WeaponPropertyType =
-    | null
+export type WeaponPropertyRuneType =
+    | ''
     | 'kinWarding'
     | 'returning'
     | 'ghostTouch'
@@ -65,6 +65,39 @@ export type WeaponPropertyType =
     | 'speed'
     | 'vorpal';
 
+export type ArmorPropertyRuneType =
+    | ''
+    | 'ready'
+    | 'slick'
+    | 'shadow'
+    | 'glamered'
+    | 'acidResistant'
+    | 'coldResistant'
+    | 'electricityResistant'
+    | 'fireResistant'
+    | 'greaterSlick'
+    | 'invisibility'
+    | 'sinisterKnight'
+    | 'greaterReady'
+    | 'greaterShadow'
+    | 'greaterInvisibility'
+    | 'greaterAcidResistant'
+    | 'greaterColdResistant'
+    | 'greaterElectricityResistant'
+    | 'greaterFireResistant'
+    | 'fortification'
+    | 'winged'
+    | 'rockBraced'
+    | 'soaring'
+    | 'antimagic'
+    | 'majorSlick'
+    | 'ethereal'
+    | 'majorShadow'
+    | 'greaterFortification'
+    | 'greaterWinged';
+
+export type PropertyRuneType = WeaponPropertyRuneType | ArmorPropertyRuneType;
+
 export type SpellType = 'attack' | 'save' | 'utility' | 'heal';
 
 export type ConsumableType = 'ammo' | 'potion' | 'oil' | 'scroll' | 'talisman' | 'snare' | 'drug' | 'elixir' | 'mutagen' | 'other' | 'poison' | 'tool' | 'wand';
@@ -77,7 +110,7 @@ export type PriceString = `${number} ${CurrencyType}` | `${number}${CurrencyType
 export type WeightType = 'L';
 export type WeightString = `${number}${WeightType | ''}`;
 
-export type PreciousMaterial =
+export type PreciousMaterialType =
     | 'adamantine'
     | 'coldIron'
     | 'darkwood'
@@ -88,11 +121,17 @@ export type PreciousMaterial =
     | 'sovereignSteel'
     | 'warpglass'
     | '';
-export type PreciousMaterialGrade = 'low' | 'standard' | 'high' | '';
+
+export enum PreciousMaterialGrade {
+    None = '',
+    Low = 'low',
+    Standard = 'standard',
+    High = 'high',
+}
 
 export type IdentificationStatus = 'identified' | 'unidentified';
 
-export interface Value<T> {
+export interface IValue<T> {
     value: T;
 }
 
@@ -103,7 +142,7 @@ export interface Identification {
 }
 export interface IdentificationData {
     data: {
-        description: Value<string>;
+        description: IValue<string>;
     };
     img: string;
     name: string;
@@ -120,11 +159,11 @@ export interface PF2EItem {
 }
 export interface PF2EItemData {
     slug: string;
-    level: Value<number>;
-    description: Value<string>;
-    source: Value<string>;
-    traits: Value<Array<string>> & {
-        rarity: Value<Rarity>;
+    level: IValue<number>;
+    description: IValue<string>;
+    source: IValue<string>;
+    traits: IValue<Array<string>> & {
+        rarity: IValue<Rarity>;
     };
 }
 
@@ -133,9 +172,9 @@ export interface SpellItem extends PF2EItem {
     data: SpellData;
 }
 export interface SpellData extends PF2EItemData {
-    spellType: Value<SpellType>;
-    school: Value<SpellSchool>;
-    traditions: Value<Array<SpellTradition>>;
+    spellType: IValue<SpellType>;
+    school: IValue<SpellSchool>;
+    traditions: IValue<Array<SpellTradition>>;
 }
 export function isSpell(item: PF2EItem | undefined): item is SpellItem {
     if (item === undefined) return false;
@@ -147,21 +186,21 @@ export interface PhysicalItem extends PF2EItem {
     data: PhysicalItemData;
 }
 export interface PhysicalItemData extends PF2EItemData {
-    hp: Value<number>;
-    maxHp: Value<number>;
-    hardness: Value<number>;
-    brokenThreshold: Value<number>;
+    hp: IValue<number>;
+    maxHp: IValue<number>;
+    hardness: IValue<number>;
+    brokenThreshold: IValue<number>;
 
-    price: Value<PriceString>;
-    weight: Value<WeightString>;
+    price: IValue<PriceString>;
+    weight: IValue<WeightString>;
 
-    quantity: Value<number>;
-    stackGroup: Value<string>;
-    equipped: Value<boolean>;
-    invested: Value<boolean>;
+    quantity: IValue<number>;
+    stackGroup: IValue<string>;
+    equipped: IValue<boolean>;
+    invested: IValue<boolean>;
 
-    preciousMaterial: Value<PreciousMaterial>;
-    preciousMaterialGrade: Value<PreciousMaterialGrade>;
+    preciousMaterial: IValue<PreciousMaterialType>;
+    preciousMaterialGrade: IValue<PreciousMaterialGrade>;
 }
 const physicalCheckProperties = ['hp', 'maxHp', 'price', 'weight'];
 export function isPhysicalItem(item: PF2EItem | undefined): item is PhysicalItem {
@@ -179,7 +218,7 @@ export interface TreasureItem extends PhysicalItem {
     data: TreasureItemData;
 }
 export interface TreasureItemData extends PhysicalItemData {
-    value: Value<number>;
+    value: IValue<number>;
 }
 export function isTreasure(item: PF2EItem | undefined): item is TreasureItem {
     if (item === undefined) return false;
@@ -199,7 +238,7 @@ interface NoConsumableSpellData {
     heightenedLevel: null;
 }
 export interface ConsumableItemData extends PhysicalItemData {
-    consumableType: Value<ConsumableType>;
+    consumableType: IValue<ConsumableType>;
     spell: ConsumableSpellData | NoConsumableSpellData;
 }
 
@@ -208,11 +247,11 @@ export interface EquipmentItem extends PhysicalItem {
     data: EquipmentItemData;
 }
 export interface EquipmentItemData extends PhysicalItemData {
-    equippedBulk: Value<WeightString | ''>;
-    propertyRune1: Value<WeaponPropertyType | null>;
-    propertyRune2: Value<WeaponPropertyType | null>;
-    propertyRune3: Value<WeaponPropertyType | null>;
-    propertyRune4: Value<WeaponPropertyType | null>;
+    equippedBulk: IValue<WeightString | ''>;
+    propertyRune1: IValue<WeaponPropertyRuneType | ArmorPropertyRuneType>;
+    propertyRune2: IValue<WeaponPropertyRuneType | ArmorPropertyRuneType>;
+    propertyRune3: IValue<WeaponPropertyRuneType | ArmorPropertyRuneType>;
+    propertyRune4: IValue<WeaponPropertyRuneType | ArmorPropertyRuneType>;
 }
 const equipmentCheckProperties = ['equippedBulk', 'propertyRune1', 'propertyRune2'];
 export function isEquipment(item: PF2EItem | undefined): item is EquipmentItem {
@@ -231,9 +270,14 @@ export interface Weapon extends EquipmentItem {
     data: WeaponData;
 }
 export interface WeaponData extends EquipmentItemData {
-    weaponData: Value<WeaponType>;
-    potencyRune: Value<ZeroToFour>;
-    strikingRune: Value<StrikingRuneType>;
+    weaponData: IValue<WeaponType>;
+    potencyRune: IValue<ZeroToFour>;
+    strikingRune: IValue<StrikingRuneType>;
+
+    propertyRune1: IValue<WeaponPropertyRuneType>;
+    propertyRune2: IValue<WeaponPropertyRuneType>;
+    propertyRune3: IValue<WeaponPropertyRuneType>;
+    propertyRune4: IValue<WeaponPropertyRuneType>;
 }
 export function isWeapon(item: PF2EItem | undefined): item is Weapon {
     if (item === undefined) return false;
@@ -245,17 +289,22 @@ export interface BaseArmor extends EquipmentItem {
     data: ArmorData | ShieldData;
 }
 export interface BaseArmorData extends EquipmentItemData {
-    armorType: Value<ArmorType>;
-    strength: Value<number>;
-    dex: Value<number>;
+    armorType: IValue<ArmorType>;
+    strength: IValue<number>;
+    dex: IValue<number>;
+
+    propertyRune1: IValue<ArmorPropertyRuneType>;
+    propertyRune2: IValue<ArmorPropertyRuneType>;
+    propertyRune3: IValue<ArmorPropertyRuneType>;
+    propertyRune4: IValue<ArmorPropertyRuneType>;
 }
 
 export interface Armor extends BaseArmor {
     data: ArmorData;
 }
 export interface ArmorData extends BaseArmorData {
-    potencyRune: Value<ZeroToFour>;
-    resiliencyRune: Value<ResiliencyRuneType>;
+    potencyRune: IValue<ZeroToFour>;
+    resiliencyRune: IValue<ResiliencyRuneType>;
 }
 export function isArmor(item: PF2EItem | undefined): item is Armor {
     if (item === undefined) return false;

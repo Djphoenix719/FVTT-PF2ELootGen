@@ -16,44 +16,33 @@
 
 import { FEATURE_ALLOW_MERGING, FEATURE_QUICK_ROLL_CONTROL, FEATURE_QUICK_ROLL_MODIFIERS, FEATURE_QUICK_ROLL_SHIFT } from '../Setup';
 import ModuleSettings from '../../../FVTT-Common/src/module/ModuleSettings';
-import { DataSource, GenType, PoolSource, SourceType } from './data/DataSource';
+import { DataSource, GenType, PoolSource, SourceType } from './source/DataSource';
 import { buildFilterSettingUpdate, buildSourceSettingUpdate, createFlagPath, FLAGS_KEY, getDataSourceSettings, getFilterSettings, SetValueKeys } from './Flags';
-import { permanentSources } from './data/Permanent';
-import { treasureSources } from './data/Treasure';
+import { permanentSources } from './source/Permanent';
+import { treasureSources } from './source/Treasure';
 import { AndGroup, OrGroup } from '../filter/FilterGroup';
 import {
+    calculateFinalPriceAndLevel,
     createSpellItems,
     dataSourcesOfType,
     drawFromSources,
     DrawResult,
     mergeExistingStacks,
     mergeStacks,
-    parsePrice,
     rollTreasureValues,
 } from './Utilities';
-import { SpellItemType, spellSources } from './data/Spells';
-import { BuilderType, ItemMaterials, ItemRunes, MaterialGrade } from './data/Materials';
+import { SpellItemType, spellSources } from './source/Spells';
+import { CREATE_KEY_NONE, getEquipmentType, getValidMaterialGrades, getValidMaterials, ItemRunes, MaterialGrade } from './data/Materials';
 import { TABLE_WEIGHT_MAX, TABLE_WEIGHT_MIN } from './Settings';
 import { MODULE_NAME, PF2E_LOOT_SHEET_NAME } from '../Constants';
 import { AppFilter, FilterType, spellLevelFilters, spellSchoolFilters, spellTraditionFilters } from './Filters';
 import { NumberFilter } from '../filter/Operation/NumberFilter';
 import { ArrayIncludesFilter } from '../filter/Operation/ArrayIncludesFilter';
 import { StringFilter } from '../filter/Operation/StringFilter';
-import { consumableSources } from './data/Consumable';
+import { consumableSources } from './source/Consumable';
 import { WeightedFilter } from '../filter/Operation/WeightedFilter';
 import { EqualityType } from '../filter/EqualityType';
-import {
-    isArmor,
-    isEquipment,
-    isShield,
-    isWeapon,
-    PF2EItem,
-    PreciousMaterial,
-    PreciousMaterialGrade,
-    ResiliencyRuneType,
-    StrikingRuneType,
-} from '../../types/PF2E';
-import { ItemBuilder } from './create/ItemBuilder';
+import { EquipmentItem, isArmor, isEquipment, isWeapon, PF2EItem, PreciousMaterialGrade, PreciousMaterialType } from '../../types/PF2E';
 
 export enum LootAppSetting {
     Count = 'count',
@@ -113,148 +102,57 @@ export const extendLootSheet = () => {
             this._createBaseItem = value;
         }
 
-        protected getBuilderType(): BuilderType {
-            if (isWeapon(this.createBaseItem)) {
-                return BuilderType.Weapon;
-            } else if (isShield(this.createBaseItem)) {
-                return BuilderType.Shield;
-            } else if (isArmor(this.createBaseItem)) {
-                return BuilderType.Armor;
-            } else {
-                throw new Error(`Unknown item type!`);
-            }
-        }
-
         // mapping of collapse-ids to hidden or not states
         protected collapsibles: Record<string, boolean> = {};
+
+        protected getCreateFlag<T>(key: string): T | undefined {
+            return this.actor.getFlag(FLAGS_KEY, `create.${key}`) as T;
+        }
 
         protected async getCreateData() {
             if (this.createBaseItem === undefined) {
                 return {};
             }
-
-            const getFlag = (key: string): string => {
-                return this.actor.getFlag(MODULE_NAME, `create.${key}`) as string;
-            };
+            if (!isEquipment(this.createBaseItem)) {
+                return {};
+            }
+            const equipmentType = getEquipmentType(this.createBaseItem);
+            if (equipmentType === undefined) {
+                return {};
+            }
 
             const data: Record<string, any> = {};
-            let builderType: BuilderType = this.getBuilderType();
+            data['type'] = equipmentType;
 
-            const gradeKey = getFlag('preciousMaterialGrade') as PreciousMaterialGrade;
-            const materialKey = getFlag('preciousMaterial') as PreciousMaterial;
+            const materialGradeType = this.getCreateFlag<PreciousMaterialGrade>('preciousMaterialGrade') ?? PreciousMaterialGrade.None;
+            const materialType = this.getCreateFlag<PreciousMaterialType>('preciousMaterial') ?? CREATE_KEY_NONE;
 
-            data['preciousMaterialGrade'] = gradeKey;
-            data['preciousMaterial'] = materialKey;
+            data['preciousMaterialGrade'] = materialGradeType;
+            data['preciousMaterial'] = materialType;
 
-            const filteredMaterialGrades = (type: BuilderType) => {
-                if (materialKey === undefined) return [];
-                if (materialKey === '') return [];
-                let grades = Object.entries(ItemMaterials[materialKey][type]!).map(([key, value]) => {
-                    value['label'] = key.capitalize();
-                    value['slug'] = key;
-                    return value;
-                });
-                return grades.reduce(
-                    (prev, curr) =>
-                        mergeObject(prev, {
-                            [curr.slug]: curr,
-                        }),
-                    {},
-                );
-            };
-            const filteredMaterials = (type: BuilderType) => {
-                return Object.values(ItemMaterials)
-                    .filter((material) => material.hasOwnProperty(type))
-                    .reduce(
-                        (prev, curr) =>
-                            mergeObject(prev, {
-                                [curr.slug]: curr,
-                            }),
-                        {},
-                    );
-            };
-
-            data['type'] = builderType;
-            data['materials'] = filteredMaterials(builderType);
-            data['grades'] = filteredMaterialGrades(builderType);
-            data['runes'] = ItemRunes[builderType];
-
-            if (this.createBaseItem) {
-                const link = (item: PF2EItem) => `@Item[${item._id}]{${item.name}}`;
-
-                data['template'] = this.createBaseItem;
-                data['templateLink'] = link(this.createBaseItem);
-
-                let builtItem = this.createBaseItem;
-
-                const builder = ItemBuilder.MakeBuilder(builtItem);
-                if (builder) {
-                    builder.setChecks(false);
-                    builder.setMaterial(getFlag('preciousMaterialGrade') as PreciousMaterial, getFlag('preciousMaterialGrade') as MaterialGrade);
-                    builtItem = builder.build();
-                }
-
-                data['product'] = builtItem;
-                data['productLink'] = link(builtItem);
-            }
+            data['materials'] = getValidMaterials(this.createBaseItem);
+            data['grades'] = getValidMaterialGrades(this.createBaseItem, materialType);
+            data['runes'] = ItemRunes[equipmentType];
 
             await this.validateFlagData();
-            this.getFinalPriceAndLevel(data);
+
+            const { price, level } = calculateFinalPriceAndLevel({
+                item: this.createBaseItem,
+                materialType,
+                materialGradeType,
+            });
+
+            data['finalPrice'] = price;
+            data['finalLevel'] = level;
 
             return data;
-        }
-
-        protected getFinalPriceAndLevel(data: Record<string, any>) {
-            if (this.createBaseItem === undefined) {
-                return;
-            }
-            if (!isEquipment(this.createBaseItem)) {
-                return;
-            }
-
-            const getFlag = (key: string): string => {
-                return this.actor.getFlag(MODULE_NAME, `create.${key}`) as string;
-            };
-
-            const builderType: BuilderType = this.getBuilderType();
-            const gradeKey = getFlag('preciousMaterialGrade') as PreciousMaterialGrade | undefined;
-            const materialKey = getFlag('preciousMaterial') as PreciousMaterial | undefined;
-
-            let finalLevel: number = this.createBaseItem.data.level.value;
-            let finalPrice: number = parsePrice(this.createBaseItem.data.price.value);
-            if (materialKey !== '' && gradeKey !== '' && materialKey !== undefined && gradeKey !== undefined) {
-                const material = ItemMaterials[materialKey][builderType]?.[gradeKey];
-                if (material) {
-                    finalLevel = Math.max(finalLevel, material.level);
-
-                    const weightString = this.createBaseItem.data.weight.value;
-                    const weightValue = weightString === 'L' ? 1 / 10 : parseInt(weightString);
-                    finalPrice = finalPrice + material.basePrice + material.bulkPrice * weightValue;
-                }
-            }
-
-            if (isWeapon(this.createBaseItem)) {
-                const strikingKey = getFlag('strikingRune') as StrikingRuneType | undefined;
-                if (strikingKey !== '' && strikingKey !== undefined) {
-                    const strikingRune = ItemRunes[builderType]['fundamental'][strikingKey];
-                    finalLevel = Math.max(finalLevel, strikingRune.level);
-                    finalPrice = finalPrice + strikingRune.price;
-                    // TODO: Something fucky with prices, precious material grade not showing
-                }
-            }
-
-            console.warn(finalLevel);
-            console.warn(finalPrice);
-
-            data['finalLevel'] = finalLevel;
-            data['finalPrice'] = finalPrice;
         }
 
         protected async validateFlagData() {
             const flagUpdateData: Record<string, any> = {};
 
             let potencyRune = this.actor.getFlag(FLAGS_KEY, createFlagPath('potencyRune', false)) as string | undefined;
-            let preciousMaterial = this.actor.getFlag(FLAGS_KEY, createFlagPath('preciousMaterial', false)) as PreciousMaterial | undefined;
+            let preciousMaterial = this.actor.getFlag(FLAGS_KEY, createFlagPath('preciousMaterial', false)) as PreciousMaterialType | undefined;
             let preciousMaterialGrade = this.actor.getFlag(FLAGS_KEY, createFlagPath('preciousMaterialGrade', false)) as PreciousMaterialGrade | undefined;
             let builderType = this.getBuilderType();
 
@@ -276,13 +174,6 @@ export const extendLootSheet = () => {
                     flagUpdateData[createFlagPath('propertyRune1', true)] = '';
                     flagUpdateData[createFlagPath('strikingRune', true)] = '';
                     flagUpdateData[createFlagPath('resiliencyRune', true)] = '';
-                }
-            }
-
-            if (preciousMaterialGrade && preciousMaterial) {
-                const selectedMaterial = ItemMaterials[preciousMaterial][builderType];
-                if (!selectedMaterial || !selectedMaterial.hasOwnProperty(preciousMaterialGrade)) {
-                    flagUpdateData[createFlagPath('preciousMaterialGrade', true)] = '';
                 }
             }
 

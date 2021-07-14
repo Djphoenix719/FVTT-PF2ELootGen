@@ -1,6 +1,11 @@
 {{> create-select name="preciousMaterial" options=create.materials label="Material" }}
 
+{{log (create-flag "preciousMaterial")}}
+{{log (walk @root.actor (create-flag "preciousMaterial"))}}
+{{log (defined (walk @root.actor (create-flag "preciousMaterial")))}}
+
 {{#if (defined (walk @root.actor (create-flag "preciousMaterial")))}}
+    {{log "PRECIOUS MATERIAL"}}
     {{> create-select name="preciousMaterialGrade" options=create.grades label="Grade" }}
 {{/if}}
 

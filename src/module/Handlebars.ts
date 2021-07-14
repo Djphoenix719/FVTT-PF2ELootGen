@@ -15,7 +15,7 @@
  */
 
 import { MODULE_NAME } from './Constants';
-import { GenType } from './loot-app/data/DataSource';
+import { GenType } from './loot-app/source/DataSource';
 import { Exception } from 'handlebars';
 import { numericCommas } from './Utilities';
 
@@ -83,7 +83,7 @@ export function registerHandlebarsHelpers() {
 
     // Object exists and is not null or empty
     Handlebars.registerHelper('defined', (data: any) => {
-        return data !== undefined && data !== null && data !== '' && data !== 0 && !isNaN(data);
+        return data !== undefined && data !== null && data !== '' && data !== 0;
     });
 
     // Use the provided value if it exists, otherwise default to the fallback.

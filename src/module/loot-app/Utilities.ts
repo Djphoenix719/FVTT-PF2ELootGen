@@ -14,14 +14,29 @@
  * limitations under the License.
  */
 
-import { permanentSources } from './data/Permanent';
-import { consumableSources } from './data/Consumable';
-import { isTreasureSource, TreasureSource, treasureSources } from './data/Treasure';
-import { TEMPLATE_PACK_ID, scrollTemplateIds, SpellItemType, spellSources, wandTemplateIds } from './data/Spells';
-import { DataSource, getPack, isPackSource, isPoolSource, isTableSource, GenType } from './data/DataSource';
+import { permanentSources } from './source/Permanent';
+import { consumableSources } from './source/Consumable';
+import { isTreasureSource, TreasureSource, treasureSources } from './source/Treasure';
+import { TEMPLATE_PACK_ID, scrollTemplateIds, SpellItemType, spellSources, wandTemplateIds } from './source/Spells';
+import { DataSource, getPack, isPackSource, isPoolSource, isTableSource, GenType } from './source/DataSource';
 import { getItemFromPack, getTableFromPack } from '../Utilities';
 import { AppFilter, FilterType, spellLevelFilters, spellSchoolFilters, spellTraditionFilters } from './Filters';
-import { ConsumableItem, isPhysicalItem, isSpell, isTreasure, PF2EItem, PhysicalItem, PriceString, SpellItem } from '../../types/PF2E';
+import {
+    ConsumableItem,
+    EquipmentItem,
+    isPhysicalItem,
+    isSpell,
+    isTreasure,
+    PF2EItem,
+    PhysicalItem,
+    PreciousMaterialGrade,
+    PreciousMaterialType,
+    PriceString,
+    PropertyRuneType,
+    SpellItem,
+} from '../../types/PF2E';
+import { EquipmentType, getEquipmentType, ItemMaterials } from './data/Materials';
+import { FundamentalRuneType, PotencyRuneType } from './data/Runes';
 
 /**
  * Returns distinct elements of an array when used to filter an array.
@@ -363,7 +378,7 @@ export function mergeItem(a: PhysicalItem, b: PhysicalItem) {
 }
 
 /**
- * Parse a price ending in cp, sp, gp, or pp to gp
+ * Parse a price ending in {cp|sp|gp|pp} to gp
  * @param price
  */
 export function parsePrice(price: PriceString): number {
@@ -374,9 +389,9 @@ export function parsePrice(price: PriceString): number {
         pp: 10,
     };
 
-    const matches = price.match(/([0-9]+)(.*)(cp|sp|gp|pp)/);
+    const matches = price.toLowerCase().match(/([0-9]+)(.*)(cp|sp|gp|pp)/);
     if (matches === null) {
-        return NaN;
+        return 0;
     }
 
     const priceString = matches[0];
@@ -384,4 +399,54 @@ export function parsePrice(price: PriceString): number {
     const priceValue = parseInt(priceString);
     const denomValue = multiples[denomString];
     return priceValue * denomValue;
+}
+
+interface FinalPriceAndLevelArgs {
+    item: EquipmentItem;
+    materialType: PreciousMaterialType;
+    materialGradeType: PreciousMaterialGrade;
+    potencyRune: PotencyRuneType;
+    fundamentalRune: FundamentalRuneType;
+    propertyRunes: [PropertyRuneType, PropertyRuneType, PropertyRuneType, PropertyRuneType];
+}
+interface FinalPriceAndLevelResults {
+    level: number;
+    price: number;
+}
+/**
+ * Given an item and a set of changes, compute the final price and level of the item.
+ * @param args
+ */
+export function calculateFinalPriceAndLevel(args: FinalPriceAndLevelArgs): FinalPriceAndLevelResults {
+    let finalLevel = 0;
+    let finalPrice = 0;
+
+    const equipmentType = getEquipmentType(args.item);
+    if (equipmentType === undefined) {
+        return {
+            level: finalLevel,
+            price: finalPrice,
+        };
+    }
+
+    if (args.materialType !== '') {
+        const materialForEquipment = ItemMaterials[args.materialType][equipmentType];
+        if (materialForEquipment) {
+            // TODO: Finish writing
+        }
+    }
+
+    switch (equipmentType) {
+        case EquipmentType.Weapon:
+            break;
+        case EquipmentType.Armor:
+            break;
+        case EquipmentType.Shield:
+            break;
+    }
+
+    return {
+        level: finalLevel,
+        price: finalPrice,
+    };
 }

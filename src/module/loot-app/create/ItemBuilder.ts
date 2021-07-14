@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { BuilderType, FundamentalRune, IMaterial, IMaterialMap, IRuneMap, ItemMaterials, ItemRunes, MaterialGrade } from '../data/Materials';
+import { EquipmentType, FundamentalRune, IMaterial, IMaterialMap, IRuneMap, ItemMaterials, ItemRunes, MaterialGrade } from '../data/Materials';
 import { Exception } from 'handlebars';
 import {
     Armor,
@@ -25,13 +25,13 @@ import {
     isShield,
     isWeapon,
     PF2EItem,
-    PreciousMaterial,
+    PreciousMaterialType,
     PreciousMaterialGrade,
     ResiliencyRuneType,
     Shield,
     StrikingRuneType,
     Weapon,
-    WeaponPropertyType,
+    WeaponPropertyRuneType,
     ZeroToFour,
 } from '../../../types/PF2E';
 
@@ -39,7 +39,7 @@ import {
  * Fetch all materials from the material map which have associated data for a builder type.
  * @param type The material type to fetch.
  */
-function getMaterialsOfType(type: BuilderType): IMaterialMap {
+function getMaterialsOfType(type: EquipmentType): IMaterialMap {
     let materials: IMaterialMap = {};
     for (const material of Object.values(ItemMaterials)) {
         if (material.hasOwnProperty(type)) {
@@ -53,7 +53,7 @@ function getMaterialsOfType(type: BuilderType): IMaterialMap {
  * Get all runes for a specific type of item.
  * @param type
  */
-function getRunesOfType(type: BuilderType): IRuneMap {
+function getRunesOfType(type: EquipmentType): IRuneMap {
     return ItemRunes[type];
 }
 
@@ -63,7 +63,7 @@ export abstract class ItemBuilder<T extends EquipmentItem> {
     protected readonly baseItem: Readonly<T>;
 
     protected potencyRune: ZeroToFour;
-    protected materialSlug: PreciousMaterial;
+    protected materialSlug: PreciousMaterialType;
     protected materialGrade: PreciousMaterialGrade;
     protected checksEnabled: boolean = true;
 
@@ -106,7 +106,7 @@ export abstract class ItemBuilder<T extends EquipmentItem> {
         return ItemMaterials[this.materialSlug];
     }
 
-    public setMaterial(materialSlug: PreciousMaterial, materialGrade: MaterialGrade): ItemBuilder<T> {
+    public setMaterial(materialSlug: PreciousMaterialType, materialGrade: MaterialGrade): ItemBuilder<T> {
         this.materialSlug = materialSlug;
         this.materialGrade = materialGrade;
         if (this.checksEnabled) {
@@ -149,7 +149,7 @@ export abstract class ItemBuilder<T extends EquipmentItem> {
 }
 
 abstract class EquipmentBuilder<T extends EquipmentItem> extends ItemBuilder<T> {
-    protected propertySlugs: [WeaponPropertyType, WeaponPropertyType, WeaponPropertyType, WeaponPropertyType];
+    protected propertySlugs: [WeaponPropertyRuneType, WeaponPropertyRuneType, WeaponPropertyRuneType, WeaponPropertyRuneType];
 
     protected constructor(baseItem: T) {
         super(baseItem);
@@ -184,11 +184,11 @@ export class WeaponBuilder extends EquipmentBuilder<Weapon> {
     }
 
     public get validMaterials(): IMaterialMap {
-        return getMaterialsOfType(BuilderType.Weapon);
+        return getMaterialsOfType(EquipmentType.Weapon);
     }
 
     public get validRunes(): IRuneMap {
-        return getRunesOfType(BuilderType.Weapon);
+        return getRunesOfType(EquipmentType.Weapon);
     }
 
     public setStrikingRune(value: StrikingRuneType): ItemBuilder<Weapon> {
@@ -244,11 +244,11 @@ export class ArmorBuilder extends BaseArmorBuilder<Armor> {
     }
 
     public get validMaterials(): IMaterialMap {
-        return getMaterialsOfType(BuilderType.Armor);
+        return getMaterialsOfType(EquipmentType.Armor);
     }
 
     public get validRunes(): IRuneMap {
-        return getRunesOfType(BuilderType.Armor);
+        return getRunesOfType(EquipmentType.Armor);
     }
 
     public setResiliencyRune(value: ResiliencyRuneType): ItemBuilder<Armor> {
@@ -281,10 +281,10 @@ export class ShieldBuilder extends BaseArmorBuilder<Shield> {
     }
 
     public get validMaterials(): IMaterialMap {
-        return getMaterialsOfType(BuilderType.Shield);
+        return getMaterialsOfType(EquipmentType.Shield);
     }
 
     public get validRunes(): IRuneMap {
-        return getRunesOfType(BuilderType.Shield);
+        return getRunesOfType(EquipmentType.Shield);
     }
 }

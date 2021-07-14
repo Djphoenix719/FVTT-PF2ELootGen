@@ -15,10 +15,10 @@
  */
 
 import { MODULE_NAME } from '../Constants';
-import { DataSource, GenType } from './data/DataSource';
+import { DataSource, GenType } from './source/DataSource';
 import { dataSourcesOfType, filtersOfType } from './Utilities';
 import { AppFilter, FilterType } from './Filters';
-import { IEnabled, IWeighted } from './data/Mixins';
+import { IEnabled, IWeighted } from './source/Mixins';
 
 export const FLAGS_KEY = MODULE_NAME;
 

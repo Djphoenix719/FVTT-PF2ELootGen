@@ -14,21 +14,38 @@
  * limitations under the License.
  */
 
-import { ResiliencyRuneType, StrikingRuneType } from '../../../types/PF2E';
+import {
+    EquipmentItem,
+    isArmor,
+    isShield,
+    isWeapon,
+    PF2EItem,
+    PreciousMaterialType,
+    ResiliencyRuneType,
+    StrikingRuneType,
+    PreciousMaterialGrade,
+} from '../../../types/PF2E';
 
-export type Bulk = 'L' | number;
-export type IMaterialMap = Record<string, IMaterial>;
+export type IMaterialMap = Record<PreciousMaterialType, IMaterial>;
 
-export enum BuilderType {
+export enum EquipmentType {
     Weapon = 'weapon',
     Armor = 'armor',
     Shield = 'shield',
 }
-export enum MaterialGrade {
-    Low = 'low',
-    Standard = 'standard',
-    High = 'high',
-}
+export const getEquipmentType = (item: PF2EItem): EquipmentType | undefined => {
+    let equipmentType: EquipmentType;
+    if (isWeapon(item)) {
+        equipmentType = EquipmentType.Weapon;
+    } else if (isShield(item)) {
+        equipmentType = EquipmentType.Shield;
+    } else if (isArmor(item)) {
+        equipmentType = EquipmentType.Shield;
+    } else {
+        return undefined;
+    }
+};
+
 export enum ShieldType {
     Buckler = 'buckler',
     Shield = 'shield',
@@ -70,1075 +87,223 @@ export interface IDurability {
 //   Level
 
 export interface IPriceData {
-    price?: string;
     basePrice: number;
     bulkPrice: number;
+    displayPrice: string;
 }
-export interface ILevelData {
+interface BaseMaterialData {
     level: number;
-}
-export interface IRarityData {
-    rarity: Rarity;
-}
-export interface ISpecialData {
-    bulkModifier?: number;
+    price: IPriceData;
 }
 
-export const durability = (hardness: number): IDurability => {
+const createPriceData = (basePrice: number): IPriceData => {
     return {
-        hardness: hardness,
-        breakThreshold: hardness * 2,
-        hitPoints: hardness * 4,
+        basePrice,
+        bulkPrice: basePrice / 10,
+        displayPrice: `${basePrice}gp + ${basePrice / 10}gp/bulk`,
     };
+};
+const createBaseMaterialData = (level: number, basePrice: number): BaseMaterialData => {
+    return {
+        level,
+        price: createPriceData(basePrice),
+    };
+};
+
+type GradedMaterialData = {
+    [TGrade in PreciousMaterialGrade]?: BaseMaterialData;
 };
 
 export type IMaterial = Readonly<{
     slug: string;
     label: string;
-    value: string;
-    defaultGrade: MaterialGrade;
-    item?: ISpecialData &
-        {
-            [TGrade in MaterialGrade]?: IPriceData &
-                ILevelData & {
-                    thinItems?: IDurability;
-                    items?: IDurability;
-                    structures?: IDurability;
-                };
-        };
-    [BuilderType.Shield]?: ISpecialData &
-        {
-            [TGrade in MaterialGrade]?: IPriceData &
-                ILevelData &
-                {
-                    [TShield in ShieldType]?: IDurability;
-                };
-        };
-    [BuilderType.Armor]?: ISpecialData &
-        {
-            [TGrade in MaterialGrade]?: IPriceData & ILevelData;
-        };
-    [BuilderType.Weapon]?: ISpecialData &
-        {
-            [TGrade in MaterialGrade]?: IPriceData & ILevelData;
-        };
+    defaultGrade: PreciousMaterialGrade;
+    [EquipmentType.Shield]?: GradedMaterialData;
+    [EquipmentType.Armor]?: GradedMaterialData;
+    [EquipmentType.Weapon]?: GradedMaterialData;
 }>;
 
 // TODO: Descriptions w/ links for items, embed in description
 // TODO: Descriptions w/ links for weapons, embed in description
 // TODO: Descriptions w/ links for armors, embed in description
 
+export const CREATE_KEY_NONE = '';
 export const MaterialNone: IMaterial = {
-    slug: 'none',
+    slug: CREATE_KEY_NONE,
     label: 'None',
-    value: '',
-    defaultGrade: MaterialGrade.Standard,
-    item: {
-        [MaterialGrade.Standard]: {
-            level: 0,
-            basePrice: 0,
-            bulkPrice: 0,
-            thinItems: { hardness: 0, hitPoints: 1, breakThreshold: 0 },
-            items: { hardness: 1, hitPoints: 4, breakThreshold: 2 },
-        },
-    },
-    [BuilderType.Weapon]: {
-        [MaterialGrade.Standard]: {
-            level: 0,
-            basePrice: 0,
-            bulkPrice: 0,
-        },
-    },
-    [BuilderType.Armor]: {
-        [MaterialGrade.Standard]: {
-            level: 0,
-            basePrice: 0,
-            bulkPrice: 0,
-        },
-    },
-    [BuilderType.Shield]: {
-        [MaterialGrade.Standard]: {
-            level: 0,
-            basePrice: 0,
-            bulkPrice: 0,
-        },
-    },
+    defaultGrade: PreciousMaterialGrade.Standard,
+    [EquipmentType.Weapon]: {},
+    [EquipmentType.Armor]: {},
+    [EquipmentType.Shield]: {},
 };
 
 export const MaterialAdamantine: IMaterial = {
     slug: 'adamantine',
-    label: 'Adamantine',
-    value: 'adamantine',
-    defaultGrade: MaterialGrade.Standard,
-    item: {
-        [MaterialGrade.Standard]: {
-            level: 8,
-            basePrice: 0,
-            bulkPrice: 350,
-            thinItems: { hardness: 10, hitPoints: 40, breakThreshold: 20 },
-            items: { hardness: 14, hitPoints: 56, breakThreshold: 28 },
-            structures: { hardness: 28, hitPoints: 112, breakThreshold: 56 },
-        },
-        [MaterialGrade.High]: {
-            level: 16,
-            basePrice: 0,
-            bulkPrice: 6000,
-            thinItems: { hardness: 13, hitPoints: 52, breakThreshold: 26 },
-            items: { hardness: 17, hitPoints: 68, breakThreshold: 34 },
-            structures: { hardness: 34, hitPoints: 136, breakThreshold: 68 },
-        },
+    label: 'PF2E.PreciousMaterialAdamantine',
+    defaultGrade: PreciousMaterialGrade.Standard,
+    [EquipmentType.Armor]: {
+        [PreciousMaterialGrade.Standard]: createBaseMaterialData(12, 1_600),
+        [PreciousMaterialGrade.High]: createBaseMaterialData(19, 32_000),
     },
-    [BuilderType.Armor]: {
-        [MaterialGrade.Standard]: {
-            level: 12,
-            basePrice: 1600,
-            bulkPrice: 160,
-        },
-        [MaterialGrade.High]: {
-            level: 19,
-            basePrice: 32000,
-            bulkPrice: 3200,
-        },
-    },
-    [BuilderType.Weapon]: {
-        [MaterialGrade.Standard]: {
-            level: 11,
-            basePrice: 1400,
-            bulkPrice: 140,
-        },
-        [MaterialGrade.High]: {
-            level: 17,
-            basePrice: 13000,
-            bulkPrice: 1350,
-        },
+    [EquipmentType.Weapon]: {
+        [PreciousMaterialGrade.Standard]: createBaseMaterialData(11, 1_400),
+        [PreciousMaterialGrade.High]: createBaseMaterialData(17, 13_000),
     },
     shield: {},
 };
 export const MaterialColdIron: IMaterial = {
     slug: 'coldIron',
-    label: 'Cold Iron',
-    value: 'coldIron',
-    defaultGrade: MaterialGrade.Standard,
-    item: {
-        [MaterialGrade.Low]: {
-            level: 2,
-            basePrice: 0,
-            bulkPrice: 20,
-            thinItems: { hardness: 5, hitPoints: 20, breakThreshold: 10 },
-            items: { hardness: 9, hitPoints: 36, breakThreshold: 18 },
-            structures: { hardness: 18, hitPoints: 72, breakThreshold: 36 },
-        },
-        [MaterialGrade.Standard]: {
-            level: 7,
-            basePrice: 0,
-            bulkPrice: 250,
-            thinItems: { hardness: 7, hitPoints: 28, breakThreshold: 14 },
-            items: { hardness: 11, hitPoints: 44, breakThreshold: 22 },
-            structures: { hardness: 22, hitPoints: 88, breakThreshold: 44 },
-        },
-        [MaterialGrade.High]: {
-            level: 15,
-            basePrice: 0,
-            bulkPrice: 4500,
-            thinItems: { hardness: 10, hitPoints: 40, breakThreshold: 20 },
-            items: { hardness: 14, hitPoints: 56, breakThreshold: 28 },
-            structures: { hardness: 28, hitPoints: 112, breakThreshold: 56 },
-        },
+    label: 'PF2E.PreciousMaterialColdIron',
+    defaultGrade: PreciousMaterialGrade.Standard,
+    [EquipmentType.Armor]: {
+        [PreciousMaterialGrade.Low]: createBaseMaterialData(5, 140),
+        [PreciousMaterialGrade.Standard]: createBaseMaterialData(11, 1_200),
+        [PreciousMaterialGrade.High]: createBaseMaterialData(18, 20_000),
     },
-    [BuilderType.Armor]: {
-        [MaterialGrade.Low]: {
-            level: 5,
-            basePrice: 140,
-            bulkPrice: 14,
-        },
-        [MaterialGrade.Standard]: {
-            level: 11,
-            basePrice: 1200,
-            bulkPrice: 120,
-        },
-        [MaterialGrade.High]: {
-            level: 18,
-            basePrice: 20000,
-            bulkPrice: 2000,
-        },
-    },
-    [BuilderType.Weapon]: {
-        [MaterialGrade.Low]: {
-            level: 2,
-            basePrice: 40,
-            bulkPrice: 4,
-        },
-        [MaterialGrade.Standard]: {
-            level: 10,
-            basePrice: 880,
-            bulkPrice: 88,
-        },
-        [MaterialGrade.High]: {
-            level: 16,
-            basePrice: 9000,
-            bulkPrice: 900,
-        },
+    [EquipmentType.Weapon]: {
+        [PreciousMaterialGrade.Low]: createBaseMaterialData(2, 40),
+        [PreciousMaterialGrade.Standard]: createBaseMaterialData(10, 880),
+        [PreciousMaterialGrade.High]: createBaseMaterialData(16, 9_000),
     },
 };
 export const MaterialDarkwood: IMaterial = {
     slug: 'darkwood',
-    label: 'Darkwood',
-    value: 'darkwood',
-    defaultGrade: MaterialGrade.Standard,
-    item: {
-        [MaterialGrade.Standard]: {
-            level: 8,
-            basePrice: 0,
-            bulkPrice: 350,
-            thinItems: { hardness: 5, hitPoints: 20, breakThreshold: 10 },
-            items: { hardness: 7, hitPoints: 28, breakThreshold: 14 },
-            structures: { hardness: 14, hitPoints: 56, breakThreshold: 28 },
-        },
-        [MaterialGrade.High]: {
-            level: 16,
-            basePrice: 0,
-            bulkPrice: 6000,
-            thinItems: { hardness: 8, hitPoints: 32, breakThreshold: 16 },
-            items: { hardness: 10, hitPoints: 40, breakThreshold: 20 },
-            structures: { hardness: 20, hitPoints: 80, breakThreshold: 40 },
-        },
+    label: 'PF2E.PreciousMaterialDarkwood',
+    defaultGrade: PreciousMaterialGrade.Standard,
+    [EquipmentType.Armor]: {
+        [PreciousMaterialGrade.Standard]: createBaseMaterialData(12, 1_600),
+        [PreciousMaterialGrade.High]: createBaseMaterialData(19, 32_000),
     },
-    [BuilderType.Armor]: {
-        [MaterialGrade.Standard]: {
-            level: 12,
-            basePrice: 1600,
-            bulkPrice: 160,
-        },
-        [MaterialGrade.High]: {
-            level: 19,
-            basePrice: 32000,
-            bulkPrice: 3200,
-        },
-    },
-    [BuilderType.Weapon]: {
-        [MaterialGrade.Standard]: {
-            level: 11,
-            basePrice: 1400,
-            bulkPrice: 140,
-        },
-        [MaterialGrade.High]: {
-            level: 17,
-            basePrice: 13500,
-            bulkPrice: 1350,
-        },
+    [EquipmentType.Weapon]: {
+        [PreciousMaterialGrade.Standard]: createBaseMaterialData(11, 1_400),
+        [PreciousMaterialGrade.High]: createBaseMaterialData(17, 13_500),
     },
 };
 export const MaterialDragonhide: IMaterial = {
     slug: 'dragonhide',
-    label: 'Dragonhide',
-    value: 'dragonhide',
-    defaultGrade: MaterialGrade.Standard,
-    item: {
-        [MaterialGrade.Standard]: {
-            level: 8,
-            basePrice: 0,
-            bulkPrice: 350,
-            thinItems: { hardness: 4, hitPoints: 16, breakThreshold: 8 },
-            items: { hardness: 7, hitPoints: 28, breakThreshold: 14 },
-        },
-        [MaterialGrade.High]: {
-            level: 16,
-            basePrice: 0,
-            bulkPrice: 6000,
-            thinItems: { hardness: 8, hitPoints: 32, breakThreshold: 16 },
-            items: { hardness: 11, hitPoints: 44, breakThreshold: 22 },
-        },
-    },
-    [BuilderType.Armor]: {
+    label: 'PF2E.PreciousMaterialDragonhide',
+    defaultGrade: PreciousMaterialGrade.Standard,
+    [EquipmentType.Armor]: {
         // TODO: +1 circumstance bonus to your AC and saving throws
         //  against attacks and spells that deal the corresponding
         //  damage type
-        [MaterialGrade.Standard]: {
-            level: 12,
-            basePrice: 1600,
-            bulkPrice: 160,
-        },
-        [MaterialGrade.High]: {
-            level: 19,
-            basePrice: 32000,
-            bulkPrice: 3200,
-        },
+        [PreciousMaterialGrade.Standard]: createBaseMaterialData(12, 1_600),
+        [PreciousMaterialGrade.High]: createBaseMaterialData(19, 32_000),
     },
 };
 export const MaterialMithral: IMaterial = {
     slug: 'mithral',
-    label: 'Mithral',
-    value: 'mithral',
-    defaultGrade: MaterialGrade.Standard,
-    item: {
-        [MaterialGrade.Standard]: {
-            level: 8,
-            basePrice: 0,
-            bulkPrice: 350,
-            thinItems: { hardness: 5, hitPoints: 20, breakThreshold: 10 },
-            items: { hardness: 9, hitPoints: 36, breakThreshold: 18 },
-            structures: { hardness: 18, hitPoints: 72, breakThreshold: 36 },
-        },
-        [MaterialGrade.High]: {
-            level: 16,
-            basePrice: 0,
-            bulkPrice: 6000,
-            thinItems: { hardness: 8, hitPoints: 32, breakThreshold: 16 },
-            items: { hardness: 12, hitPoints: 48, breakThreshold: 24 },
-            structures: { hardness: 24, hitPoints: 96, breakThreshold: 48 },
-        },
+    label: 'PF2E.PreciousMaterialMithral',
+    defaultGrade: PreciousMaterialGrade.Standard,
+    [EquipmentType.Armor]: {
+        [PreciousMaterialGrade.Standard]: createBaseMaterialData(12, 1_600),
+        [PreciousMaterialGrade.High]: createBaseMaterialData(19, 32_000),
     },
-    [BuilderType.Armor]: {
-        [MaterialGrade.Standard]: {
-            level: 12,
-            basePrice: 1600,
-            bulkPrice: 160,
-        },
-        [MaterialGrade.High]: {
-            level: 19,
-            basePrice: 32000,
-            bulkPrice: 3200,
-        },
-    },
-    [BuilderType.Weapon]: {
+    [EquipmentType.Weapon]: {
         // TODO: Bulk reduced by 1
-        [MaterialGrade.Standard]: {
-            level: 11,
-            basePrice: 1400,
-            bulkPrice: 140,
-        },
-        [MaterialGrade.High]: {
-            level: 17,
-            basePrice: 13500,
-            bulkPrice: 1350,
-        },
+        [PreciousMaterialGrade.Standard]: createBaseMaterialData(11, 1_400),
+        [PreciousMaterialGrade.High]: createBaseMaterialData(17, 13_500),
     },
 };
 export const MaterialOrichalcum: IMaterial = {
     slug: 'orichalcum',
-    label: 'Orichalcum',
-    value: 'orichalcum',
-    defaultGrade: MaterialGrade.High,
-    item: {
-        [MaterialGrade.High]: {
-            level: 17,
-            basePrice: 0,
-            bulkPrice: 10000,
-            thinItems: { hardness: 16, hitPoints: 64, breakThreshold: 32 },
-            items: { hardness: 18, hitPoints: 72, breakThreshold: 36 },
-            structures: { hardness: 35, hitPoints: 140, breakThreshold: 70 },
-        },
-    },
-    [BuilderType.Armor]: {
+    label: 'PF2E.PreciousMaterialOrichalcum',
+    defaultGrade: PreciousMaterialGrade.High,
+    [EquipmentType.Armor]: {
         // TODO: +1 circumstance bonus to initiative rolls
-        [MaterialGrade.High]: {
-            level: 20,
-            basePrice: 55000,
-            bulkPrice: 5500,
-        },
+        [PreciousMaterialGrade.High]: createBaseMaterialData(20, 55_000),
     },
-    [BuilderType.Weapon]: {
+    [EquipmentType.Weapon]: {
         // TODO: Speed costs half the normal price
-        [MaterialGrade.High]: {
-            level: 18,
-            basePrice: 22500,
-            bulkPrice: 2250,
-        },
+        [PreciousMaterialGrade.High]: createBaseMaterialData(18, 22_500),
     },
 };
 export const MaterialSilver: IMaterial = {
     slug: 'silver',
-    label: 'Silver',
-    value: 'silver',
-    defaultGrade: MaterialGrade.Standard,
-    item: {
-        [MaterialGrade.Low]: {
-            level: 2,
-            basePrice: 0,
-            bulkPrice: 20,
-            thinItems: { hardness: 3, hitPoints: 12, breakThreshold: 6 },
-            items: { hardness: 5, hitPoints: 20, breakThreshold: 10 },
-            structures: { hardness: 10, hitPoints: 40, breakThreshold: 20 },
-        },
-        [MaterialGrade.Standard]: {
-            level: 7,
-            basePrice: 0,
-            bulkPrice: 250,
-            thinItems: { hardness: 5, hitPoints: 20, breakThreshold: 10 },
-            items: { hardness: 7, hitPoints: 28, breakThreshold: 14 },
-            structures: { hardness: 14, hitPoints: 56, breakThreshold: 28 },
-        },
-        [MaterialGrade.High]: {
-            level: 15,
-            basePrice: 0,
-            bulkPrice: 4500,
-            thinItems: { hardness: 8, hitPoints: 32, breakThreshold: 16 },
-            items: { hardness: 10, hitPoints: 40, breakThreshold: 20 },
-            structures: { hardness: 20, hitPoints: 80, breakThreshold: 40 },
-        },
+    label: 'PF2E.PreciousMaterialSilver',
+    defaultGrade: PreciousMaterialGrade.Standard,
+    [EquipmentType.Armor]: {
+        [PreciousMaterialGrade.Low]: createBaseMaterialData(5, 140),
+        [PreciousMaterialGrade.Standard]: createBaseMaterialData(11, 1_200),
+        [PreciousMaterialGrade.High]: createBaseMaterialData(18, 20_000),
     },
-    [BuilderType.Armor]: {
-        [MaterialGrade.Low]: {
-            level: 5,
-            basePrice: 140,
-            bulkPrice: 14,
-        },
-        [MaterialGrade.Standard]: {
-            level: 11,
-            basePrice: 1200,
-            bulkPrice: 120,
-        },
-        [MaterialGrade.High]: {
-            level: 18,
-            basePrice: 20000,
-            bulkPrice: 2000,
-        },
-    },
-    [BuilderType.Weapon]: {
-        [MaterialGrade.Low]: {
-            level: 2,
-            basePrice: 40,
-            bulkPrice: 4,
-        },
-        [MaterialGrade.Standard]: {
-            level: 10,
-            basePrice: 880,
-            bulkPrice: 88,
-        },
-        [MaterialGrade.High]: {
-            level: 16,
-            basePrice: 9000,
-            bulkPrice: 900,
-        },
+    [EquipmentType.Weapon]: {
+        [PreciousMaterialGrade.Low]: createBaseMaterialData(2, 40),
+        [PreciousMaterialGrade.Standard]: createBaseMaterialData(10, 880),
+        [PreciousMaterialGrade.High]: createBaseMaterialData(16, 9_000),
     },
 };
 export const MaterialSovereignSteel: IMaterial = {
     slug: 'sovereignSteel',
-    label: 'Sovereign Steel',
-    value: 'sovereignSteel',
-    defaultGrade: MaterialGrade.Standard,
-    item: {
-        [MaterialGrade.Standard]: {
-            level: 9,
-            basePrice: 0,
-            bulkPrice: 500,
-            thinItems: { hardness: 7, hitPoints: 28, breakThreshold: 14 },
-            items: { hardness: 11, hitPoints: 44, breakThreshold: 22 },
-            structures: { hardness: 22, hitPoints: 88, breakThreshold: 44 },
-        },
-        [MaterialGrade.High]: {
-            level: 17,
-            basePrice: 0,
-            bulkPrice: 8000,
-            thinItems: { hardness: 10, hitPoints: 40, breakThreshold: 20 },
-            items: { hardness: 14, hitPoints: 56, breakThreshold: 28 },
-            structures: { hardness: 28, hitPoints: 112, breakThreshold: 56 },
-        },
+    label: 'PF2E.PreciousMaterialSovereignSteel',
+    defaultGrade: PreciousMaterialGrade.Standard,
+    [EquipmentType.Armor]: {
+        [PreciousMaterialGrade.Standard]: createBaseMaterialData(13, 2_400),
+        [PreciousMaterialGrade.High]: createBaseMaterialData(20, 50_000),
     },
-    [BuilderType.Armor]: {
-        [MaterialGrade.Standard]: {
-            level: 13,
-            basePrice: 2400,
-            bulkPrice: 240,
-        },
-        [MaterialGrade.High]: {
-            level: 20,
-            basePrice: 50000,
-            bulkPrice: 5000,
-        },
-    },
-    [BuilderType.Weapon]: {
-        [MaterialGrade.Standard]: {
-            level: 12,
-            basePrice: 1600,
-            bulkPrice: 160,
-        },
-        [MaterialGrade.High]: {
-            level: 19,
-            basePrice: 32000,
-            bulkPrice: 3200,
-        },
+    [EquipmentType.Weapon]: {
+        [PreciousMaterialGrade.Standard]: createBaseMaterialData(12, 1_600),
+        [PreciousMaterialGrade.High]: createBaseMaterialData(19, 32_000),
     },
 };
 export const MaterialWarpglass: IMaterial = {
     slug: 'warpglass',
-    label: 'Warpglass',
-    value: 'warpglass',
-    defaultGrade: MaterialGrade.Standard,
-    item: {
-        [MaterialGrade.High]: {
-            level: 17,
-            basePrice: 0,
-            bulkPrice: 8000,
-            thinItems: { hardness: 8, hitPoints: 32, breakThreshold: 16 },
-            items: { hardness: 12, hitPoints: 48, breakThreshold: 24 },
-            structures: { hardness: 24, hitPoints: 96, breakThreshold: 48 },
-        },
-    },
-    [BuilderType.Weapon]: {
-        [MaterialGrade.High]: {
-            level: 17,
-            basePrice: 14000,
-            bulkPrice: 1400,
-        },
+    label: 'PF2E.PreciousMaterialWarpglass',
+    defaultGrade: PreciousMaterialGrade.Standard,
+    [EquipmentType.Weapon]: {
+        [PreciousMaterialGrade.High]: createBaseMaterialData(17, 14_000),
     },
 };
 
 export const ItemMaterials: IMaterialMap = {
-    none: MaterialNone,
-    adamantine: MaterialAdamantine,
-    coldIron: MaterialColdIron,
-    darkwood: MaterialDarkwood,
-    dragonhide: MaterialDragonhide,
-    mithral: MaterialMithral,
-    orichalcum: MaterialOrichalcum,
-    silver: MaterialSilver,
-    sovereignSteel: MaterialSovereignSteel,
-    warpglass: MaterialWarpglass,
+    '': MaterialNone,
+    'adamantine': MaterialAdamantine,
+    'coldIron': MaterialColdIron,
+    'darkwood': MaterialDarkwood,
+    'dragonhide': MaterialDragonhide,
+    'mithral': MaterialMithral,
+    'orichalcum': MaterialOrichalcum,
+    'silver': MaterialSilver,
+    'sovereignSteel': MaterialSovereignSteel,
+    'warpglass': MaterialWarpglass,
 };
 
-for (const material of Object.values(ItemMaterials)) {
-    for (const builderType of Object.values(BuilderType)) {
-        if (material.hasOwnProperty(builderType)) {
-            const builderTypeData = material[builderType]!;
-            for (const materialGrade of Object.values(MaterialGrade)) {
-                if (builderTypeData.hasOwnProperty(materialGrade)) {
-                    const materialGradeData = builderTypeData[materialGrade]!;
-                    materialGradeData.price = `${materialGradeData.basePrice}gp + ${materialGradeData.bulkPrice}gp/bulk`;
-                }
-            }
-        }
+/**
+ * Get all valid materials that could be used for this item.
+ * @param item
+ */
+export const getValidMaterials = (item: EquipmentItem): Partial<Record<PreciousMaterialType, IMaterial>> => {
+    const equipmentType = getEquipmentType(item);
+    if (!equipmentType) {
+        return {};
     }
-}
 
-export interface Rune {
-    slug: string;
-    index?: number;
-    label: string;
-    level: number;
-    price: number;
-}
+    const materials: Partial<Record<PreciousMaterialType, IMaterial>> = {};
 
-export const CREATE_KEY_NONE = '';
-const CREATE_OBJECT_NONE: Rune = {
-    slug: CREATE_KEY_NONE,
-    index: 0,
-    label: 'None',
-    price: 0,
-    level: 0,
+    for (const [materialType, materialData] of Object.entries(ItemMaterials)) {
+        if (!materialData.hasOwnProperty(equipmentType)) {
+            continue;
+        }
+        materials[materialType as PreciousMaterialType] = materialData;
+    }
+
+    return materials;
 };
 
-export type FundamentalRune = StrikingRuneType | ResiliencyRuneType;
+/**
+ * Get valid material grade data for the item and specified material
+ * @param item
+ * @param materialType
+ */
+export const getValidMaterialGrades = (item: EquipmentItem, materialType: PreciousMaterialType): GradedMaterialData => {
+    const equipmentType = getEquipmentType(item);
+    if (!equipmentType) {
+        return {};
+    }
 
-export interface IRuneMap {
-    potency: Record<string, Rune>;
-    fundamental: Record<string, Rune>;
-    property: Record<string, Rune>;
-}
-export type ItemRunes = {
-    [BuilderType.Weapon]: IRuneMap;
-    [BuilderType.Armor]: IRuneMap;
-    [BuilderType.Shield]: IRuneMap;
-};
-export const ItemRunes: ItemRunes = {
-    [BuilderType.Weapon]: {
-        potency: {
-            [CREATE_KEY_NONE]: {
-                ...CREATE_OBJECT_NONE,
-            },
-            '1': {
-                slug: '1',
-                index: 1,
-                label: 'Weapon Potency (+1)',
-                level: 2,
-                price: 35,
-            },
-            '2': {
-                slug: '2',
-                index: 2,
-                label: 'Weapon Potency (+2)',
-                level: 10,
-                price: 935,
-            },
-            '3': {
-                slug: '3',
-                index: 3,
-                label: 'Weapon Potency (+3)',
-                level: 16,
-                price: 8935,
-            },
-            '4': {
-                slug: '4',
-                index: 4,
-                label: 'Weapon Potency (+4)',
-                level: 25,
-                price: 0,
-            },
-        },
-        fundamental: {
-            [CREATE_KEY_NONE]: {
-                ...CREATE_OBJECT_NONE,
-            },
-            striking: {
-                slug: 'striking',
-                index: 1,
-                label: 'striking',
-                price: 65,
-                level: 4,
-            },
-            greaterStriking: {
-                slug: 'greaterStriking',
-                index: 2,
-                label: 'greater striking',
-                price: 1065,
-                level: 12,
-            },
-            majorStriking: {
-                slug: 'majorStriking',
-                index: 3,
-                label: 'major striking',
-                price: 31065,
-                level: 19,
-            },
-        },
-        property: {
-            [CREATE_KEY_NONE]: {
-                ...CREATE_OBJECT_NONE,
-            },
-            anarchic: {
-                slug: 'anarchic',
-                label: 'anarchic',
-                price: 1400,
-                level: 11,
-            },
-            ancestralEchoing: {
-                slug: 'ancestralEchoing',
-                label: 'ancestral echoing',
-                price: 9500,
-                level: 15,
-            },
-            axiomatic: {
-                slug: 'axiomatic',
-                label: 'axiomatic',
-                price: 1400,
-                level: 11,
-            },
-            bloodbane: {
-                slug: 'bloodbane',
-                label: 'bloodbane',
-                price: 475,
-                level: 8,
-            },
-            corrosive: {
-                slug: 'corrosive',
-                label: 'corrosive',
-                price: 500,
-                level: 8,
-            },
-            dancing: {
-                slug: 'dancing',
-                label: 'dancing',
-                price: 2700,
-                level: 13,
-            },
-            disrupting: {
-                slug: 'disrupting',
-                label: 'disrupting',
-                price: 150,
-                level: 5,
-            },
-            fearsome: {
-                slug: 'fearsome',
-                label: 'fearsome',
-                price: 160,
-                level: 5,
-            },
-            flaming: {
-                slug: 'flaming',
-                label: 'flaming',
-                price: 500,
-                level: 8,
-            },
-            frost: {
-                slug: 'frost',
-                label: 'frost',
-                price: 500,
-                level: 8,
-            },
-            ghostTouch: {
-                slug: 'ghostTouch',
-                label: 'ghost touch',
-                price: 75,
-                level: 4,
-            },
-            greaterBloodbane: {
-                slug: 'greaterBloodbane',
-                label: 'greater bloodbane',
-                price: 6500,
-                level: 15,
-            },
-            greaterCorrosive: {
-                slug: 'greaterCorrosive',
-                label: 'greater corrosive',
-                price: 6500,
-                level: 15,
-            },
-            greaterDisrupting: {
-                slug: 'greaterDisrupting',
-                label: 'greater disrupting',
-                price: 4300,
-                level: 14,
-            },
-            greaterFearsome: {
-                slug: 'greaterFearsome',
-                label: 'greater fearsome',
-                price: 2000,
-                level: 12,
-            },
-            greaterFlaming: {
-                slug: 'greaterFlaming',
-                label: 'greater flaming',
-                price: 6500,
-                level: 15,
-            },
-            greaterFrost: {
-                slug: 'greaterFrost',
-                label: 'greater frost',
-                price: 6500,
-                level: 15,
-            },
-            greaterShock: {
-                slug: 'greaterShock',
-                label: 'greater shock',
-                price: 6500,
-                level: 15,
-            },
-            greaterThundering: {
-                slug: 'greaterThundering',
-                label: 'greater thundering',
-                price: 6500,
-                level: 15,
-            },
-            grievous: {
-                slug: 'grievous',
-                label: 'grievous',
-                price: 700,
-                level: 9,
-            },
-            holy: {
-                slug: 'holy',
-                label: 'holy',
-                price: 1400,
-                level: 11,
-            },
-            keen: {
-                slug: 'keen',
-                label: 'keen',
-                price: 3000,
-                level: 13,
-            },
-            kinWarding: {
-                slug: 'kinWarding',
-                label: 'kin-warding',
-                price: 52,
-                level: 3,
-            },
-            pacifying: {
-                slug: 'pacifying',
-                label: 'pacifying',
-                price: 150,
-                level: 5,
-            },
-            returning: {
-                slug: 'returning',
-                label: 'returning',
-                price: 55,
-                level: 3,
-            },
-            serrating: {
-                slug: 'serrating',
-                label: 'serrating',
-                price: 1000,
-                level: 10,
-            },
-            shifting: {
-                slug: 'shifting',
-                label: 'shifting',
-                price: 225,
-                level: 6,
-            },
-            shock: {
-                slug: 'shock',
-                label: 'shock',
-                price: 500,
-                level: 8,
-            },
-            speed: {
-                slug: 'speed',
-                label: 'speed',
-                price: 10000,
-                level: 16,
-            },
-            spellStoring: {
-                slug: 'spellStoring',
-                label: 'spell-storing',
-                price: 2700,
-                level: 13,
-            },
-            thundering: {
-                slug: 'thundering',
-                label: 'thundering',
-                price: 500,
-                level: 8,
-            },
-            unholy: {
-                slug: 'unholy',
-                label: 'unholy',
-                price: 1400,
-                level: 11,
-            },
-            vorpal: {
-                slug: 'vorpal',
-                label: 'vorpal',
-                price: 15000,
-                level: 17,
-            },
-            wounding: {
-                slug: 'wounding',
-                label: 'wounding',
-                price: 340,
-                level: 7,
-            },
-        },
-    },
-    [BuilderType.Armor]: {
-        potency: {
-            [CREATE_KEY_NONE]: {
-                ...CREATE_OBJECT_NONE,
-            },
-            '1': {
-                slug: '1',
-                index: 1,
-                label: 'Armor Potency (+1)',
-                level: 5,
-                price: 160,
-            },
-            '2': {
-                slug: '2',
-                index: 2,
-                label: 'Armor Potency (+2)',
-                level: 11,
-                price: 1060,
-            },
-            '3': {
-                slug: '3',
-                index: 3,
-                label: 'Armor Potency (+3)',
-                level: 18,
-                price: 20560,
-            },
-            '4': {
-                slug: '4',
-                index: 4,
-                label: 'Armor Potency (+4)',
-                level: 25,
-                price: 0,
-            },
-        },
-        fundamental: {
-            [CREATE_KEY_NONE]: {
-                ...CREATE_OBJECT_NONE,
-            },
-            resilient: {
-                slug: 'resilient',
-                label: 'resilient',
-                level: 8,
-                price: 340,
-            },
-            greaterResilient: {
-                slug: 'greaterResilient',
-                label: 'greater resilient',
-                level: 14,
-                price: 3440,
-            },
-            majorResilient: {
-                slug: 'majorResilient',
-                label: 'major resilient',
-                level: 20,
-                price: 49440,
-            },
-        },
-        property: {
-            [CREATE_KEY_NONE]: {
-                ...CREATE_OBJECT_NONE,
-            },
-            acidResistant: {
-                slug: 'acidResistant',
-                label: 'acid-resistant',
-                price: 420,
-                level: 8,
-            },
-            antimagic: {
-                slug: 'antimagic',
-                label: 'antimagic',
-                price: 6500,
-                level: 15,
-            },
-            coldResistant: {
-                slug: 'coldResistant',
-                label: 'cold-resistant',
-                price: 420,
-                level: 8,
-            },
-            electricityResistant: {
-                slug: 'electricityResistant',
-                label: 'electricity-resistant',
-                price: 420,
-                level: 8,
-            },
-            ethereal: {
-                slug: 'ethereal',
-                label: 'ethereal',
-                price: 13500,
-                level: 17,
-            },
-            fireResistant: {
-                slug: 'fireResistant',
-                label: 'fire-resistant',
-                price: 420,
-                level: 8,
-            },
-            fortification: {
-                slug: 'fortification',
-                label: 'fortification',
-                price: 2000,
-                level: 12,
-            },
-            glamered: {
-                slug: 'glamered',
-                label: 'glamered',
-                price: 140,
-                level: 5,
-            },
-            greaterAcidResistant: {
-                slug: 'greaterAcidResistant',
-                label: 'greater acid-resistant',
-                price: 1650,
-                level: 12,
-            },
-            greaterColdResistant: {
-                slug: 'greaterColdResistant',
-                label: 'greater cold-resistant',
-                price: 1650,
-                level: 12,
-            },
-            greaterElectricityResistant: {
-                slug: 'greaterElectricityResistant',
-                label: 'greater electricity-resistant',
-                price: 1650,
-                level: 12,
-            },
-            greaterFireResistant: {
-                slug: 'greaterFireResistant',
-                label: 'greater fire-resistant',
-                price: 1650,
-                level: 12,
-            },
-            greaterFortification: {
-                slug: 'greaterFortification',
-                label: 'greater fortification',
-                price: 24000,
-                level: 18,
-            },
-            greaterInvisibility: {
-                slug: 'greaterInvisibility',
-                label: 'greater invisibility',
-                price: 1000,
-                level: 10,
-            },
-            greaterReady: {
-                slug: 'greaterReady',
-                label: 'greater ready',
-                price: 1200,
-                level: 11,
-            },
-            greaterShadow: {
-                slug: 'greaterShadow',
-                label: 'greater shadow',
-                price: 650,
-                level: 9,
-            },
-            greaterSlick: {
-                slug: 'greaterSlick',
-                label: 'greater slick',
-                price: 450,
-                level: 8,
-            },
-            greaterWinged: {
-                slug: 'greaterWinged',
-                label: 'greater winged',
-                price: 35000,
-                level: 19,
-            },
-            invisibility: {
-                slug: 'invisibility',
-                label: 'invisibility',
-                price: 500,
-                level: 8,
-            },
-            majorShadow: {
-                slug: 'majorShadow',
-                label: 'major shadow',
-                price: 14000,
-                level: 17,
-            },
-            majorSlick: {
-                slug: 'majorSlick',
-                label: 'major slick',
-                price: 9000,
-                level: 16,
-            },
-            ready: {
-                slug: 'ready',
-                label: 'ready',
-                price: 200,
-                level: 6,
-            },
-            rockBraced: {
-                slug: 'rockBraced',
-                label: 'rock-braced',
-                price: 3000,
-                level: 13,
-            },
-            shadow: {
-                slug: 'shadow',
-                label: 'shadow',
-                price: 55,
-                level: 3,
-            },
-            sinisterKnight: {
-                slug: 'sinisterKnight',
-                label: 'sinister knight',
-                price: 500,
-                level: 8,
-            },
-            slick: {
-                slug: 'slick',
-                label: 'slick',
-                price: 45,
-                level: 3,
-            },
-            winged: {
-                slug: 'winged',
-                label: 'winged',
-                price: 2500,
-                level: 13,
-            },
-        },
-    },
-    [BuilderType.Shield]: {
-        potency: {},
-        fundamental: {},
-        property: {},
-    },
+    if (ItemMaterials[materialType].hasOwnProperty(equipmentType)) {
+        return ItemMaterials[materialType][equipmentType]!;
+    } else {
+        return {};
+    }
 };
