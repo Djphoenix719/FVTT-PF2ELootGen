@@ -84,8 +84,4 @@ export const setup = () => {
             features: FEATURES,
         }),
     );
-
-    Hooks.on('init', () => ModuleSettings.instance.onInit());
-    Hooks.on('setup', () => ModuleSettings.instance.onSetup());
-    Hooks.on('ready', () => ModuleSettings.instance.onReady());
 };
