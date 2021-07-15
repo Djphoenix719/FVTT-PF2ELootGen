@@ -35,8 +35,8 @@ import {
     PropertyRuneType,
     SpellItem,
 } from '../../types/PF2E';
-import { EquipmentType, getEquipmentType, ItemMaterials } from './data/Materials';
-import { FundamentalRuneType, PotencyRuneType } from './data/Runes';
+import { BaseMaterialData, EquipmentType, getEquipmentType, IMaterial, ItemMaterials } from './data/Materials';
+import { FundamentalRuneType, ItemRunes, PotencyRuneType } from './data/Runes';
 
 /**
  * Returns distinct elements of an array when used to filter an array.
@@ -394,11 +394,20 @@ export function parsePrice(price: PriceString): number {
         return 0;
     }
 
-    const priceString = matches[0];
-    const denomString = matches[2];
-    const priceValue = parseInt(priceString);
-    const denomValue = multiples[denomString];
-    return priceValue * denomValue;
+    return parseInt(matches[1].trim()) * multiples[matches[3].trim()];
+}
+
+/**
+ * Parse a weight string, returning an absolute numeric representation of the weight
+ * @param item
+ */
+export function getItemBulkMultiplier(item: PhysicalItem): number {
+    const weightString = item.data.weight.value.trim().toLowerCase();
+    if (weightString.endsWith('l')) {
+        return parseInt(weightString.substr(weightString.length - 1)) / 10;
+    } else {
+        return parseInt(weightString);
+    }
 }
 
 interface FinalPriceAndLevelArgs {
@@ -418,31 +427,41 @@ interface FinalPriceAndLevelResults {
  * @param args
  */
 export function calculateFinalPriceAndLevel(args: FinalPriceAndLevelArgs): FinalPriceAndLevelResults {
-    let finalLevel = 0;
-    let finalPrice = 0;
-
     const equipmentType = getEquipmentType(args.item);
     if (equipmentType === undefined) {
         return {
-            level: finalLevel,
-            price: finalPrice,
+            level: 0,
+            price: 0,
         };
     }
 
-    if (args.materialType !== '') {
-        const materialForEquipment = ItemMaterials[args.materialType][equipmentType];
-        if (materialForEquipment) {
-            // TODO: Finish writing
+    let finalLevel = args.item.data.level.value;
+    let finalPrice = parsePrice(args.item.data.price.value);
+
+    const materialData = ItemMaterials[args.materialType][equipmentType]?.[args.materialGradeType];
+    if (materialData) {
+        finalLevel = Math.max(finalLevel, materialData.level);
+        finalPrice += materialData.price.basePrice + materialData.price.bulkPrice * getItemBulkMultiplier(args.item);
+    }
+
+    const potencyRuneData = ItemRunes[equipmentType]['potency']?.[args.potencyRune];
+    if (potencyRuneData) {
+        finalLevel = Math.max(finalLevel, potencyRuneData.level);
+        finalPrice += potencyRuneData.price;
+    }
+
+    for (const propertyRuneType of args.propertyRunes) {
+        const propertyRuneData = ItemRunes[equipmentType]['property'][propertyRuneType];
+        if (propertyRuneData) {
+            finalLevel = Math.max(finalLevel, propertyRuneData.level);
+            finalPrice += propertyRuneData.price;
         }
     }
 
-    switch (equipmentType) {
-        case EquipmentType.Weapon:
-            break;
-        case EquipmentType.Armor:
-            break;
-        case EquipmentType.Shield:
-            break;
+    const fundamentalRuneData = ItemRunes[equipmentType]['fundamental'][args.fundamentalRune];
+    if (fundamentalRuneData) {
+        finalLevel = Math.max(finalLevel, fundamentalRuneData.level);
+        finalPrice += fundamentalRuneData.price;
     }
 
     return {

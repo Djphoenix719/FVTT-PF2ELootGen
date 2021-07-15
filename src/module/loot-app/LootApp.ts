@@ -32,7 +32,7 @@ import {
     rollTreasureValues,
 } from './Utilities';
 import { SpellItemType, spellSources } from './source/Spells';
-import { CREATE_KEY_NONE, getEquipmentType, getValidMaterialGrades, getValidMaterials, ItemRunes, MaterialGrade } from './data/Materials';
+import { CREATE_KEY_NONE, getEquipmentType, getValidMaterialGrades, getValidMaterials, ItemMaterials } from './data/Materials';
 import { TABLE_WEIGHT_MAX, TABLE_WEIGHT_MIN } from './Settings';
 import { MODULE_NAME, PF2E_LOOT_SHEET_NAME } from '../Constants';
 import { AppFilter, FilterType, spellLevelFilters, spellSchoolFilters, spellTraditionFilters } from './Filters';
@@ -42,7 +42,19 @@ import { StringFilter } from '../filter/Operation/StringFilter';
 import { consumableSources } from './source/Consumable';
 import { WeightedFilter } from '../filter/Operation/WeightedFilter';
 import { EqualityType } from '../filter/EqualityType';
-import { EquipmentItem, isArmor, isEquipment, isWeapon, PF2EItem, PreciousMaterialGrade, PreciousMaterialType } from '../../types/PF2E';
+import {
+    EquipmentItem,
+    isArmor,
+    isEquipment,
+    isWeapon,
+    PF2EItem,
+    PreciousMaterialGrade,
+    PreciousMaterialType,
+    PropertyRuneType,
+    ResiliencyRuneType,
+    StrikingRuneType,
+} from '../../types/PF2E';
+import { FundamentalRuneType, ItemRunes, PotencyRuneType } from './data/Runes';
 
 export enum LootAppSetting {
     Count = 'count',
@@ -52,8 +64,8 @@ export const extendLootSheet = () => {
     type ActorSheetConstructor = new (...args: any[]) => ActorSheet<ActorSheet.Options, any>;
 
     // @ts-ignore
-    const extendMe: ActorSheetConstructor = CONFIG.Actor.sheetClasses['loot'][`pf2e.${PF2E_LOOT_SHEET_NAME}`].cls;
-    class LootApp extends extendMe {
+    const BaseClass: ActorSheetConstructor = CONFIG.Actor.sheetClasses['loot'][`pf2e.${PF2E_LOOT_SHEET_NAME}`].cls;
+    class LootApp extends BaseClass {
         static get defaultOptions() {
             // @ts-ignore
             const options = super.defaultOptions;
@@ -121,25 +133,51 @@ export const extendLootSheet = () => {
                 return {};
             }
 
-            const data: Record<string, any> = {};
+            let data: Record<string, any> = {};
             data['type'] = equipmentType;
+            data['template'] = this.createBaseItem;
+            data['templateLink'] = `@Item[${this.createBaseItem._id}]`;
 
             const materialGradeType = this.getCreateFlag<PreciousMaterialGrade>('preciousMaterialGrade') ?? PreciousMaterialGrade.None;
-            const materialType = this.getCreateFlag<PreciousMaterialType>('preciousMaterial') ?? CREATE_KEY_NONE;
-
             data['preciousMaterialGrade'] = materialGradeType;
+
+            const materialType = this.getCreateFlag<PreciousMaterialType>('preciousMaterial') ?? CREATE_KEY_NONE;
             data['preciousMaterial'] = materialType;
+
+            const potencyRuneType = this.getCreateFlag<PotencyRuneType>('potencyRune') ?? '0';
+            data['potencyRune'] = potencyRuneType;
+
+            let fundamentalRune: FundamentalRuneType = '';
+            if (isWeapon(this.createBaseItem)) {
+                fundamentalRune = this.getCreateFlag<StrikingRuneType>('strikingRune') ?? '';
+                data['strikingRune'] = fundamentalRune;
+            }
+            if (isArmor(this.createBaseItem)) {
+                fundamentalRune = this.getCreateFlag<ResiliencyRuneType>('resiliencyRune') ?? '';
+                data['resiliencyRune'] = fundamentalRune;
+            }
+
+            const propertyRunes: [PropertyRuneType, PropertyRuneType, PropertyRuneType, PropertyRuneType] = ['', '', '', ''];
+            for (let i = 0; i < 4; i++) {
+                const key = `propertyRune${i + 1}`;
+                propertyRunes[i] = this.getCreateFlag<PropertyRuneType>(key) ?? '';
+                data[key] = propertyRunes[i];
+            }
 
             data['materials'] = getValidMaterials(this.createBaseItem);
             data['grades'] = getValidMaterialGrades(this.createBaseItem, materialType);
             data['runes'] = ItemRunes[equipmentType];
 
-            await this.validateFlagData();
+            const dataUpdates = this.validateFlagData(this.createBaseItem);
+            data = mergeObject(data, dataUpdates);
 
             const { price, level } = calculateFinalPriceAndLevel({
                 item: this.createBaseItem,
                 materialType,
                 materialGradeType,
+                potencyRune: potencyRuneType,
+                fundamentalRune: fundamentalRune,
+                propertyRunes: propertyRunes,
             });
 
             data['finalPrice'] = price;
@@ -148,38 +186,63 @@ export const extendLootSheet = () => {
             return data;
         }
 
-        protected async validateFlagData() {
-            const flagUpdateData: Record<string, any> = {};
+        protected validateFlagData(item: EquipmentItem): Record<string, any> {
+            const dataUpdates: Record<string, any> = {};
+            let equipmentType = getEquipmentType(item)!;
 
-            let potencyRune = this.actor.getFlag(FLAGS_KEY, createFlagPath('potencyRune', false)) as string | undefined;
-            let preciousMaterial = this.actor.getFlag(FLAGS_KEY, createFlagPath('preciousMaterial', false)) as PreciousMaterialType | undefined;
-            let preciousMaterialGrade = this.actor.getFlag(FLAGS_KEY, createFlagPath('preciousMaterialGrade', false)) as PreciousMaterialGrade | undefined;
-            let builderType = this.getBuilderType();
+            let preciousMaterialType = this.getCreateFlag<PreciousMaterialType>('preciousMaterial');
+            let preciousMaterialGradeType = this.getCreateFlag<PreciousMaterialGrade>('preciousMaterialGrade');
 
-            if (potencyRune === '') potencyRune = '0';
+            if (!preciousMaterialGradeType) {
+                preciousMaterialGradeType = PreciousMaterialGrade.None;
+            }
 
-            if (potencyRune) {
-                const potencyValue = parseInt(potencyRune);
+            if (preciousMaterialType) {
+                let preciousMaterial = ItemMaterials[preciousMaterialType];
+                if (!preciousMaterial.hasOwnProperty(equipmentType)) {
+                    preciousMaterialType = '';
+                    dataUpdates['preciousMaterial'] = preciousMaterialType;
+                }
+
+                const validGrades = getValidMaterialGrades(item, preciousMaterialType);
+                if (!validGrades.hasOwnProperty(preciousMaterialGradeType)) {
+                    preciousMaterialGradeType = preciousMaterial.defaultGrade;
+                    dataUpdates['preciousMaterialGrade'] = preciousMaterialGradeType;
+                }
+            }
+
+            let potencyRuneType = this.getCreateFlag<PotencyRuneType>('potencyRune');
+            // when initializing we can have empty string technically
+            if ((potencyRuneType as string) === '') {
+                potencyRuneType = '0';
+            }
+            if (potencyRuneType) {
+                const potencyValue = parseInt(potencyRuneType);
 
                 if (potencyValue < 4) {
-                    flagUpdateData[createFlagPath('propertyRune4', true)] = '';
+                    dataUpdates['propertyRune4'] = '';
                 }
                 if (potencyValue < 3) {
-                    flagUpdateData[createFlagPath('propertyRune3', true)] = '';
+                    dataUpdates['propertyRune3'] = '';
                 }
                 if (potencyValue < 2) {
-                    flagUpdateData[createFlagPath('propertyRune2', true)] = '';
+                    dataUpdates['propertyRune2'] = '';
                 }
                 if (potencyValue < 1) {
-                    flagUpdateData[createFlagPath('propertyRune1', true)] = '';
-                    flagUpdateData[createFlagPath('strikingRune', true)] = '';
-                    flagUpdateData[createFlagPath('resiliencyRune', true)] = '';
+                    dataUpdates['propertyRune1'] = '';
+                    dataUpdates['strikingRune'] = '';
+                    dataUpdates['resiliencyRune'] = '';
                 }
             }
 
-            if (!isObjectEmpty(flagUpdateData)) {
-                await this.actor.update(flagUpdateData);
+            if (!isObjectEmpty(dataUpdates)) {
+                const flagUpdates: Record<string, any> = {};
+                for (const [key, value] of Object.entries(dataUpdates)) {
+                    flagUpdates[createFlagPath(key, true)] = value;
+                }
+                this.actor.update(flagUpdates);
             }
+            return dataUpdates;
         }
 
         public async getData(options?: Application.RenderOptions) {
@@ -285,7 +348,7 @@ export const extendLootSheet = () => {
                 const flags: Record<string, any> = {};
                 if (isEquipment(item)) {
                     flags['preciousMaterial'] = item.data.preciousMaterial.value ?? '';
-                    flags['preciousMaterialGrade'] = item.data.preciousMaterialGrade.value ?? MaterialGrade.Standard;
+                    flags['preciousMaterialGrade'] = item.data.preciousMaterialGrade.value ?? PreciousMaterialGrade.Standard;
                     flags['propertyRune1'] = item.data.propertyRune1.value ?? '';
                     flags['propertyRune2'] = item.data.propertyRune2.value ?? '';
                     flags['propertyRune3'] = item.data.propertyRune3.value ?? '';

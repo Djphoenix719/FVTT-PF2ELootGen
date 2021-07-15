@@ -4,7 +4,7 @@
     <div class="template-drop">
 
         <div class="help">
-            <p>Drop an item here and drag it away when you're done</p>
+            <p>Drop an item here to set the template; press <i>Forge</i> when you're done</p>
             <a class="item-control inventory-browse" title="Open Inventory Browser" data-type="weapon"><i class="fas fa-search"></i></a>
         </div>
 
@@ -14,14 +14,10 @@
                     <img class="profile item-profile" src="{{ create.template.img }}"/>
                     {{{ enrichHTML create.templateLink }}}
                 </div>
-                <div class="item-link">
-                    <img class="profile item-profile" src="{{ create.product.img }}"/>
-                    {{{ enrichHTML create.productLink }}}
-                </div>
             {{else}}
                 <div class="item-link">
                     <img class="profile item-profile" src="systems/pf2e/icons/default-icons/weapon.svg"/>
-                    <h4 class="entity-name">Template Item</h4>
+                    <h4 class="entity-name">Waiting for template...</h4>
                 </div>
             {{/if}}
         </div>
@@ -42,6 +38,10 @@
             {{> modules/pf2e-lootgen/templates/loot-app/tabs/create/shield.html }}
         {{/if}}
 
+    </div>
+
+    <div class="create-item">
+        <button id="create-item" {{#if create.template }}{{else}}disabled{{/if}}>Forge</button>
     </div>
 
 </div>

@@ -269,7 +269,7 @@ export const ItemRunes: ItemRunes = {
             },
             shifting: {
                 slug: 'shifting',
-                label: 'PF2E.WeaponPropertyRuneshifting',
+                label: 'PF2E.WeaponPropertyRuneShifting',
                 price: 225,
                 level: 6,
             },
