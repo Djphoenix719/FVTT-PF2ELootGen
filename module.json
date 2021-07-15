@@ -11,7 +11,7 @@
     "system": ["pf2e"],
     "compatibleCoreVersion": "0.8.6",
     "minimumCoreVersion": "0.8.0",
-    "manifest": "https://raw.githubusercontent.com/Djphoenix719/FVTT-PF2EToolbox/master/module.json",
+    "manifest": "https://raw.githubusercontent.com/Djphoenix719/FVTT-PF2ELootGen/master/module.json",
     "download": "https://github.com/Djphoenix719/FVTT-PF2ELootGen/releases/download/v0.0.1/pf2e-lootgen-v0.0.1.zip",
     "url": "https://github.com/Djphoenix719/FVTT-PF2EToolbox"
 }
