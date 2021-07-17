@@ -29,7 +29,7 @@ export const getEquipmentType = (item: PF2EItem): EquipmentType | undefined => {
     } else if (isShield(item)) {
         return EquipmentType.Shield;
     } else if (isArmor(item)) {
-        return EquipmentType.Shield;
+        return EquipmentType.Armor;
     } else {
         return undefined;
     }

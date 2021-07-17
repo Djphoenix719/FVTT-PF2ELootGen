@@ -1,13 +1,13 @@
 <div class="info-group">
     <span class="level">
-            {{#if (gt level 0)}}
-                <i class="fas fa-level-up-alt"></i>{{level}}
-            {{/if}}
-        </span>
+        {{#if (gteq level (default minLevelToDisplay 1))}}
+            <i class="fas fa-level-up-alt"></i>{{level}}
+        {{/if}}
+    </span>
     <span class="value">
         {{#if (defined price)}}
             <i class="fas fa-coins"></i>
-            {{#if (defined price.basePrice)}}
+            {{#if (gteq price.basePrice (default minPriceToDisplay 1))}}
                 {{commas price.basePrice}}gp + {{commas price.bulkPrice}}gp/bulk
             {{else}}
                 {{commas price}}gp

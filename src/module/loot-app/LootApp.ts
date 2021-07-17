@@ -32,9 +32,9 @@ import {
     rollTreasureValues,
 } from './Utilities';
 import { SpellItemType, spellSources } from './source/Spells';
-import { CREATE_KEY_NONE, getEquipmentType, getValidMaterialGrades, getValidMaterials, ItemMaterials } from './data/Materials';
+import { BaseMaterialData, CREATE_KEY_NONE, EquipmentType, getEquipmentType, getValidMaterialGrades, getValidMaterials, ItemMaterials } from './data/Materials';
 import { TABLE_WEIGHT_MAX, TABLE_WEIGHT_MIN } from './Settings';
-import { MODULE_NAME, PF2E_LOOT_SHEET_NAME } from '../Constants';
+import { ITEM_ID_LENGTH, MODULE_NAME, PF2E_LOOT_SHEET_NAME } from '../Constants';
 import { AppFilter, FilterType, spellLevelFilters, spellSchoolFilters, spellTraditionFilters } from './Filters';
 import { NumberFilter } from '../filter/Operation/NumberFilter';
 import { ArrayIncludesFilter } from '../filter/Operation/ArrayIncludesFilter';
@@ -43,22 +43,51 @@ import { consumableSources } from './source/Consumable';
 import { WeightedFilter } from '../filter/Operation/WeightedFilter';
 import { EqualityType } from '../filter/EqualityType';
 import {
+    ArmorPropertyRuneType,
     EquipmentItem,
+    HTMLItemString,
     isArmor,
     isEquipment,
     isWeapon,
     PF2EItem,
     PreciousMaterialGrade,
     PreciousMaterialType,
+    PropertyRuneCreateKey,
     PropertyRuneType,
     ResiliencyRuneType,
     StrikingRuneType,
+    WeaponPropertyRuneType,
 } from '../../types/PF2E';
 import { FundamentalRuneType, ItemRunes, PotencyRuneType } from './data/Runes';
 
 export enum LootAppSetting {
     Count = 'count',
 }
+
+export type LootAppCreateData = {
+    type: EquipmentType;
+
+    template: EquipmentItem;
+    templateLink: HTMLItemString;
+    product?: EquipmentItem;
+
+    preciousMaterial: PreciousMaterialType;
+    preciousMaterialGrade: PreciousMaterialGrade;
+
+    potencyRune: PotencyRuneType;
+
+    strikingRune?: StrikingRuneType;
+    resiliencyRune?: ResiliencyRuneType;
+
+    materials: ReturnType<typeof getValidMaterials>;
+    grades: ReturnType<typeof getValidMaterialGrades>;
+    runes: typeof ItemRunes[EquipmentType];
+
+    finalPrice: number;
+    finalLevel: number;
+} & {
+    [T in PropertyRuneCreateKey]: PropertyRuneType;
+};
 
 export const extendLootSheet = () => {
     type ActorSheetConstructor = new (...args: any[]) => ActorSheet<ActorSheet.Options, any>;
@@ -91,21 +120,22 @@ export const extendLootSheet = () => {
         }
 
         // base item data dragged from somewhere
-        protected _createBaseItem: PF2EItem | undefined;
+        protected _createBaseItem: EquipmentItem | undefined;
 
-        protected get createBaseItem(): PF2EItem | undefined {
-            if (this._createBaseItem) return duplicate(this._createBaseItem);
-            else return undefined;
+        protected get createBaseItem(): EquipmentItem | undefined {
+            if (this._createBaseItem) {
+                return duplicate(this._createBaseItem);
+            } else return undefined;
         }
 
-        protected set createBaseItem(value: PF2EItem | undefined) {
+        protected set createBaseItem(value: EquipmentItem | undefined) {
             // delete local old base item to prevent memory leak
             if (this.createBaseItem !== undefined && this.createBaseItem !== null) {
                 game.items?.delete(this.createBaseItem._id);
             }
 
-            value = duplicate(value) as unknown as PF2EItem;
-            value._id = foundry.utils.randomID(16);
+            value = duplicate(value) as EquipmentItem;
+            value._id = foundry.utils.randomID(ITEM_ID_LENGTH);
             value['flags'] = { ...value['flags'], [FLAGS_KEY]: { temporary: true } };
 
             // @ts-ignore
@@ -125,15 +155,12 @@ export const extendLootSheet = () => {
             if (this.createBaseItem === undefined) {
                 return {};
             }
-            if (!isEquipment(this.createBaseItem)) {
-                return {};
-            }
             const equipmentType = getEquipmentType(this.createBaseItem);
             if (equipmentType === undefined) {
                 return {};
             }
 
-            let data: Record<string, any> = {};
+            let data: Partial<LootAppCreateData> = {};
             data['type'] = equipmentType;
             data['template'] = this.createBaseItem;
             data['templateLink'] = `@Item[${this.createBaseItem._id}]`;
@@ -159,7 +186,7 @@ export const extendLootSheet = () => {
 
             const propertyRunes: [PropertyRuneType, PropertyRuneType, PropertyRuneType, PropertyRuneType] = ['', '', '', ''];
             for (let i = 0; i < 4; i++) {
-                const key = `propertyRune${i + 1}`;
+                const key = `propertyRune${i + 1}` as PropertyRuneCreateKey;
                 propertyRunes[i] = this.getCreateFlag<PropertyRuneType>(key) ?? '';
                 data[key] = propertyRunes[i];
             }
@@ -182,6 +209,11 @@ export const extendLootSheet = () => {
 
             data['finalPrice'] = price;
             data['finalLevel'] = level;
+
+            const product = this.buildProduct(data as LootAppCreateData);
+            if (product) {
+                data['product'] = product;
+            }
 
             return data;
         }
@@ -243,6 +275,76 @@ export const extendLootSheet = () => {
                 this.actor.update(flagUpdates);
             }
             return dataUpdates;
+        }
+
+        protected buildProduct(data: LootAppCreateData): EquipmentItem | undefined {
+            const product = this.createBaseItem;
+            if (product === undefined) {
+                return undefined;
+            }
+
+            // setting this way to ensure it exists, armor does not contain this ATM but I expect it
+            // to be added to armors in later version of PF2E as automation continues to improve
+            product.data.specific = { value: true };
+
+            product.data.level.value = data.finalLevel;
+            product.data.price.value = `${data.finalPrice} gp`;
+
+            product.data.preciousMaterial.value = data.preciousMaterial;
+            product.data.preciousMaterialGrade.value = data.preciousMaterialGrade;
+
+            product.data.propertyRune1.value = data.propertyRune1;
+            product.data.propertyRune2.value = data.propertyRune2;
+            product.data.propertyRune3.value = data.propertyRune3;
+            product.data.propertyRune4.value = data.propertyRune4;
+
+            if (isWeapon(product) && data.strikingRune) {
+                product.data.potencyRune.value = data.potencyRune;
+                product.data.strikingRune.value = data.strikingRune;
+            }
+            if (isArmor(product) && data.resiliencyRune) {
+                product.data.potencyRune.value = data.potencyRune;
+                product.data.resiliencyRune.value = data.resiliencyRune;
+            }
+
+            let newName: string = '';
+            if (data.potencyRune !== '0' && (data.potencyRune as string) !== '') {
+                newName = `+${data.potencyRune}`;
+            }
+            if (data.strikingRune && (data.strikingRune as string) !== '') {
+                newName += ` ${game.i18n.localize(CONFIG.PF2E.weaponStrikingRunes[data.strikingRune])}`;
+            }
+            if (data.resiliencyRune && (data.resiliencyRune as string) !== '') {
+                newName += ` ${game.i18n.localize(CONFIG.PF2E.armorResiliencyRunes[data.resiliencyRune])}`;
+            }
+
+            if (data.preciousMaterial && (data.preciousMaterial as string) !== '') {
+                newName += ` ${game.i18n.localize(CONFIG.PF2E.preciousMaterials[data.preciousMaterial])}`;
+            }
+
+            if (isWeapon(product)) {
+                for (let i = 1; i <= 4; i++) {
+                    const key = `propertyRune${i}` as PropertyRuneCreateKey;
+                    const value = data[key] as WeaponPropertyRuneType;
+                    if (value && (value as string) !== '') {
+                        newName += ` ${game.i18n.localize(CONFIG.PF2E.weaponPropertyRunes[value])}`;
+                    }
+                }
+            }
+            if (isArmor(product)) {
+                for (let i = 1; i <= 4; i++) {
+                    const key = `propertyRune${i}` as PropertyRuneCreateKey;
+                    const value = data[key] as ArmorPropertyRuneType;
+                    if (value && (value as string) !== '') {
+                        newName += ` ${game.i18n.localize(CONFIG.PF2E.armorPropertyRunes[value])}`;
+                    }
+                }
+            }
+
+            product.name = `${newName} ${product.name}`;
+            delete product.flags[FLAGS_KEY];
+
+            return product;
         }
 
         public async getData(options?: Application.RenderOptions) {
@@ -336,9 +438,8 @@ export const extendLootSheet = () => {
             if (isTemplateDrop) {
                 const item = (await Item.fromDropData(data))?.data as PF2EItem;
 
-                if (isWeapon(item) || isArmor(item)) {
+                if ((isWeapon(item) && item.data.group.value !== 'bomb') || isArmor(item)) {
                     this.createBaseItem = item;
-                    console.warn('unsetting create flag');
                     await this.actor.unsetFlag(FLAGS_KEY, 'create');
                 } else {
                     ui.notifications?.warn('The item creator only supports weapons, armor, and shields right now.');
@@ -379,7 +480,6 @@ export const extendLootSheet = () => {
             //  This is done in activateListeners so we can ensure we get the proper HTML
             //  to derive the form data from.
             if (!this.actor.getFlag(MODULE_NAME, 'config')) {
-                console.warn('updating config flag, they do not exist');
                 await this._updateObject(new Event('submit'), this._getSubmitData());
             }
 
@@ -448,9 +548,6 @@ export const extendLootSheet = () => {
             });
 
             const rollSpells = async (consumableTypes: SpellItemType[]) => {
-                console.warn('rolling spells');
-                console.warn(consumableTypes);
-
                 const promises: Promise<Entity[]>[] = [];
                 for (const source of Object.values(spellSources)) {
                     // @ts-ignore
@@ -503,15 +600,9 @@ export const extendLootSheet = () => {
 
                 const drawnSpells = await drawFromSources(this.getLootAppSetting<number>(GenType.Spell, LootAppSetting.Count), Object.values(sources));
 
-                console.warn('drawn spells');
-                console.warn(drawnSpells);
-
                 const createdItems = await createSpellItems(drawnSpells, consumableTypes);
 
                 // TODO: Join stacks, slug needs updating to do so.
-
-                console.warn('created spell items');
-                console.warn(createdItems);
 
                 await this.createItems(createdItems);
             };
@@ -580,6 +671,18 @@ export const extendLootSheet = () => {
                 wrapper.toggle('fast', 'swing', () => {
                     this.collapsibles[id] = wrapper.css('display') === 'none';
                 });
+            });
+
+            // create item
+            html.find('#create-item').on('click', async (event) => {
+                const createData = await this.getCreateData();
+                if (!createData.product) {
+                    return;
+                }
+
+                const product = createData.product;
+
+                await this.createItems([createData.product]);
             });
         }
     }

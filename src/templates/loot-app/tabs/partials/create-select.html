@@ -3,7 +3,6 @@
         <label for="{{create-flag name}}">{{label}}</label>
         <select id="{{create-flag name}}" name="{{create-flag name}}">
             {{#select (walk @root.actor (create-flag name))}}
-                {{log options}}
                 {{#each options as |option|}}
                     <option value="{{option.slug}}">{{localize option.label}}</option>
                 {{/each}}

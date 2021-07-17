@@ -80,16 +80,26 @@ form.loot-app .sheet-sidebar .tab.create {
                 justify-content: space-between;
             }
             div.input-group {
-            }
-            div.info-group {
+                select {
+                    padding: 0;
+                }
+                label {
+                    white-space: nowrap;
+                }
             }
         }
 
-        div.final-info {
+        div.product-info {
             margin: 8px 0;
             padding: 8px 0;
             border-top: 1px solid var(--secondary);
             border-bottom: 1px solid var(--secondary);
+
+            span.product-name {
+                font-weight: bold;
+                text-align: center;
+                padding-bottom: 8px;
+            }
 
             span.final-value {
                 font-weight: bold;

@@ -16,6 +16,43 @@
 
 import { SpellSchool, SpellTradition } from '../module/loot-app/source/Spells';
 import { Rarity } from '../module/loot-app/data/Materials';
+import { PotencyRuneType } from '../module/loot-app/data/Runes';
+
+declare global {
+    interface CONFIG {
+        PF2E: {
+            preciousMaterials: {
+                [T in PreciousMaterialType]: string;
+            };
+            preciousMaterialGrades: {
+                [T in PreciousMaterialGrade]: string;
+            };
+            weaponStrikingRunes: {
+                [T in StrikingRuneType]: string;
+            };
+            armorResiliencyRunes: {
+                [T in ResiliencyRuneType]: string;
+            };
+            weaponPotencyRunes: {
+                [T in ZeroToFour]: string;
+            };
+            armorPotencyRunes: {
+                [T in ZeroToFour]: string;
+            };
+            weaponPropertyRunes: {
+                [T in WeaponPropertyRuneType]: string;
+            };
+            armorPropertyRunes: {
+                [T in ArmorPropertyRuneType]: string;
+            };
+        };
+    }
+}
+
+export type HTMLItemString = `@Item[${string}]` | `@Item[${string}]{${string}}`;
+
+export const PropertyRuneCreateKey = ['propertyRune1', 'propertyRune2', 'propertyRune3', 'propertyRune4'];
+export type PropertyRuneCreateKey = `propertyRune${'1' | '2' | '3' | '4'}`;
 
 export type EquipmentItemType = 'armor' | 'weapon';
 export type PhysicalItemType = EquipmentItemType | 'consumable' | 'equipment' | 'treasure';
@@ -121,6 +158,24 @@ export type PreciousMaterialType =
     | 'sovereignSteel'
     | 'warpglass'
     | '';
+
+export type ArmorGroupType = 'composite' | 'chain' | 'cloth' | 'leather' | 'plate';
+export type WeaponGroupType =
+    | 'club'
+    | 'knife'
+    | 'brawling'
+    | 'spear'
+    | 'sword'
+    | 'axe'
+    | 'flail'
+    | 'polearm'
+    | 'pick'
+    | 'hammer'
+    | 'shield'
+    | 'dart'
+    | 'bow'
+    | 'sling'
+    | 'bomb';
 
 export enum PreciousMaterialGrade {
     None = '',
@@ -247,6 +302,8 @@ export interface EquipmentItem extends PhysicalItem {
     data: EquipmentItemData;
 }
 export interface EquipmentItemData extends PhysicalItemData {
+    group: IValue<WeaponGroupType> | IValue<ArmorGroupType>;
+    specific: IValue<boolean>;
     equippedBulk: IValue<WeightString | ''>;
     propertyRune1: IValue<WeaponPropertyRuneType | ArmorPropertyRuneType>;
     propertyRune2: IValue<WeaponPropertyRuneType | ArmorPropertyRuneType>;
@@ -270,8 +327,9 @@ export interface Weapon extends EquipmentItem {
     data: WeaponData;
 }
 export interface WeaponData extends EquipmentItemData {
+    group: IValue<WeaponGroupType>;
     weaponData: IValue<WeaponType>;
-    potencyRune: IValue<ZeroToFour>;
+    potencyRune: IValue<PotencyRuneType>;
     strikingRune: IValue<StrikingRuneType>;
 
     propertyRune1: IValue<WeaponPropertyRuneType>;
@@ -289,6 +347,7 @@ export interface BaseArmor extends EquipmentItem {
     data: ArmorData | ShieldData;
 }
 export interface BaseArmorData extends EquipmentItemData {
+    group: IValue<ArmorGroupType>;
     armorType: IValue<ArmorType>;
     strength: IValue<number>;
     dex: IValue<number>;
@@ -303,7 +362,7 @@ export interface Armor extends BaseArmor {
     data: ArmorData;
 }
 export interface ArmorData extends BaseArmorData {
-    potencyRune: IValue<ZeroToFour>;
+    potencyRune: IValue<PotencyRuneType>;
     resiliencyRune: IValue<ResiliencyRuneType>;
 }
 export function isArmor(item: PF2EItem | undefined): item is Armor {

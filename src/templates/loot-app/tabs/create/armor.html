@@ -1,1 +1,15 @@
-ARMOR BOYS
+{{> create-select name="preciousMaterial" options=create.materials label="Material" }}
+
+{{#if (defined create.preciousMaterial)}}
+    {{> create-select name="preciousMaterialGrade" options=create.grades label="Grade" }}
+{{/if}}
+
+{{> create-select name="potencyRune" options=create.runes.potency label="Potency" }}
+
+{{#if (gteq (walk @root.actor (create-flag "potencyRune")) 1)}}
+    {{> create-select name="resiliencyRune" options=create.runes.fundamental label="Fundamental" }}
+{{/if}}
+
+{{> property-runes actor=@root.actor propertyRunes=create.runes.property }}
+
+{{> final-info product=create.product finalLevel=create.finalLevel finalPrice=create.finalPrice }}

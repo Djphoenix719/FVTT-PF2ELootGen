@@ -35,7 +35,7 @@ import {
     PropertyRuneType,
     SpellItem,
 } from '../../types/PF2E';
-import { BaseMaterialData, EquipmentType, getEquipmentType, IMaterial, ItemMaterials } from './data/Materials';
+import { getEquipmentType, ItemMaterials } from './data/Materials';
 import { FundamentalRuneType, ItemRunes, PotencyRuneType } from './data/Runes';
 
 /**
@@ -171,8 +171,6 @@ export async function drawFromSources(count: number, sources: DataSource[], opti
 
 export async function createSpellItems(itemDatas: DrawResult[], itemTypes: SpellItemType[]): Promise<PF2EItem[]> {
     itemDatas = duplicate(itemDatas) as DrawResult[];
-
-    console.warn(itemTypes);
 
     const itemType = (draw: DrawResult): SpellItemType | undefined => {
         if (draw.itemData.data.level?.value === 10) {

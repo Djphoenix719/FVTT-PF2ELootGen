@@ -19,7 +19,6 @@ import { EquipmentType, CREATE_KEY_NONE, getEquipmentType } from './Materials';
 
 export interface IRune {
     slug: string;
-    index?: number;
     label: string;
     level: number;
     price: number;
@@ -27,7 +26,6 @@ export interface IRune {
 
 const RuneNone: IRune = {
     slug: CREATE_KEY_NONE,
-    index: 0,
     label: 'None',
     price: 0,
     level: 0,
@@ -54,29 +52,25 @@ export const ItemRunes: ItemRunes = {
             },
             '1': {
                 slug: '1',
-                index: 1,
-                label: 'Weapon Potency (+1)',
+                label: 'PF2E.WeaponPotencyRune1',
                 level: 2,
                 price: 35,
             },
             '2': {
                 slug: '2',
-                index: 2,
-                label: 'Weapon Potency (+2)',
+                label: 'PF2E.WeaponPotencyRune2',
                 level: 10,
                 price: 935,
             },
             '3': {
                 slug: '3',
-                index: 3,
-                label: 'Weapon Potency (+3)',
+                label: 'PF2E.WeaponPotencyRune3',
                 level: 16,
                 price: 8935,
             },
             '4': {
                 slug: '4',
-                index: 4,
-                label: 'Weapon Potency (+4)',
+                label: 'PF2E.WeaponPotencyRune4',
                 level: 25,
                 price: 0,
             },
@@ -87,22 +81,19 @@ export const ItemRunes: ItemRunes = {
             },
             striking: {
                 slug: 'striking',
-                index: 1,
-                label: 'striking',
+                label: 'PF2E.ArmorStrikingRune',
                 price: 65,
                 level: 4,
             },
             greaterStriking: {
                 slug: 'greaterStriking',
-                index: 2,
-                label: 'greater striking',
+                label: 'PF2E.ArmorGreaterStrikingRune',
                 price: 1065,
                 level: 12,
             },
             majorStriking: {
                 slug: 'majorStriking',
-                index: 3,
-                label: 'major striking',
+                label: 'PF2E.ArmorMajorStrikingRune',
                 price: 31065,
                 level: 19,
             },
@@ -324,29 +315,25 @@ export const ItemRunes: ItemRunes = {
             },
             '1': {
                 slug: '1',
-                index: 1,
-                label: 'Armor Potency (+1)',
+                label: 'PF2E.ArmorPotencyRune1',
                 level: 5,
                 price: 160,
             },
             '2': {
                 slug: '2',
-                index: 2,
-                label: 'Armor Potency (+2)',
+                label: 'PF2E.ArmorPotencyRune2',
                 level: 11,
                 price: 1060,
             },
             '3': {
                 slug: '3',
-                index: 3,
-                label: 'Armor Potency (+3)',
+                label: 'PF2E.ArmorPotencyRune3',
                 level: 18,
                 price: 20560,
             },
             '4': {
                 slug: '4',
-                index: 4,
-                label: 'Armor Potency (+4)',
+                label: 'PF2E.ArmorPotencyRune4',
                 level: 25,
                 price: 0,
             },
@@ -357,19 +344,19 @@ export const ItemRunes: ItemRunes = {
             },
             resilient: {
                 slug: 'resilient',
-                label: 'resilient',
+                label: 'PF2E.ArmorResilientRune',
                 level: 8,
                 price: 340,
             },
             greaterResilient: {
                 slug: 'greaterResilient',
-                label: 'greater resilient',
+                label: 'PF2E.ArmorGreaterResilientRune',
                 level: 14,
                 price: 3440,
             },
             majorResilient: {
                 slug: 'majorResilient',
-                label: 'major resilient',
+                label: 'PF2E.ArmorMajorResilientRune',
                 level: 20,
                 price: 49440,
             },
@@ -392,7 +379,7 @@ export const ItemRunes: ItemRunes = {
             },
             coldResistant: {
                 slug: 'coldResistant',
-                label: 'cold-resistant',
+                label: 'PF2E.ArmorPropertyRuneColdResistant',
                 price: 420,
                 level: 8,
             },

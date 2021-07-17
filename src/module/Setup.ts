@@ -16,6 +16,9 @@
 
 import ModuleSettings, { IFeatureDefinition } from '../../FVTT-Common/src/module/ModuleSettings';
 import { MODULE_NAME, MODULE_TITLE } from './Constants';
+import { registerHandlebarsHelpers, registerHandlebarsTemplates } from './Handlebars';
+import { extendLootSheet } from './loot-app/LootApp';
+import { FLAGS_KEY } from './loot-app/Flags';
 
 export const FEATURE_ALLOW_MERGING = 'allow-merging';
 
@@ -84,4 +87,31 @@ export const setup = () => {
             features: FEATURES,
         }),
     );
+
+    Hooks.on('setup', registerHandlebarsTemplates);
+    Hooks.on('setup', registerHandlebarsHelpers);
+
+    Hooks.on('ready', async () => {
+        const extendedSheet = extendLootSheet();
+        // @ts-ignore
+        Actors.registerSheet(MODULE_NAME, extendedSheet, {
+            label: 'PF2E Loot Generator',
+            types: ['loot'],
+            makeDefault: false,
+        });
+
+        await game.actors?.getName('Lootboi')?.delete();
+        await Actor.create({ name: 'Lootboi', type: 'loot', ['flags.core.sheetClass']: 'pf2e-lootgen.LootApp' });
+        await game.actors?.getName('Lootboi')?.sheet?.render(true);
+    });
+
+    Hooks.on('renderItemDirectory', (itemDirectory: any, html: JQuery, options: any) => {
+        const lis: JQuery = html.find('ol.directory-list li.directory-item.item');
+        for (const element of lis) {
+            const item = game.items?.get(element.getAttribute('data-entity-id') as string) as Item;
+            if (item.getFlag(FLAGS_KEY, 'temporary')) {
+                $(element).remove();
+            }
+        }
+    });
 };

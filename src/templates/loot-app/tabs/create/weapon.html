@@ -1,40 +1,15 @@
 {{> create-select name="preciousMaterial" options=create.materials label="Material" }}
 
-{{log (create-flag "preciousMaterial")}}
-{{log (walk @root.actor (create-flag "preciousMaterial"))}}
-{{log (defined (walk @root.actor (create-flag "preciousMaterial")))}}
-
-{{#if (defined (walk @root.actor (create-flag "preciousMaterial")))}}
-    {{log "PRECIOUS MATERIAL"}}
+{{#if (defined create.preciousMaterial)}}
     {{> create-select name="preciousMaterialGrade" options=create.grades label="Grade" }}
 {{/if}}
 
 {{> create-select name="potencyRune" options=create.runes.potency label="Potency" }}
 
-{{#if (gteq (walk @root.actor (create-flag "potencyRune")) 1)}}
+{{#if (gteq create.potencyRune 1)}}
     {{> create-select name="strikingRune" options=create.runes.fundamental label="Fundamental" }}
 {{/if}}
 
-{{#if (gteq (walk @root.actor (create-flag "potencyRune")) 1)}}
-    {{> create-select name="propertyRune1" options=create.runes.property label="Property 1" }}
-{{/if}}
+{{> property-runes actor=@root.actor propertyRunes=create.runes.property }}
 
-{{#if (gteq (walk @root.actor (create-flag "potencyRune")) 2)}}
-    {{> create-select name="propertyRune2" options=create.runes.property label="Property 2" }}
-{{/if}}
-
-{{#if (gteq (walk @root.actor (create-flag "potencyRune")) 3)}}
-    {{> create-select name="propertyRune3" options=create.runes.property label="Property 3" }}
-{{/if}}
-
-{{#if (gteq (walk @root.actor (create-flag "potencyRune")) 4)}}
-    {{> create-select name="propertyRune4" options=create.runes.property label="Property 4" }}
-{{/if}}
-
-<div class="form-group create-select final-info">
-    <div class="input-group">
-        <span class="final-value">{{#if (gt @root.create.finalLevel 0)}}Final Level{{/if}}</span>
-        <span class="final-value">{{#if (gt @root.create.finalPrice 0)}}Final Price{{/if}}</span>
-    </div>
-    {{> rune-stats level=@root.create.finalLevel price=@root.create.finalPrice }}
-</div>
+{{> final-info product=create.product finalLevel=create.finalLevel finalPrice=create.finalPrice }}

@@ -44,6 +44,8 @@ export async function registerHandlebarsTemplates() {
         'tab-config': `templates/loot-app/tabs/partials/tab-config.html`,
         'create-select': `templates/loot-app/tabs/partials/create-select.html`,
         'rune-stats': `templates/loot-app/tabs/partials/rune-stats.html`,
+        'property-runes': `templates/loot-app/tabs/partials/property-runes.html`,
+        'final-info': `templates/loot-app/tabs/partials/final-info.html`,
         'collapsible': `templates/loot-app/partials/collapsible.html`,
     };
 
@@ -83,7 +85,7 @@ export function registerHandlebarsHelpers() {
 
     // Object exists and is not null or empty
     Handlebars.registerHelper('defined', (data: any) => {
-        return data !== undefined && data !== null && data !== '' && data !== 0;
+        return data !== undefined && data !== null && data !== '';
     });
 
     // Use the provided value if it exists, otherwise default to the fallback.

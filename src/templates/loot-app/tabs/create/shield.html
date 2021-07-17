@@ -1,1 +1,7 @@
-SHIELD BOYS
+{{> create-select name="preciousMaterial" options=create.materials label="Material" }}
+
+{{#if (defined (walk @root.actor (create-flag "preciousMaterial")))}}
+    {{> create-select name="preciousMaterialGrade" options=create.grades label="Grade" }}
+{{/if}}
+
+{{> final-info product=create.product finalLevel=create.finalLevel finalPrice=create.finalPrice }}
