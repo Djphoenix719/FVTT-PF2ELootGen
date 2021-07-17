@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 
-import { registerHandlebarsHelpers, registerHandlebarsTemplates } from './Handlebars';
-import { extendLootSheet } from './loot-app/LootApp';
-import { MODULE_NAME } from './Constants';
-import { FLAGS_KEY } from './loot-app/Flags';
 import { setup } from './Setup';
 
 setup();

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { FilteredSource, getPackSourceContents, PackSource, SourceType, GenType, tableStoreId, ordinalNumber } from './DataSource';
+import { PackSource, SourceType, GenType, tableStoreId} from './DataSource';
 import { INamed } from './Mixins';
 
 export enum SpellSchool {

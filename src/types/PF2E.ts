@@ -15,7 +15,6 @@
  */
 
 import { SpellSchool, SpellTradition } from '../module/loot-app/source/Spells';
-import { Rarity } from '../module/loot-app/data/Materials';
 import { PotencyRuneType } from '../module/loot-app/data/Runes';
 
 declare global {
@@ -50,6 +49,13 @@ declare global {
 }
 
 export type HTMLItemString = `@Item[${string}]` | `@Item[${string}]{${string}}`;
+
+export enum Rarity {
+    Common = 'common',
+    Uncommon = 'uncommon',
+    Rare = 'rare',
+    Unique = 'unique',
+}
 
 export const PropertyRuneCreateKey = ['propertyRune1', 'propertyRune2', 'propertyRune3', 'propertyRune4'];
 export type PropertyRuneCreateKey = `propertyRune${'1' | '2' | '3' | '4'}`;
@@ -253,6 +259,8 @@ export interface PhysicalItemData extends PF2EItemData {
     stackGroup: IValue<string>;
     equipped: IValue<boolean>;
     invested: IValue<boolean>;
+
+    identification: Identification;
 
     preciousMaterial: IValue<PreciousMaterialType>;
     preciousMaterialGrade: IValue<PreciousMaterialGrade>;

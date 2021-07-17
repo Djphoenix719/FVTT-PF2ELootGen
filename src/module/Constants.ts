@@ -18,3 +18,6 @@ export const MODULE_NAME = `pf2e-lootgen`;
 export const MODULE_TITLE = `PF2E Loot Generator`;
 export const PF2E_LOOT_SHEET_NAME = `LootSheetPF2e`;
 export const ITEM_ID_LENGTH = 16;
+
+export const TOOLBOX_NAME = `pf2e-toolbox`;
+export const QUICK_MYSTIFY = `ENABLE_QUICK_MYSTIFY`;

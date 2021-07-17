@@ -39,12 +39,6 @@ export enum ShieldType {
     Buckler = 'buckler',
     Shield = 'shield',
 }
-export enum Rarity {
-    Common = 'common',
-    Uncommon = 'uncommon',
-    Rare = 'rare',
-    Unique = 'unique',
-}
 
 export interface IDurability {
     hardness: number;

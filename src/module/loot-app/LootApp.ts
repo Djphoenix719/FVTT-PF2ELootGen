@@ -32,9 +32,9 @@ import {
     rollTreasureValues,
 } from './Utilities';
 import { SpellItemType, spellSources } from './source/Spells';
-import { BaseMaterialData, CREATE_KEY_NONE, EquipmentType, getEquipmentType, getValidMaterialGrades, getValidMaterials, ItemMaterials } from './data/Materials';
+import { CREATE_KEY_NONE, EquipmentType, getEquipmentType, getValidMaterialGrades, getValidMaterials, ItemMaterials } from './data/Materials';
 import { TABLE_WEIGHT_MAX, TABLE_WEIGHT_MIN } from './Settings';
-import { ITEM_ID_LENGTH, MODULE_NAME, PF2E_LOOT_SHEET_NAME } from '../Constants';
+import { ITEM_ID_LENGTH, MODULE_NAME, PF2E_LOOT_SHEET_NAME, QUICK_MYSTIFY, TOOLBOX_NAME } from '../Constants';
 import { AppFilter, FilterType, spellLevelFilters, spellSchoolFilters, spellTraditionFilters } from './Filters';
 import { NumberFilter } from '../filter/Operation/NumberFilter';
 import { ArrayIncludesFilter } from '../filter/Operation/ArrayIncludesFilter';
@@ -681,6 +681,10 @@ export const extendLootSheet = () => {
                 }
 
                 const product = createData.product;
+                const mystifyEnabled = game.settings.get(TOOLBOX_NAME, QUICK_MYSTIFY) as boolean;
+                if (mystifyEnabled && event.altKey) {
+                    product.data.identification.status = 'unidentified';
+                }
 
                 await this.createItems([createData.product]);
             });

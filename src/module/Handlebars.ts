@@ -16,7 +16,6 @@
 
 import { MODULE_NAME } from './Constants';
 import { GenType } from './loot-app/source/DataSource';
-import { Exception } from 'handlebars';
 import { numericCommas } from './Utilities';
 
 export interface HandlebarsContext {
