@@ -57,6 +57,15 @@ export enum Rarity {
     Unique = 'unique',
 }
 
+export enum EquipmentType {
+    Weapon = 'weapon',
+    Armor = 'armor',
+
+    Buckler = 'buckler',
+    Shield = 'shield',
+    Tower = 'tower',
+}
+
 export const PropertyRuneCreateKey = ['propertyRune1', 'propertyRune2', 'propertyRune3', 'propertyRune4'];
 export type PropertyRuneCreateKey = `propertyRune${'1' | '2' | '3' | '4'}`;
 
@@ -151,7 +160,7 @@ export type CurrencyType = 'cp' | 'sp' | 'gp' | 'pp';
 export type PriceString = `${number} ${CurrencyType}` | `${number}${CurrencyType}`;
 
 export type WeightType = 'L';
-export type WeightString = `${number}${WeightType | ''}`;
+export type WeightString = `${number}${WeightType | ''}` | WeightType;
 
 export type PreciousMaterialType =
     | 'adamantine'
@@ -357,6 +366,7 @@ export interface BaseArmor extends EquipmentItem {
 export interface BaseArmorData extends EquipmentItemData {
     group: IValue<ArmorGroupType>;
     armorType: IValue<ArmorType>;
+    armor: IValue<number>;
     strength: IValue<number>;
     dex: IValue<number>;
 

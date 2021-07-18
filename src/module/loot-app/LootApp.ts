@@ -27,12 +27,13 @@ import {
     dataSourcesOfType,
     drawFromSources,
     DrawResult,
+    getEquipmentType,
     mergeExistingStacks,
     mergeStacks,
     rollTreasureValues,
 } from './Utilities';
 import { SpellItemType, spellSources } from './source/Spells';
-import { CREATE_KEY_NONE, EquipmentType, getEquipmentType, getValidMaterialGrades, getValidMaterials, ItemMaterials } from './data/Materials';
+import { CREATE_KEY_NONE, getValidMaterialGrades, getValidMaterials, ItemMaterials } from './data/Materials';
 import { TABLE_WEIGHT_MAX, TABLE_WEIGHT_MIN } from './Settings';
 import { ITEM_ID_LENGTH, MODULE_NAME, PF2E_LOOT_SHEET_NAME, QUICK_MYSTIFY, TOOLBOX_NAME } from '../Constants';
 import { AppFilter, FilterType, spellLevelFilters, spellSchoolFilters, spellTraditionFilters } from './Filters';
@@ -45,9 +46,11 @@ import { EqualityType } from '../filter/EqualityType';
 import {
     ArmorPropertyRuneType,
     EquipmentItem,
+    EquipmentType,
     HTMLItemString,
     isArmor,
     isEquipment,
+    isShield,
     isWeapon,
     PF2EItem,
     PreciousMaterialGrade,
@@ -64,6 +67,10 @@ export enum LootAppSetting {
     Count = 'count',
 }
 
+interface FormOption<TSlug, TLabel = string> {
+    slug: TSlug;
+    label: TLabel;
+}
 export type LootAppCreateData = {
     type: EquipmentType;
 
@@ -79,9 +86,12 @@ export type LootAppCreateData = {
     strikingRune?: StrikingRuneType;
     resiliencyRune?: ResiliencyRuneType;
 
+    shieldType?: EquipmentType;
+
     materials: ReturnType<typeof getValidMaterials>;
     grades: ReturnType<typeof getValidMaterialGrades>;
     runes: typeof ItemRunes[EquipmentType];
+    shieldTypes?: FormOption<EquipmentType>[];
 
     finalPrice: number;
     finalLevel: number;
@@ -194,6 +204,21 @@ export const extendLootSheet = () => {
             data['materials'] = getValidMaterials(this.createBaseItem);
             data['grades'] = getValidMaterialGrades(this.createBaseItem, materialType);
             data['runes'] = ItemRunes[equipmentType];
+
+            // switch here so the type is narrowed by ts properly
+            switch (equipmentType) {
+                case EquipmentType.Buckler:
+                case EquipmentType.Shield:
+                case EquipmentType.Tower:
+                    data['shieldType'] = equipmentType;
+                    data['shieldTypes'] = [EquipmentType.Buckler, EquipmentType.Shield, EquipmentType.Tower].map((type) => {
+                        return {
+                            slug: type,
+                            label: type.toString().capitalize(),
+                        };
+                    });
+                    break;
+            }
 
             const dataUpdates = this.validateFlagData(this.createBaseItem);
             data = mergeObject(data, dataUpdates);
@@ -460,6 +485,10 @@ export const extendLootSheet = () => {
                         flags['strikingRune'] = item.data.strikingRune.value ?? '';
                     } else if (isArmor(item)) {
                         flags['resiliencyRune'] = item.data.resiliencyRune.value ?? '';
+                    }
+
+                    if (isShield(item)) {
+                        flags['shieldType'] = getEquipmentType(item);
                     }
                 }
 

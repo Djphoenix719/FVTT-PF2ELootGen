@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-import { EquipmentItem, PropertyRuneType, ResiliencyRuneType, StrikingRuneType, ZeroToFour } from '../../../types/PF2E';
-import { EquipmentType, CREATE_KEY_NONE, getEquipmentType } from './Materials';
+import { EquipmentItem, EquipmentType, PropertyRuneType, ResiliencyRuneType, StrikingRuneType, ZeroToFour } from '../../../types/PF2E';
+import { CREATE_KEY_NONE } from './Materials';
+import { getEquipmentType } from '../Utilities';
 
 export interface IRune {
     slug: string;
@@ -42,7 +43,9 @@ export interface IRuneMap {
 export type ItemRunes = {
     [EquipmentType.Weapon]: IRuneMap;
     [EquipmentType.Armor]: IRuneMap;
+    [EquipmentType.Buckler]: IRuneMap;
     [EquipmentType.Shield]: IRuneMap;
+    [EquipmentType.Tower]: IRuneMap;
 };
 export const ItemRunes: ItemRunes = {
     [EquipmentType.Weapon]: {
@@ -529,7 +532,16 @@ export const ItemRunes: ItemRunes = {
             },
         },
     },
+
+    [EquipmentType.Buckler]: {
+        fundamental: {},
+        property: {},
+    },
     [EquipmentType.Shield]: {
+        fundamental: {},
+        property: {},
+    },
+    [EquipmentType.Tower]: {
         fundamental: {},
         property: {},
     },

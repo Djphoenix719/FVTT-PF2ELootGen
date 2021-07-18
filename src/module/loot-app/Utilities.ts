@@ -17,25 +17,29 @@
 import { permanentSources } from './source/Permanent';
 import { consumableSources } from './source/Consumable';
 import { isTreasureSource, TreasureSource, treasureSources } from './source/Treasure';
-import { TEMPLATE_PACK_ID, scrollTemplateIds, SpellItemType, spellSources, wandTemplateIds } from './source/Spells';
-import { DataSource, getPack, isPackSource, isPoolSource, isTableSource, GenType } from './source/DataSource';
-import { getItemFromPack, getTableFromPack } from '../Utilities';
+import { scrollTemplateIds, SpellItemType, spellSources, TEMPLATE_PACK_ID, wandTemplateIds } from './source/Spells';
+import { DataSource, GenType, getPack, isPackSource, isPoolSource, isTableSource } from './source/DataSource';
 import { AppFilter, FilterType, spellLevelFilters, spellSchoolFilters, spellTraditionFilters } from './Filters';
 import {
     ConsumableItem,
     EquipmentItem,
+    EquipmentType,
+    isArmor,
     isPhysicalItem,
+    isShield,
     isSpell,
     isTreasure,
+    isWeapon,
     PF2EItem,
     PhysicalItem,
     PreciousMaterialGrade,
     PreciousMaterialType,
     PriceString,
     PropertyRuneType,
+    Shield,
     SpellItem,
 } from '../../types/PF2E';
-import { getEquipmentType, ItemMaterials } from './data/Materials';
+import { isWeaponArmorData, ItemMaterials } from './data/Materials';
 import { FundamentalRuneType, ItemRunes, PotencyRuneType } from './data/Runes';
 
 /**
@@ -83,6 +87,34 @@ export function filtersOfType(type: FilterType): Record<string, AppFilter> {
             return spellTraditionFilters;
     }
 }
+
+/**
+ * Get an item with an id of itemId from the pack with id packId.
+ * @param packId
+ * @param itemId
+ */
+export const getItemFromPack = async (packId: string, itemId: string): Promise<any> => {
+    const pack = await game.packs?.get(packId);
+    // @ts-ignore
+    return await pack.getDocument(itemId);
+};
+
+/**
+ * Load a RollTable from a compendium pack by id.
+ * @param tableId
+ * @param packId
+ */
+export const getTableFromPack = async (tableId: string, packId: string): Promise<RollTable> => {
+    return await getItemFromPack(packId, tableId);
+};
+
+/**
+ * Replace numbers in a string with commas.
+ * @param value
+ */
+export const numericCommas = (value: string | number) => {
+    return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+};
 
 export interface DrawOptions {
     displayChat?: boolean;
@@ -408,6 +440,44 @@ export function getItemBulkMultiplier(item: PhysicalItem): number {
     }
 }
 
+/**
+ * Select the correct EquipmentType for this item
+ * @param item
+ */
+export const getEquipmentType = (item: PF2EItem): EquipmentType | undefined => {
+    if (isWeapon(item)) {
+        return EquipmentType.Weapon;
+    } else if (isShield(item)) {
+        return inferShieldType(item) ?? EquipmentType.Shield;
+    } else if (isArmor(item)) {
+        return EquipmentType.Armor;
+    } else {
+        return undefined;
+    }
+};
+
+/**
+ * Infer shield type from ac/bulk
+ * @param item
+ */
+export const inferShieldType = (item: Shield): EquipmentType | undefined => {
+    if (item.data.armor.value === 1) {
+        return EquipmentType.Buckler;
+    }
+
+    try {
+        // out of the remaining shields, towers have a bulk more than 1
+        const bulk = parseInt(item.data.weight.value);
+        if (bulk > 1) {
+            return EquipmentType.Tower;
+        } else {
+            return EquipmentType.Shield;
+        }
+    } catch (e) {
+        return undefined;
+    }
+};
+
 interface FinalPriceAndLevelArgs {
     item: EquipmentItem;
     materialType: PreciousMaterialType;
@@ -420,6 +490,7 @@ interface FinalPriceAndLevelResults {
     level: number;
     price: number;
 }
+
 /**
  * Given an item and a set of changes, compute the final price and level of the item.
  * @param args
@@ -439,7 +510,10 @@ export function calculateFinalPriceAndLevel(args: FinalPriceAndLevelArgs): Final
     const materialData = ItemMaterials[args.materialType][equipmentType]?.[args.materialGradeType];
     if (materialData) {
         finalLevel = Math.max(finalLevel, materialData.level);
-        finalPrice += materialData.price.basePrice + materialData.price.bulkPrice * getItemBulkMultiplier(args.item);
+        finalPrice += materialData.price.basePrice;
+        if (isWeaponArmorData(materialData)) {
+            finalPrice += materialData.price.bulkPrice * getItemBulkMultiplier(args.item);
+        }
     }
 
     const potencyRuneData = ItemRunes[equipmentType]['potency']?.[args.potencyRune];

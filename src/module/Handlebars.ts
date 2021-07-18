@@ -16,7 +16,7 @@
 
 import { MODULE_NAME } from './Constants';
 import { GenType } from './loot-app/source/DataSource';
-import { numericCommas } from './Utilities';
+import { numericCommas } from './loot-app/Utilities';
 
 export interface HandlebarsContext {
     data: Record<string, any> & {

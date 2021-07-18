@@ -1,3 +1,5 @@
+{{> create-select name="shieldType" options=create.shieldTypes label="Shield Type" }}
+
 {{> create-select name="preciousMaterial" options=create.materials label="Material" }}
 
 {{#if (defined (walk @root.actor (create-flag "preciousMaterial")))}}

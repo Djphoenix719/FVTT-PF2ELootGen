@@ -34,7 +34,13 @@
             {{> modules/pf2e-lootgen/templates/loot-app/tabs/create/armor.html }}
         {{/if}}
 
+        {{#if (eq create.type "buckler")}}
+            {{> modules/pf2e-lootgen/templates/loot-app/tabs/create/shield.html }}
+        {{/if}}
         {{#if (eq create.type "shield")}}
+            {{> modules/pf2e-lootgen/templates/loot-app/tabs/create/shield.html }}
+        {{/if}}
+        {{#if (eq create.type "tower")}}
             {{> modules/pf2e-lootgen/templates/loot-app/tabs/create/shield.html }}
         {{/if}}
 
