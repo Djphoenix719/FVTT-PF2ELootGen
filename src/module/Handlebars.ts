@@ -16,7 +16,7 @@
 
 import { MODULE_NAME } from './Constants';
 import { GenType } from './loot-app/source/DataSource';
-import { numericCommas } from './loot-app/Utilities';
+import { numericCommas } from './loot-app/Formatting';
 
 export interface HandlebarsContext {
     data: Record<string, any> & {
@@ -104,7 +104,8 @@ export function registerHandlebarsHelpers() {
         }
     });
     // separate hundreds groups in numbers with commas
-    Handlebars.registerHelper('commas', (a: string | number) => {
+    Handlebars.registerHelper('numeric-commas', (a: string | number | undefined) => {
+        if (!a) return undefined;
         return numericCommas(a);
     });
 

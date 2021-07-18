@@ -16,6 +16,7 @@
 
 import { EquipmentItem, EquipmentType, PreciousMaterialGrade, PreciousMaterialType, WeightString } from '../../../types/PF2E';
 import { getEquipmentType } from '../Utilities';
+import { numericCommas } from '../Formatting';
 
 export interface BaseMaterialData {
     slug: PreciousMaterialGrade;
@@ -69,7 +70,7 @@ const scalingPriceData = (basePrice: number): ScalingPriceData => {
     return {
         basePrice,
         bulkPrice: basePrice / 10,
-        displayPrice: `${basePrice}gp + ${basePrice / 10}gp/bulk`,
+        displayPrice: `${numericCommas(basePrice)}gp + ${numericCommas(basePrice / 10)}gp/bulk`,
     };
 };
 const weaponArmorData = (grade: PreciousMaterialGrade, level: number, basePrice: number): WeaponArmorData => {
@@ -103,10 +104,12 @@ export const MaterialNone: IMaterial = {
     defaultGrade: PreciousMaterialGrade.None,
     [EquipmentType.Weapon]: {},
     [EquipmentType.Armor]: {},
+    [EquipmentType.Buckler]: {},
     [EquipmentType.Shield]: {},
+    [EquipmentType.Tower]: {},
 };
 
-export const MaterialAdamantineWeaponArmor: IMaterial = {
+export const MaterialAdamantine: IMaterial = {
     slug: 'adamantine',
     label: 'PF2E.PreciousMaterialAdamantine',
     defaultGrade: PreciousMaterialGrade.Standard,
@@ -119,11 +122,16 @@ export const MaterialAdamantineWeaponArmor: IMaterial = {
         [PreciousMaterialGrade.High]: weaponArmorData(PreciousMaterialGrade.High, 19, 32_000),
     },
 
-    [EquipmentType.Shield]: {
+    [EquipmentType.Buckler]: {
         [PreciousMaterialGrade.Standard]: shieldData(PreciousMaterialGrade.Standard, 8, 400, 8, `L`),
+        [PreciousMaterialGrade.High]: shieldData(PreciousMaterialGrade.High, 16, 8_000, 11, `1`),
+    },
+    [EquipmentType.Shield]: {
+        [PreciousMaterialGrade.Standard]: shieldData(PreciousMaterialGrade.Standard, 8, 440, 8, `L`),
+        [PreciousMaterialGrade.High]: shieldData(PreciousMaterialGrade.High, 16, 8_800, 13, `1`),
     },
 };
-export const MaterialColdIronWeaponArmor: IMaterial = {
+export const MaterialColdIron: IMaterial = {
     slug: 'coldIron',
     label: 'PF2E.PreciousMaterialColdIron',
     defaultGrade: PreciousMaterialGrade.Standard,
@@ -137,8 +145,19 @@ export const MaterialColdIronWeaponArmor: IMaterial = {
         [PreciousMaterialGrade.Standard]: weaponArmorData(PreciousMaterialGrade.Standard, 11, 1_200),
         [PreciousMaterialGrade.High]: weaponArmorData(PreciousMaterialGrade.High, 18, 20_000),
     },
+
+    [EquipmentType.Buckler]: {
+        [PreciousMaterialGrade.Low]: shieldData(PreciousMaterialGrade.Low, 2, 30, 3, `L`),
+        [PreciousMaterialGrade.Standard]: shieldData(PreciousMaterialGrade.Standard, 7, 300, 5, `L`),
+        [PreciousMaterialGrade.High]: shieldData(PreciousMaterialGrade.High, 15, 5_000, 8, `L`),
+    },
+    [EquipmentType.Shield]: {
+        [PreciousMaterialGrade.Low]: shieldData(PreciousMaterialGrade.Low, 2, 34, 5, `1`),
+        [PreciousMaterialGrade.Standard]: shieldData(PreciousMaterialGrade.Standard, 7, 340, 7, `1`),
+        [PreciousMaterialGrade.High]: shieldData(PreciousMaterialGrade.High, 15, 5_500, 10, `1`),
+    },
 };
-export const MaterialDarkwoodWeaponArmor: IMaterial = {
+export const MaterialDarkwood: IMaterial = {
     slug: 'darkwood',
     label: 'PF2E.PreciousMaterialDarkwood',
     defaultGrade: PreciousMaterialGrade.Standard,
@@ -150,8 +169,21 @@ export const MaterialDarkwoodWeaponArmor: IMaterial = {
         [PreciousMaterialGrade.Standard]: weaponArmorData(PreciousMaterialGrade.Standard, 12, 1_600),
         [PreciousMaterialGrade.High]: weaponArmorData(PreciousMaterialGrade.High, 19, 32_000),
     },
+
+    [EquipmentType.Buckler]: {
+        [PreciousMaterialGrade.Standard]: shieldData(PreciousMaterialGrade.Standard, 8, 400, 3, `L`),
+        [PreciousMaterialGrade.High]: shieldData(PreciousMaterialGrade.High, 15, 5_000, 6, `L`),
+    },
+    [EquipmentType.Shield]: {
+        [PreciousMaterialGrade.Standard]: shieldData(PreciousMaterialGrade.Standard, 8, 440, 5, `L`),
+        [PreciousMaterialGrade.High]: shieldData(PreciousMaterialGrade.High, 15, 5_500, 8, `L`),
+    },
+    [EquipmentType.Tower]: {
+        [PreciousMaterialGrade.Standard]: shieldData(PreciousMaterialGrade.Standard, 8, 560, 5, `3`),
+        [PreciousMaterialGrade.High]: shieldData(PreciousMaterialGrade.High, 15, 5_500, 8, `3`),
+    },
 };
-export const MaterialDragonhideWeaponArmor: IMaterial = {
+export const MaterialDragonhide: IMaterial = {
     slug: 'dragonhide',
     label: 'PF2E.PreciousMaterialDragonhide',
     defaultGrade: PreciousMaterialGrade.Standard,
@@ -162,8 +194,17 @@ export const MaterialDragonhideWeaponArmor: IMaterial = {
         [PreciousMaterialGrade.Standard]: weaponArmorData(PreciousMaterialGrade.Standard, 12, 1_600),
         [PreciousMaterialGrade.High]: weaponArmorData(PreciousMaterialGrade.High, 19, 32_000),
     },
+
+    [EquipmentType.Buckler]: {
+        [PreciousMaterialGrade.Standard]: shieldData(PreciousMaterialGrade.Standard, 8, 400, 2, `L`),
+        [PreciousMaterialGrade.High]: shieldData(PreciousMaterialGrade.High, 16, 8_000, 5, `L`),
+    },
+    [EquipmentType.Shield]: {
+        [PreciousMaterialGrade.Standard]: shieldData(PreciousMaterialGrade.Standard, 8, 440, 4, `1`),
+        [PreciousMaterialGrade.High]: shieldData(PreciousMaterialGrade.High, 16, 8_800, 7, `1`),
+    },
 };
-export const MaterialMithralWeaponArmor: IMaterial = {
+export const MaterialMithral: IMaterial = {
     slug: 'mithral',
     label: 'PF2E.PreciousMaterialMithral',
     defaultGrade: PreciousMaterialGrade.Standard,
@@ -176,8 +217,17 @@ export const MaterialMithralWeaponArmor: IMaterial = {
         [PreciousMaterialGrade.Standard]: weaponArmorData(PreciousMaterialGrade.Standard, 12, 1_600),
         [PreciousMaterialGrade.High]: weaponArmorData(PreciousMaterialGrade.High, 19, 32_000),
     },
+
+    [EquipmentType.Buckler]: {
+        [PreciousMaterialGrade.Standard]: shieldData(PreciousMaterialGrade.Standard, 8, 400, 3, `L`),
+        [PreciousMaterialGrade.High]: shieldData(PreciousMaterialGrade.High, 16, 8_000, 6, `L`),
+    },
+    [EquipmentType.Shield]: {
+        [PreciousMaterialGrade.Standard]: shieldData(PreciousMaterialGrade.Standard, 8, 440, 5, `L`),
+        [PreciousMaterialGrade.High]: shieldData(PreciousMaterialGrade.High, 16, 8_800, 8, `L`),
+    },
 };
-export const MaterialOrichalcumWeaponArmor: IMaterial = {
+export const MaterialOrichalcum: IMaterial = {
     slug: 'orichalcum',
     label: 'PF2E.PreciousMaterialOrichalcum',
     defaultGrade: PreciousMaterialGrade.High,
@@ -189,8 +239,15 @@ export const MaterialOrichalcumWeaponArmor: IMaterial = {
         // TODO: +1 circumstance bonus to initiative rolls
         [PreciousMaterialGrade.High]: weaponArmorData(PreciousMaterialGrade.High, 20, 55_000),
     },
+
+    [EquipmentType.Buckler]: {
+        [PreciousMaterialGrade.High]: shieldData(PreciousMaterialGrade.High, 17, 12_000, 14, `L`),
+    },
+    [EquipmentType.Shield]: {
+        [PreciousMaterialGrade.High]: shieldData(PreciousMaterialGrade.High, 17, 13_200, 16, `1`),
+    },
 };
-export const MaterialSilverWeaponArmor: IMaterial = {
+export const MaterialSilver: IMaterial = {
     slug: 'silver',
     label: 'PF2E.PreciousMaterialSilver',
     defaultGrade: PreciousMaterialGrade.Standard,
@@ -204,8 +261,19 @@ export const MaterialSilverWeaponArmor: IMaterial = {
         [PreciousMaterialGrade.Standard]: weaponArmorData(PreciousMaterialGrade.Standard, 11, 1_200),
         [PreciousMaterialGrade.High]: weaponArmorData(PreciousMaterialGrade.High, 18, 20_000),
     },
+
+    [EquipmentType.Buckler]: {
+        [PreciousMaterialGrade.Low]: shieldData(PreciousMaterialGrade.Low, 2, 30, 1, `L`),
+        [PreciousMaterialGrade.Standard]: shieldData(PreciousMaterialGrade.Standard, 7, 300, 3, `L`),
+        [PreciousMaterialGrade.High]: shieldData(PreciousMaterialGrade.High, 15, 5_000, 6, `L`),
+    },
+    [EquipmentType.Shield]: {
+        [PreciousMaterialGrade.Low]: shieldData(PreciousMaterialGrade.Low, 2, 34, 3, `1`),
+        [PreciousMaterialGrade.Standard]: shieldData(PreciousMaterialGrade.Standard, 7, 340, 5, `1`),
+        [PreciousMaterialGrade.High]: shieldData(PreciousMaterialGrade.High, 15, 5_500, 8, `1`),
+    },
 };
-export const MaterialSovereignSteelWeaponArmor: IMaterial = {
+export const MaterialSovereignSteel: IMaterial = {
     slug: 'sovereignSteel',
     label: 'PF2E.PreciousMaterialSovereignSteel',
     defaultGrade: PreciousMaterialGrade.Standard,
@@ -218,7 +286,7 @@ export const MaterialSovereignSteelWeaponArmor: IMaterial = {
         [PreciousMaterialGrade.High]: weaponArmorData(PreciousMaterialGrade.High, 20, 50_000),
     },
 };
-export const MaterialWarpglassWeaponArmor: IMaterial = {
+export const MaterialWarpglass: IMaterial = {
     slug: 'warpglass',
     label: 'PF2E.PreciousMaterialWarpglass',
     defaultGrade: PreciousMaterialGrade.Standard,
@@ -229,22 +297,15 @@ export const MaterialWarpglassWeaponArmor: IMaterial = {
 
 export const ItemMaterials: Record<PreciousMaterialType, IMaterial> = {
     '': MaterialNone,
-    'adamantine': MaterialAdamantineWeaponArmor,
-    'coldIron': MaterialColdIronWeaponArmor,
-    'darkwood': MaterialDarkwoodWeaponArmor,
-    'dragonhide': MaterialDragonhideWeaponArmor,
-    'mithral': MaterialMithralWeaponArmor,
-    'orichalcum': MaterialOrichalcumWeaponArmor,
-    'silver': MaterialSilverWeaponArmor,
-    'sovereignSteel': MaterialSovereignSteelWeaponArmor,
-    'warpglass': MaterialWarpglassWeaponArmor,
-};
-
-export const MaterialAdamantineShield: IMaterial = {
-    slug: 'adamantine',
-    label: 'PF2E.PreciousMaterialAdamantine',
-    defaultGrade: PreciousMaterialGrade.Standard,
-    // TODO: This needs to be done
+    'adamantine': MaterialAdamantine,
+    'coldIron': MaterialColdIron,
+    'darkwood': MaterialDarkwood,
+    'dragonhide': MaterialDragonhide,
+    'mithral': MaterialMithral,
+    'orichalcum': MaterialOrichalcum,
+    'silver': MaterialSilver,
+    'sovereignSteel': MaterialSovereignSteel,
+    'warpglass': MaterialWarpglass,
 };
 
 /**
@@ -280,6 +341,9 @@ export const getValidMaterialGrades = (item: EquipmentItem, materialType: Precio
         return {};
     }
 
+    console.warn(materialType);
+    console.warn(equipmentType);
+    console.warn(ItemMaterials[materialType][equipmentType]);
     if (ItemMaterials[materialType].hasOwnProperty(equipmentType)) {
         return ItemMaterials[materialType][equipmentType]!;
     } else {

@@ -33,7 +33,7 @@ import {
     rollTreasureValues,
 } from './Utilities';
 import { SpellItemType, spellSources } from './source/Spells';
-import { CREATE_KEY_NONE, getValidMaterialGrades, getValidMaterials, ItemMaterials } from './data/Materials';
+import { BasePriceData, CREATE_KEY_NONE, getValidMaterialGrades, getValidMaterials, ItemMaterials } from './data/Materials';
 import { TABLE_WEIGHT_MAX, TABLE_WEIGHT_MIN } from './Settings';
 import { ITEM_ID_LENGTH, MODULE_NAME, PF2E_LOOT_SHEET_NAME, QUICK_MYSTIFY, TOOLBOX_NAME } from '../Constants';
 import { AppFilter, FilterType, spellLevelFilters, spellSchoolFilters, spellTraditionFilters } from './Filters';
@@ -93,7 +93,7 @@ export type LootAppCreateData = {
     runes: typeof ItemRunes[EquipmentType];
     shieldTypes?: FormOption<EquipmentType>[];
 
-    finalPrice: number;
+    finalPrice: BasePriceData;
     finalLevel: number;
 } & {
     [T in PropertyRuneCreateKey]: PropertyRuneType;
@@ -232,7 +232,7 @@ export const extendLootSheet = () => {
                 propertyRunes: propertyRunes,
             });
 
-            data['finalPrice'] = price;
+            data['finalPrice'] = { basePrice: price };
             data['finalLevel'] = level;
 
             const product = this.buildProduct(data as LootAppCreateData);
@@ -313,7 +313,7 @@ export const extendLootSheet = () => {
             product.data.specific = { value: true };
 
             product.data.level.value = data.finalLevel;
-            product.data.price.value = `${data.finalPrice} gp`;
+            product.data.price.value = `${data.finalPrice.basePrice} gp`;
 
             product.data.preciousMaterial.value = data.preciousMaterial;
             product.data.preciousMaterialGrade.value = data.preciousMaterialGrade;

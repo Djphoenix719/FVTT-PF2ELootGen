@@ -5,13 +5,13 @@
         {{/if}}
     </span>
     <span class="value">
-        {{#if (defined price)}}
-            <i class="fas fa-coins"></i>
-            {{#if (gteq price.basePrice (default minPriceToDisplay 1))}}
-                {{commas price.basePrice}}gp + {{commas price.bulkPrice}}gp/bulk
+        {{#if (gteq price.basePrice (default minPriceToDisplay 1)) }}
+            {{#if (defined price.displayPrice)}}
+                {{price.displayPrice}}
             {{else}}
-                {{commas price}}gp
+                {{numeric-commas price.basePrice}}gp
             {{/if}}
+            <i class="fas fa-coins"></i>
         {{/if}}
     </span>
 </div>

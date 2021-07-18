@@ -108,14 +108,6 @@ export const getTableFromPack = async (tableId: string, packId: string): Promise
     return await getItemFromPack(packId, tableId);
 };
 
-/**
- * Replace numbers in a string with commas.
- * @param value
- */
-export const numericCommas = (value: string | number) => {
-    return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-};
-
 export interface DrawOptions {
     displayChat?: boolean;
 }
@@ -519,21 +511,21 @@ export function calculateFinalPriceAndLevel(args: FinalPriceAndLevelArgs): Final
     const potencyRuneData = ItemRunes[equipmentType]['potency']?.[args.potencyRune];
     if (potencyRuneData) {
         finalLevel = Math.max(finalLevel, potencyRuneData.level);
-        finalPrice += potencyRuneData.price;
+        finalPrice += potencyRuneData.price.basePrice;
     }
 
     for (const propertyRuneType of args.propertyRunes) {
         const propertyRuneData = ItemRunes[equipmentType]['property'][propertyRuneType];
         if (propertyRuneData) {
             finalLevel = Math.max(finalLevel, propertyRuneData.level);
-            finalPrice += propertyRuneData.price;
+            finalPrice += propertyRuneData.price.basePrice;
         }
     }
 
     const fundamentalRuneData = ItemRunes[equipmentType]['fundamental'][args.fundamentalRune];
     if (fundamentalRuneData) {
         finalLevel = Math.max(finalLevel, fundamentalRuneData.level);
-        finalPrice += fundamentalRuneData.price;
+        finalPrice += fundamentalRuneData.price.basePrice;
     }
 
     return {
