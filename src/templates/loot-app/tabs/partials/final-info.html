@@ -2,7 +2,7 @@
     <span class="product-name">{{product.name}}</span>
     <div class="input-group">
         <span class="final-value">{{#if (gteq finalLevel 0)}}Final Level{{/if}}</span>
-        <span class="final-value">{{#if (gteq finalPrice 0)}}Final Price{{/if}}</span>
+        <span class="final-value">{{#if (gteq finalPrice.basePrice 0)}}Final Price{{/if}}</span>
     </div>
     {{> rune-stats level=finalLevel price=finalPrice minLevelToDisplay=0 minPriceToDisplay=0 }}
 </div>

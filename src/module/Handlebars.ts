@@ -77,17 +77,15 @@ export async function registerHandlebarsTemplates() {
 }
 
 export function registerHandlebarsHelpers() {
-    // Stringify the object provided.
+    // stringify the object provided.
     Handlebars.registerHelper('json', (data: any) => {
         return JSON.stringify(data);
     });
-
-    // Object exists and is not null or empty
+    // object exists and is not null or empty
     Handlebars.registerHelper('defined', (data: any) => {
         return data !== undefined && data !== null && data !== '';
     });
-
-    // Use the provided value if it exists, otherwise default to the fallback.
+    // use the provided value if it exists, otherwise default to the fallback.
     Handlebars.registerHelper('default', (value: any, defaultValue: any) => {
         return value === undefined || value === null ? defaultValue : value;
     });

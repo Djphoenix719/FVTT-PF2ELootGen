@@ -42,7 +42,7 @@ export function isWeaponArmorData(data: BaseMaterialData): data is WeaponArmorDa
 export interface DurabilityData {
     hardness: number;
     hitPoints: number;
-    breakThreshold: number;
+    brokenThreshold: number;
 }
 export interface ShieldData extends BaseMaterialData {
     bulk: WeightString;
@@ -53,13 +53,13 @@ const durabilityData = (hardness: number): DurabilityData => {
     return {
         hardness,
         hitPoints: hardness * 4,
-        breakThreshold: hardness * 2,
+        brokenThreshold: hardness * 2,
     };
 };
 const shieldData = (grade: PreciousMaterialGrade, level: number, basePrice: number, hardness: number, bulk: WeightString): ShieldData => {
     return {
         slug: grade,
-        label: '',
+        label: `PF2E.PreciousMaterial${grade.capitalize()}Grade`,
         level,
         price: { basePrice },
         bulk,
@@ -341,9 +341,6 @@ export const getValidMaterialGrades = (item: EquipmentItem, materialType: Precio
         return {};
     }
 
-    console.warn(materialType);
-    console.warn(equipmentType);
-    console.warn(ItemMaterials[materialType][equipmentType]);
     if (ItemMaterials[materialType].hasOwnProperty(equipmentType)) {
         return ItemMaterials[materialType][equipmentType]!;
     } else {

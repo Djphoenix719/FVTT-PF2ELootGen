@@ -481,6 +481,9 @@ interface FinalPriceAndLevelArgs {
 interface FinalPriceAndLevelResults {
     level: number;
     price: number;
+    hardness: number;
+    hitPoints: number;
+    brokenThreshold: number;
 }
 
 /**
@@ -493,11 +496,17 @@ export function calculateFinalPriceAndLevel(args: FinalPriceAndLevelArgs): Final
         return {
             level: 0,
             price: 0,
+            hardness: 0,
+            hitPoints: 0,
+            brokenThreshold: 0,
         };
     }
 
     let finalLevel = args.item.data.level.value;
     let finalPrice = parsePrice(args.item.data.price.value);
+    let finalHardness = args.item.data.hardness.value;
+    let finalHitPoints = args.item.data.hp.value;
+    let finalBreakThreshold = args.item.data.brokenThreshold.value;
 
     const materialData = ItemMaterials[args.materialType][equipmentType]?.[args.materialGradeType];
     if (materialData) {
@@ -505,6 +514,10 @@ export function calculateFinalPriceAndLevel(args: FinalPriceAndLevelArgs): Final
         finalPrice += materialData.price.basePrice;
         if (isWeaponArmorData(materialData)) {
             finalPrice += materialData.price.bulkPrice * getItemBulkMultiplier(args.item);
+        } else {
+            finalHardness = materialData.durability.hardness;
+            finalHitPoints = materialData.durability.hitPoints;
+            finalBreakThreshold = materialData.durability.brokenThreshold;
         }
     }
 
@@ -531,5 +544,8 @@ export function calculateFinalPriceAndLevel(args: FinalPriceAndLevelArgs): Final
     return {
         level: finalLevel,
         price: finalPrice,
+        hardness: finalHardness,
+        hitPoints: finalHitPoints,
+        brokenThreshold: finalBreakThreshold,
     };
 }

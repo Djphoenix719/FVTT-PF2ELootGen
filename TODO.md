@@ -1,4 +1,6 @@
 # Todo
+This is a list of things I may or may not get to, depending on my time.
+
 - Allow custom rollable tables to be added in the settings
 - Data entry for shield precious materials
 - +/- modifiers for weapon/armor creation
