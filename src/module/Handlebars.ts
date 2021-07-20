@@ -93,14 +93,6 @@ export function registerHandlebarsHelpers() {
     Handlebars.registerHelper('concat', (a: string, b: string, separator: string) => {
         return a.toString() + separator.toString() + b.toString();
     });
-    // string ends with
-    Handlebars.registerHelper('ends-with', (a: any, b: string) => {
-        if (typeof a === 'string') {
-            return a.endsWith(b);
-        } else {
-            return false;
-        }
-    });
     // separate hundreds groups in numbers with commas
     Handlebars.registerHelper('numeric-commas', (a: string | number | undefined) => {
         if (!a) return undefined;
