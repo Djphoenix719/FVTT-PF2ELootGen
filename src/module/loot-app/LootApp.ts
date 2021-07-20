@@ -28,6 +28,7 @@ import {
     drawFromSources,
     DrawResult,
     getEquipmentType,
+    maybeMystifyItems,
     mergeExistingStacks,
     mergeStacks,
     rollTreasureValues,
@@ -52,6 +53,7 @@ import {
     isShield,
     isWeapon,
     PF2EItem,
+    PhysicalItem,
     PreciousMaterialGrade,
     PreciousMaterialType,
     PropertyRuneCreateKey,
@@ -459,10 +461,11 @@ export const extendLootSheet = () => {
 
         /**
          * Create a group of items from a draw result
+         * @param event
          * @param results
          * @private
          */
-        private async createItemsFromDraw(results: DrawResult[]) {
+        private async createItemsFromDraw(event: JQuery.ClickEvent, results: DrawResult[]) {
             let itemsToUpdate: PF2EItem[] | undefined = undefined;
             let itemsToCreate = results.map((d) => d.itemData);
             if (ModuleSettings.instance.get(FEATURE_ALLOW_MERGING)) {
@@ -472,6 +475,7 @@ export const extendLootSheet = () => {
                 itemsToCreate = mergeStacks(itemsToCreate);
             }
 
+            itemsToCreate = maybeMystifyItems(event, ...(itemsToCreate as PhysicalItem[]));
             itemsToCreate.sort((a, b) => a.data.slug.localeCompare(b.data.slug));
 
             if (itemsToUpdate !== undefined) {
@@ -597,7 +601,8 @@ export const extendLootSheet = () => {
 
                 let results = await drawFromSources(this.getLootAppSetting<number>(type, LootAppSetting.Count), sources);
                 results = await rollTreasureValues(results);
-                await this.createItemsFromDraw(results);
+
+                await this.createItemsFromDraw(event, results);
             });
 
             // quick roll button for sources
@@ -610,10 +615,14 @@ export const extendLootSheet = () => {
 
                 let results = await drawFromSources(getQuickRollCount(event), [source]);
                 results = await rollTreasureValues(results);
-                await this.createItemsFromDraw(results);
+
+                await this.createItemsFromDraw(event, results);
             });
 
-            const rollSpells = async (consumableTypes: SpellItemType[]) => {
+            const rollSpells = async (event: JQuery.ClickEvent, consumableTypes: SpellItemType[]) => {
+                event.preventDefault();
+                event.stopPropagation();
+
                 const promises: Promise<Item[]>[] = [];
                 for (const source of Object.values(spellSources)) {
                     const pack = game.packs.get(source.id);
@@ -670,7 +679,8 @@ export const extendLootSheet = () => {
 
                 const drawnSpells = await drawFromSources(this.getLootAppSetting<number>(GenType.Spell, LootAppSetting.Count), Object.values(sources));
 
-                const createdItems = await createSpellItems(drawnSpells, consumableTypes);
+                let createdItems = (await createSpellItems(drawnSpells, consumableTypes)) as PhysicalItem[];
+                createdItems = maybeMystifyItems(event, ...createdItems);
 
                 // TODO: Join stacks, slug needs updating to do so.
 
@@ -679,24 +689,27 @@ export const extendLootSheet = () => {
 
             // roll scrolls
             html.find('.buttons .roll-scroll').on('click', async (event) => {
-                event.preventDefault();
-                event.stopPropagation();
-
-                await rollSpells([SpellItemType.Scroll]);
+                await rollSpells(event, [SpellItemType.Scroll]);
             });
             // roll wands
             html.find('.buttons .roll-wand').on('click', async (event) => {
-                event.preventDefault();
-                event.stopPropagation();
-
-                await rollSpells([SpellItemType.Wand]);
+                await rollSpells(event, [SpellItemType.Wand]);
             });
             // roll scrolls + wands
             html.find('.buttons .roll-both').on('click', async (event) => {
-                event.preventDefault();
-                event.stopPropagation();
+                await rollSpells(event, [SpellItemType.Scroll, SpellItemType.Wand]);
+            });
 
-                await rollSpells([SpellItemType.Scroll, SpellItemType.Wand]);
+            // create item
+            html.find('#create-item').on('click', async (event) => {
+                const createData = await this.getCreateData();
+                if (!createData.product) {
+                    return;
+                }
+
+                [createData.product] = maybeMystifyItems(event, createData.product) as EquipmentItem[];
+
+                await this.createItems([createData.product]);
             });
 
             /**
@@ -741,22 +754,6 @@ export const extendLootSheet = () => {
                 wrapper.toggle('fast', 'swing', () => {
                     this.collapsibles[id] = wrapper.css('display') === 'none';
                 });
-            });
-
-            // create item
-            html.find('#create-item').on('click', async (event) => {
-                const createData = await this.getCreateData();
-                if (!createData.product) {
-                    return;
-                }
-
-                const product = createData.product;
-                const mystifyEnabled = game.settings.get(TOOLBOX_NAME, QUICK_MYSTIFY) as boolean;
-                if (mystifyEnabled && event.altKey) {
-                    product.data.identification.status = 'unidentified';
-                }
-
-                await this.createItems([createData.product]);
             });
         }
     }

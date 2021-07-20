@@ -42,6 +42,7 @@ import {
 import { isWeaponArmorData, ItemMaterials } from './data/Materials';
 import { FundamentalRuneType, ItemRunes, PotencyRuneType } from './data/Runes';
 import { DocumentClassForCompendiumMetadata } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/foundry.js/collections/documentCollections/compendiumCollection';
+import { QUICK_MYSTIFY, TOOLBOX_NAME } from '../Constants';
 
 /**
  * Returns distinct elements of an array when used to filter an array.
@@ -556,4 +557,28 @@ export function calculateFinalPriceAndLevel(args: FinalPriceAndLevelArgs): Final
         hitPoints: finalHitPoints,
         brokenThreshold: finalBreakThreshold,
     };
+}
+
+/**
+ * Mystify all items **IN PLACE** so they are unidentified
+ * @param items
+ */
+export function mystifyItems(...items: PhysicalItem[]): PhysicalItem[] {
+    for (const item of items) {
+        item.data.identification.status = 'unidentified';
+    }
+    return items;
+}
+
+/**
+ * Mystify all items **IN PLACE** if quick mystification is enabled in Toolbox and alt is held in the event
+ * @param event
+ * @param items
+ */
+export function maybeMystifyItems(event: JQuery.ClickEvent, ...items: PhysicalItem[]): PhysicalItem[] {
+    const mystifyEnabled = game.settings.get(TOOLBOX_NAME, QUICK_MYSTIFY) as boolean;
+    if (mystifyEnabled && event.altKey) {
+        items = mystifyItems(...items);
+    }
+    return items;
 }
