@@ -56,10 +56,17 @@ form.loot-app .sheet-sidebar .tab.create {
                 border: 2px groove #f0f0e0;
 
                 img {
+                    margin-right: 0.5em;
                     max-width: 24px;
                 }
                 h4 {
                     margin: 0;
+                }
+                a.entity-link {
+                    overflow-x: hidden;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                    max-width: calc(100% - 24px - 0.5em);
                 }
             }
         }
