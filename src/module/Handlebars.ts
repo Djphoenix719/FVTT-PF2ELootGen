@@ -98,6 +98,13 @@ export function registerHandlebarsHelpers() {
         if (!a) return undefined;
         return numericCommas(a);
     });
+    // round a number or return other values
+    Handlebars.registerHelper('round', (a: any) => {
+        if (typeof a === 'number') {
+            return Math.round(a);
+        }
+        return a;
+    });
 
     // assorted helpers for dealing with equality in templates
     Handlebars.registerHelper('eq', (lhs: any, rhs: any, context: HandlebarsContext) => {

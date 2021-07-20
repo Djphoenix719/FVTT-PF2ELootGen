@@ -52,7 +52,13 @@ div.weight-range {
     }
 
     div.weight-input {
-        margin-top: -0.125em;
-        margin-bottom: -0.125em;
+        display: flex;
+        align-items: center;
+
+        label {
+            text-align: left;
+            font-weight: bold;
+            width: 12.5%;
+        }
     }
 }
