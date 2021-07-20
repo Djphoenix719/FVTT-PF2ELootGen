@@ -104,14 +104,4 @@ export const setup = () => {
         await Actor.create({ name: 'Lootboi', type: 'loot', ['flags.core.sheetClass']: 'pf2e-lootgen.LootApp' });
         await game.actors?.getName('Lootboi')?.sheet?.render(true);
     });
-
-    Hooks.on('renderItemDirectory', (itemDirectory: any, html: JQuery, options: any) => {
-        const lis: JQuery = html.find('ol.directory-list li.directory-item.item');
-        for (const element of lis) {
-            const item = game.items?.get(element.getAttribute('data-entity-id') as string) as Item;
-            if (item.getFlag(FLAGS_KEY, 'temporary')) {
-                $(element).remove();
-            }
-        }
-    });
 };
