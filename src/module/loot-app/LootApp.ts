@@ -118,7 +118,7 @@ export const extendLootSheet = () => {
                 {
                     navSelector: '.loot-app-nav',
                     contentSelector: '.loot-app-content',
-                    initial: 'settings',
+                    initial: 'create',
                 },
             ];
             return options;
@@ -280,7 +280,7 @@ export const extendLootSheet = () => {
             }
 
             let newName: string = '';
-            if (data.potencyRune !== '0' && (data.potencyRune as string) !== '') {
+            if (data.potencyRune && data.potencyRune !== '0' && (data.potencyRune as string) !== '') {
                 newName = `+${data.potencyRune}`;
             }
             if (data.strikingRune && (data.strikingRune as string) !== '') {
@@ -318,12 +318,32 @@ export const extendLootSheet = () => {
             product.data.maxHp.value = data.hitPoints;
             product.data.brokenThreshold.value = data.brokenThreshold;
 
+            if (isShield(product)) {
+                let description = product.data.description.value;
+
+                const startLength = '<td>'.length;
+
+                const hardnessStart = description.indexOf('<td>') + startLength;
+                const hardnessEnd = description.indexOf('</td>', hardnessStart);
+                description = description.slice(0, hardnessStart) + data.hardness + description.slice(hardnessEnd, description.length);
+
+                const hitPointsStart = description.indexOf('<td>', hardnessStart) + startLength;
+                const hitPointsEnd = description.indexOf('</td>', hitPointsStart);
+                description = description.slice(0, hitPointsStart) + data.hitPoints + description.slice(hitPointsEnd, description.length);
+
+                const breakThresholdStart = description.indexOf('<td>', hitPointsStart) + startLength;
+                const breakThresholdEnd = description.indexOf('</td>', breakThresholdStart);
+                description = description.slice(0, breakThresholdStart) + data.brokenThreshold + description.slice(breakThresholdEnd, description.length);
+
+                product.data.description.value = description;
+            }
+
             if (data.finalLevel === 25) {
                 product.data.traits.rarity.value = Rarity.Unique;
             }
 
             product.name = `${newName} ${product.name}`;
-            delete product.flags[FLAGS_KEY];
+            product._id = foundry.utils.randomID(ITEM_ID_LENGTH);
 
             return product;
         }
