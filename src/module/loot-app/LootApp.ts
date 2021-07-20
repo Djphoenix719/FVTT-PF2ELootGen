@@ -318,24 +318,28 @@ export const extendLootSheet = () => {
             product.data.maxHp.value = data.hitPoints;
             product.data.brokenThreshold.value = data.brokenThreshold;
 
+            // update table description of shields
             if (isShield(product)) {
                 let description = product.data.description.value;
 
                 const startLength = '<td>'.length;
 
                 const hardnessStart = description.indexOf('<td>') + startLength;
-                const hardnessEnd = description.indexOf('</td>', hardnessStart);
-                description = description.slice(0, hardnessStart) + data.hardness + description.slice(hardnessEnd, description.length);
 
-                const hitPointsStart = description.indexOf('<td>', hardnessStart) + startLength;
-                const hitPointsEnd = description.indexOf('</td>', hitPointsStart);
-                description = description.slice(0, hitPointsStart) + data.hitPoints + description.slice(hitPointsEnd, description.length);
+                if (hardnessStart !== -1) {
+                    const hardnessEnd = description.indexOf('</td>', hardnessStart);
+                    description = description.slice(0, hardnessStart) + data.hardness + description.slice(hardnessEnd, description.length);
 
-                const breakThresholdStart = description.indexOf('<td>', hitPointsStart) + startLength;
-                const breakThresholdEnd = description.indexOf('</td>', breakThresholdStart);
-                description = description.slice(0, breakThresholdStart) + data.brokenThreshold + description.slice(breakThresholdEnd, description.length);
+                    const hitPointsStart = description.indexOf('<td>', hardnessStart) + startLength;
+                    const hitPointsEnd = description.indexOf('</td>', hitPointsStart);
+                    description = description.slice(0, hitPointsStart) + data.hitPoints + description.slice(hitPointsEnd, description.length);
 
-                product.data.description.value = description;
+                    const breakThresholdStart = description.indexOf('<td>', hitPointsStart) + startLength;
+                    const breakThresholdEnd = description.indexOf('</td>', breakThresholdStart);
+                    description = description.slice(0, breakThresholdStart) + data.brokenThreshold + description.slice(breakThresholdEnd, description.length);
+
+                    product.data.description.value = description;
+                }
             }
 
             if (data.finalLevel === 25) {
@@ -610,10 +614,14 @@ export const extendLootSheet = () => {
             });
 
             const rollSpells = async (consumableTypes: SpellItemType[]) => {
-                const promises: Promise<Entity[]>[] = [];
+                const promises: Promise<Item[]>[] = [];
                 for (const source of Object.values(spellSources)) {
-                    // @ts-ignore
-                    promises.push(game.packs.get(source.id).getDocuments());
+                    const pack = game.packs.get(source.id);
+                    if (pack === undefined) {
+                        continue;
+                    }
+                    // noinspection ES6MissingAwait
+                    promises.push(pack.getDocuments() as Promise<Item[]>);
                 }
 
                 const levelFilters = Object.values(spellLevelFilters)

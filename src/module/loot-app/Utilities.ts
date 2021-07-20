@@ -41,6 +41,7 @@ import {
 } from '../../types/PF2E';
 import { isWeaponArmorData, ItemMaterials } from './data/Materials';
 import { FundamentalRuneType, ItemRunes, PotencyRuneType } from './data/Runes';
+import { DocumentClassForCompendiumMetadata } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/foundry.js/collections/documentCollections/compendiumCollection';
 
 /**
  * Returns distinct elements of an array when used to filter an array.
@@ -93,20 +94,20 @@ export function filtersOfType(type: FilterType): Record<string, AppFilter> {
  * @param packId
  * @param itemId
  */
-export const getItemFromPack = async (packId: string, itemId: string): Promise<any> => {
+export async function getItemFromPack<T = DocumentClassForCompendiumMetadata<CompendiumCollection.Metadata>>(
+    packId: string,
+    itemId: string,
+): Promise<T | undefined> {
     const pack = await game.packs?.get(packId);
-    // @ts-ignore
-    return await pack.getDocument(itemId);
-};
-
-/**
- * Load a RollTable from a compendium pack by id.
- * @param tableId
- * @param packId
- */
-export const getTableFromPack = async (tableId: string, packId: string): Promise<RollTable> => {
-    return await getItemFromPack(packId, tableId);
-};
+    if (pack === undefined) {
+        return undefined;
+    }
+    const result = await pack.getDocument(itemId);
+    if (!result) {
+        return undefined;
+    }
+    return result as unknown as T;
+}
 
 export interface DrawOptions {
     displayChat?: boolean;
@@ -156,9 +157,10 @@ export async function drawFromSources(count: number, sources: DataSource[], opti
 
         // TODO: Something is "weird" with the table weights, seeming to prefer very high level items and large groups
         //  of the same item are being created, even with all tables enabled and evenly weighted
-        let item: PF2EItem;
+        let item: PF2EItem | undefined;
         if (isTableSource(source)) {
-            const table = await getTableFromPack(source.id, source.tableSource.id);
+            const table = await getItemFromPack<RollTable>(source.tableSource.id, source.id);
+            // const table = await getTableFromPack(source.id, source.tableSource.id);
 
             // @ts-ignore
             const draw = await table.roll({ roll: null, recursive: true });
@@ -181,15 +183,17 @@ export async function drawFromSources(count: number, sources: DataSource[], opti
             throw new Error(`Unknown source type: ${source.sourceType}`);
         }
 
+        if (item === undefined) {
+            i -= 1;
+            continue;
+        }
+
         results.push({
             itemData: item,
             source: source,
         });
     }
 
-    // if (options.displayChat) {
-    //     await buildRollTableMessage(results);
-    // }
     return results;
 }
 
@@ -218,8 +222,12 @@ export async function createSpellItems(itemDatas: DrawResult[], itemTypes: Spell
     };
 
     const templates: Record<SpellItemType, ConsumableItem[]> = {
-        [SpellItemType.Wand]: (await Promise.all(Object.values(wandTemplateIds).map((id) => getItemFromPack(TEMPLATE_PACK_ID, id)))) as ConsumableItem[],
-        [SpellItemType.Scroll]: (await Promise.all(Object.values(scrollTemplateIds).map((id) => getItemFromPack(TEMPLATE_PACK_ID, id)))) as ConsumableItem[],
+        [SpellItemType.Wand]: (await Promise.all(
+            Object.values(wandTemplateIds).map((id) => getItemFromPack<ConsumableItem>(TEMPLATE_PACK_ID, id)),
+        )) as ConsumableItem[],
+        [SpellItemType.Scroll]: (await Promise.all(
+            Object.values(scrollTemplateIds).map((id) => getItemFromPack<ConsumableItem>(TEMPLATE_PACK_ID, id)),
+        )) as ConsumableItem[],
     };
 
     let wandMessage: boolean = false;
@@ -436,7 +444,7 @@ export function getItemBulkMultiplier(item: PhysicalItem): number {
  * Select the correct EquipmentType for this item
  * @param item
  */
-export const getEquipmentType = (item: PF2EItem): EquipmentType | undefined => {
+export function getEquipmentType(item: PF2EItem): EquipmentType | undefined {
     if (isWeapon(item)) {
         return EquipmentType.Weapon;
     } else if (isShield(item)) {
@@ -446,13 +454,13 @@ export const getEquipmentType = (item: PF2EItem): EquipmentType | undefined => {
     } else {
         return undefined;
     }
-};
+}
 
 /**
  * Infer shield type from ac/bulk
  * @param item
  */
-export const inferShieldType = (item: Shield): EquipmentType | undefined => {
+export function inferShieldType(item: Shield): EquipmentType | undefined {
     if (item.data.armor.value === 1) {
         return EquipmentType.Buckler;
     }
@@ -468,7 +476,7 @@ export const inferShieldType = (item: Shield): EquipmentType | undefined => {
     } catch (e) {
         return undefined;
     }
-};
+}
 
 interface FinalPriceAndLevelArgs {
     item: EquipmentItem;
