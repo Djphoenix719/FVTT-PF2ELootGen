@@ -34,7 +34,6 @@ import {
 } from './Utilities';
 import { SpellItemType, spellSources } from './source/Spells';
 import { BasePriceData, CREATE_KEY_NONE, getValidMaterialGrades, getValidMaterials, ItemMaterials } from './data/Materials';
-import { TABLE_WEIGHT_MAX, TABLE_WEIGHT_MIN } from './Settings';
 import { ITEM_ID_LENGTH, MODULE_NAME, PF2E_LOOT_SHEET_NAME, QUICK_MYSTIFY, TOOLBOX_NAME } from '../Constants';
 import { AppFilter, FilterType, spellLevelFilters, spellSchoolFilters, spellTraditionFilters } from './Filters';
 import { NumberFilter } from '../filter/Operation/NumberFilter';
@@ -119,7 +118,7 @@ export const extendLootSheet = () => {
                 {
                     navSelector: '.loot-app-nav',
                     contentSelector: '.loot-app-content',
-                    initial: 'create',
+                    initial: 'settings',
                 },
             ];
             return options;
@@ -392,8 +391,8 @@ export const extendLootSheet = () => {
             const data = super.getData(options) as Record<string, any>;
 
             data['constants'] = {
-                rangeMin: TABLE_WEIGHT_MIN,
-                rangeMax: TABLE_WEIGHT_MAX,
+                rangeMin: 1,
+                rangeMax: 25,
             };
             data['collapsibles'] = { ...data['collapsibles'], ...this.collapsibles };
 
