@@ -15,20 +15,16 @@
  */
 
 form.loot-app .loot-app-tab {
-    .config {
-        h3 {
-            margin-bottom: 0;
-        }
-        label {
-            font-weight: bold;
-        }
-        .form-group {
-            input {
-                text-align: right;
-                margin: 0;
-            }
-        }
+    h3 {
+        text-align: center;
+
+        border-top: 1px solid var(--primary);
+        border-bottom: 1px solid var(--primary);
+
+        margin-top: 0.25em;
+        margin-bottom: 0.25em;
     }
+
     .sources .form-group,
     .filters .form-group {
         margin: 0;
@@ -59,13 +55,26 @@ form.loot-app .loot-app-tab {
         }
     }
 
-    h3.tab-header {
-        text-align: center;
+    div.config {
+        top: 38px;
+        position: sticky;
+        background: url(/systems/pf2e/assets/sheet/parchment.webp) repeat;
+        z-index: 1;
+        padding: 4px;
+        border: 1px solid var(--primary);
 
-        border-top: 1px solid var(--primary);
-        border-bottom: 1px solid var(--primary);
+        div.buttons {
+            display: flex;
+        }
 
-        margin-top: 0.25em;
-        margin-bottom: 0.25em;
+        button {
+            flex: 1;
+            i {
+                margin: 0;
+            }
+        }
+        button.roll {
+            flex: 4;
+        }
     }
 }

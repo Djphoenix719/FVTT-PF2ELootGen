@@ -1,9 +1,7 @@
 <!-- TODO: Localization -->
 <div class="tab-container" data-type="treasure">
 
-    {{> tab-buttons }}
-    <h3 class="tab-header">Treasure</h3>
-    {{> tab-config key="treasure" }}
+    {{> tab-buttons key="treasure" header="Treasure" }}
 
     {{#set-block "collapse-content"}}
         {{#each @root.sources.treasure as |source|}}

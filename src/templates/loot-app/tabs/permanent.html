@@ -1,9 +1,7 @@
 <!-- TODO: Localization -->
 <div class="tab-container" data-type="permanent">
 
-    {{> tab-buttons }}
-    <h3 class="tab-header">Permanent Items</h3>
-    {{> tab-config key="permanent" }}
+    {{> tab-buttons key="permanent" header="Permanent Items" }}
 
     {{#set-block "collapse-content"}}
         {{#each @root.sources.permanent as |source|}}

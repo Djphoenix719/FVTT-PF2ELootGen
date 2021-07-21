@@ -40,7 +40,6 @@ export async function registerHandlebarsTemplates() {
     const partials: Record<string, string> = {
         'weight-range': `templates/loot-app/partials/weight-range.html`,
         'tab-buttons': `templates/loot-app/tabs/partials/tab-buttons.html`,
-        'tab-config': `templates/loot-app/tabs/partials/tab-config.html`,
         'create-select': `templates/loot-app/tabs/partials/create-select.html`,
         'rune-stats': `templates/loot-app/tabs/partials/rune-stats.html`,
         'property-runes': `templates/loot-app/tabs/partials/property-runes.html`,

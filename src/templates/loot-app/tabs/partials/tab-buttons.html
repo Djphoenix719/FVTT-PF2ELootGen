@@ -1,25 +1,35 @@
-<div class="buttons">
+<div class="config">
+    <div class="buttons">
+        {{# get-block "pre-buttons"}}{{/get-block}}
+        {{ del-block "pre-buttons" }}
 
-    {{# get-block "pre-buttons"}}{{/get-block}}
-    {{ del-block "pre-buttons" }}
+        {{#if (default roll true)}}
+            <button class="roll" title="Roll"><i class="fas fa-dice-d20"></i></button>
+        {{/if}}
 
-    {{#if (default roll true)}}
-        <button class="roll" title="Roll"><i class="fas fa-dice-d20"></i></button>
-    {{/if}}
+        {{#if (default all true)}}
+            <button class="check-all" title="All Checkboxes"><i class="fas fa-check-square"></i></button>
+        {{/if}}
 
-    {{#if (default all true)}}
-        <button class="check-all" title="All Checkboxes"><i class="fas fa-check-square"></i></button>
-    {{/if}}
+        {{#if (default none true)}}
+            <button class="check-none" title="No Checkboxes"><i class="far fa-check-square"></i></button>
+        {{/if}}
 
-    {{#if (default none true)}}
-        <button class="check-none" title="No Checkboxes"><i class="far fa-check-square"></i></button>
-    {{/if}}
+        {{#if (default reset true)}}
+            <button class="reset" title="Reset"><i class="fas fa-undo"></i></button>
+        {{/if}}
 
-    {{#if (default reset true)}}
-        <button class="reset" title="Reset"><i class="fas fa-undo"></i></button>
-    {{/if}}
-
-    {{# get-block "post-buttons"}}{{/get-block}}
-    {{ del-block "post-buttons" }}
-
+        {{# get-block "post-buttons"}}{{/get-block}}
+        {{ del-block "post-buttons" }}
+    </div>
+    <div class="header">
+        {{#if header}}
+            <h3>{{header}}</h3>
+        {{/if}}
+        <div class="form-group">
+            <label for="flags.pf2e-lootgen.config.{{key}}.count">Count</label>
+            <input type="number" min="1" name="flags.pf2e-lootgen.config.{{key}}.count"
+                   value="{{default (walk flags "config.$key.count" key=key) 1}}">
+        </div>
+    </div>
 </div>

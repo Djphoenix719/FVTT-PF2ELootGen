@@ -1,9 +1,7 @@
 <!-- TODO: Localization -->
 <div class="tab-container" data-type="consumable">
 
-    {{> tab-buttons }}
-    <h3 class="tab-header">Consumable Items</h3>
-    {{> tab-config key="consumable" }}
+    {{> tab-buttons key="consumable" header="Consumables" }}
 
     {{#set-block "collapse-content"}}
         {{#each @root.sources.consumable as |source|}}

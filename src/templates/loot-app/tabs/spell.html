@@ -6,9 +6,7 @@
             <button class="roll-wand" title="Wands"><i class="fas fa-magic"></i></button>
             <button class="roll-both" title="Scroll or Wand"><i class="fas fa-scroll"></i><i class="fas fa-magic"></i></button>
     {{/set-block}}
-    {{> tab-buttons roll=false }}
-    <h3 class="tab-header">Scrolls & Wands</h3>
-    {{> tab-config key="spell" }}
+    {{> tab-buttons roll=false key="spell" header="Scrolls & Wands" }}
 
     {{#set-block "collapse-content"}}
         {{#each @root.sources.spell as |source|}}
