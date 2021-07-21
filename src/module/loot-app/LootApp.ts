@@ -120,7 +120,7 @@ export const extendLootSheet = () => {
                 {
                     navSelector: '.loot-app-nav',
                     contentSelector: '.loot-app-content',
-                    initial: 'create',
+                    initial: 'settings',
                 },
             ];
             return options;
@@ -604,7 +604,6 @@ export const extendLootSheet = () => {
 
                 await this.createItemsFromDraw(event, results);
             });
-
             // quick roll button for sources
             html.find('.treasure i.quick-roll, .permanent i.quick-roll, .consumable i.quick-roll').on('click', async (event) => {
                 event.preventDefault();
@@ -710,6 +709,16 @@ export const extendLootSheet = () => {
                 [createData.product] = maybeMystifyItems(event, createData.product) as EquipmentItem[];
 
                 await this.createItems([createData.product]);
+            });
+            // clear loot
+            html.find('button.clear-loot').on('click', async (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                await this.actor.deleteEmbeddedDocuments(
+                    'Item',
+                    this.actor.items.map((item) => item.id!),
+                );
             });
 
             /**

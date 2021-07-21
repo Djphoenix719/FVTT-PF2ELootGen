@@ -58,4 +58,14 @@ form.loot-app .loot-app-tab {
             }
         }
     }
+
+    h3.tab-header {
+        text-align: center;
+
+        border-top: 1px solid var(--primary);
+        border-bottom: 1px solid var(--primary);
+
+        margin-top: 0.25em;
+        margin-bottom: 0.25em;
+    }
 }
