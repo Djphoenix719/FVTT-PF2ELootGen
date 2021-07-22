@@ -26,12 +26,15 @@ export const FEATURE_QUICK_ROLL_MODIFIERS = 'quick-roll-modifiers-enabled';
 export const FEATURE_QUICK_ROLL_CONTROL = 'quick-roll-control-count';
 export const FEATURE_QUICK_ROLL_SHIFT = 'quick-roll-shift-count';
 
+export const FEATURE_OUTPUT_LOOT_ROLLS = 'output-loot-rolls';
+export const FEATURE_OUTPUT_LOOT_ROLLS_WHISPER = 'output-loot-rolls-whisper';
+
+// TODO: Localization
 export const FEATURES: IFeatureDefinition[] = [
     {
         id: FEATURE_ALLOW_MERGING,
         title: 'Merge When Generating',
         attributes: [],
-        // TODO: Localization
         description:
             'If this setting is enabled, PF2E Lootgen will attempt to merge generated items into' +
             ' existing stacks on the actor. If this setting is disabled, new stacks will still merge but not' +
@@ -76,6 +79,29 @@ export const FEATURES: IFeatureDefinition[] = [
             },
         ],
         help: 'Holding down multiple keys will multiply together the modifiers.',
+    },
+    {
+        id: FEATURE_OUTPUT_LOOT_ROLLS,
+        title: 'Output Loot Rolled to Chat',
+        attributes: [],
+        description: '',
+        inputs: [
+            {
+                name: FEATURE_OUTPUT_LOOT_ROLLS_WHISPER,
+                label: 'Whisper Results',
+                type: 'checkbox',
+                value: false,
+                help: 'If enabled, always whisper the results to the GMs. Otherwise, respect your current roll mode.',
+            },
+        ],
+        register: [
+            {
+                name: FEATURE_OUTPUT_LOOT_ROLLS_WHISPER,
+                type: Boolean,
+                default: false,
+            },
+        ],
+        help: '',
     },
 ];
 

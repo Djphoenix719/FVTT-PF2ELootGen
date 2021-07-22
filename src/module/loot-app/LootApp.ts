@@ -29,6 +29,7 @@ import {
     DrawResult,
     getEquipmentType,
     maybeMystifyItems,
+    maybeOutputItemsToChat,
     mergeExistingStacks,
     mergeStacks,
     rollTreasureValues,
@@ -468,6 +469,7 @@ export const extendLootSheet = () => {
         private async createItemsFromDraw(event: JQuery.ClickEvent, results: DrawResult[]) {
             let itemsToUpdate: PF2EItem[] | undefined = undefined;
             let itemsToCreate = results.map((d) => d.itemData);
+            await maybeOutputItemsToChat(itemsToCreate as PhysicalItem[]);
             if (ModuleSettings.instance.get(FEATURE_ALLOW_MERGING)) {
                 const existing = this.actor.data.items.map((item) => item.data as PF2EItem);
                 [itemsToUpdate, itemsToCreate] = mergeExistingStacks(existing, itemsToCreate);
@@ -684,6 +686,7 @@ export const extendLootSheet = () => {
                 // TODO: Join stacks, slug needs updating to do so.
 
                 await this.createItems(createdItems);
+                await maybeOutputItemsToChat(createdItems);
             };
 
             // roll scrolls

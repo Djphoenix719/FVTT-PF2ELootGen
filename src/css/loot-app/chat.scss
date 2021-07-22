@@ -14,33 +14,26 @@
  * limitations under the License.
  */
 
-@import 'overrides';
-@import 'buttons';
-@import 'config';
-@import 'animation';
-@import 'weight-range';
-@import 'collapsible';
-@import 'create';
-@import 'chat';
+div.loot-draw {
+    ol.loot-results {
+        list-style: none;
+        padding: 0;
 
-form.loot-app {
-    section.sidebar div.loot-app-content.sheet-content-loot {
-        flex: 1;
-    }
-    nav.sheet-tabs {
-        top: 4px;
-        position: sticky;
-        background: url(/systems/pf2e/assets/sheet/parchment.webp) repeat;
-        z-index: 1;
-    }
+        li.loot-result {
+            display: flex;
+            align-items: center;
 
-    div.form-group {
-        label {
-            font-weight: bold;
-        }
-        input {
-            text-align: right;
-            margin: 0;
+            &:nth-child(2n-1) {
+                background-color: rgba(0, 0, 0, 0.1);
+            }
+
+            img.loot-image {
+                width: 32px;
+                height: 32px;
+            }
+            div.loot-text {
+                float: right;
+            }
         }
     }
 }

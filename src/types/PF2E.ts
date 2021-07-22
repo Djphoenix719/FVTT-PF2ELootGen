@@ -223,7 +223,7 @@ export interface PF2EItem {
     name?: string;
     type: ItemType;
     data: PF2EItemData;
-
+    img: string;
     flags: Record<string, unknown>;
     folder?: string;
 }

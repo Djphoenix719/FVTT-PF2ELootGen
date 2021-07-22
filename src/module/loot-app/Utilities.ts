@@ -42,7 +42,11 @@ import {
 import { isWeaponArmorData, ItemMaterials } from './data/Materials';
 import { FundamentalRuneType, ItemRunes, PotencyRuneType } from './data/Runes';
 import { DocumentClassForCompendiumMetadata } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/foundry.js/collections/documentCollections/compendiumCollection';
-import { QUICK_MYSTIFY, TOOLBOX_NAME } from '../Constants';
+import { MODULE_NAME, QUICK_MYSTIFY, TOOLBOX_NAME } from '../Constants';
+import { ChatMessageDataConstructorData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/chatMessageData';
+import { DiceRollMode } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/constants.mjs';
+import ModuleSettings from '../../../FVTT-Common/src/module/ModuleSettings';
+import { FEATURE_OUTPUT_LOOT_ROLLS, FEATURE_OUTPUT_LOOT_ROLLS_WHISPER } from '../Setup';
 
 /**
  * Returns distinct elements of an array when used to filter an array.
@@ -284,6 +288,54 @@ export async function rollTreasureValues(results: DrawResult[]) {
     }
 
     return results;
+}
+
+export async function maybeOutputItemsToChat(results: PhysicalItem[]) {
+    if (!ModuleSettings.instance.get<boolean>(FEATURE_OUTPUT_LOOT_ROLLS)) {
+        return;
+    }
+
+    results = mergeStacks(results) as PhysicalItem[];
+
+    const data: Record<string, any> = {};
+    data['description'] = `Rolled ${results.length} items.`;
+    data['results'] = results.map((item) => {
+        return {
+            id: item._id,
+            icon: item.img,
+            text: `@Compendium[pf2e.equipment-srd.${item._id}]{${item.data.quantity.value}x ${item.name}}`,
+        };
+    });
+
+    const template = await renderTemplate(`modules/${MODULE_NAME}/templates/chat/table-output.html`, data);
+
+    const rollModeArgs: Partial<ChatMessageDataConstructorData> = {};
+    const gmIds = game.users!.filter((user) => user.isGM).map((user) => user.id!);
+    let rollMode = game.settings.get('core', 'rollMode') as DiceRollMode;
+    if (ModuleSettings.instance.get<boolean>(FEATURE_OUTPUT_LOOT_ROLLS_WHISPER)) {
+        rollMode = 'gmroll';
+    }
+
+    switch (rollMode) {
+        case 'blindroll':
+            rollModeArgs.blind = true;
+            rollModeArgs.whisper = gmIds;
+            break;
+        case 'roll':
+            break;
+        case 'selfroll':
+            rollModeArgs.whisper = [game.user?.id!];
+            break;
+        case 'gmroll':
+            rollModeArgs.whisper = gmIds;
+            break;
+    }
+
+    await ChatMessage.create({
+        user: game.user?.id!,
+        content: template,
+        ...rollModeArgs,
+    });
 }
 
 export interface MergeStacksOptions {

@@ -1,0 +1,13 @@
+<div class="loot-draw">
+    {{#if description}}
+        <div class="loot-description">{{{description}}}</div>
+    {{/if}}
+    <ol class="loot-results">
+        {{#each results}}
+            <li class="loot-result" data-result-id="{{this.id}}">
+                <img class="loot-image" src="{{this.icon}}"/>
+                <div class="loot-text">{{{this.text}}}</div>
+            </li>
+        {{/each}}
+    </ol>
+</div>

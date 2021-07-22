@@ -64,6 +64,8 @@ export async function registerHandlebarsTemplates() {
         `templates/loot-app/tabs/create/armor.html`,
         `templates/loot-app/tabs/create/shield.html`,
 
+        `templates/chat/table-output.html`,
+
         ...Object.values(GenType).map((type) => `templates/loot-app/tabs/${type}.html`),
         ...Object.values(partials),
     ].map(templatePath);
