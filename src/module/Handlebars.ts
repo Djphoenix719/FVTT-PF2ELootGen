@@ -17,22 +17,7 @@
 import { MODULE_NAME } from './Constants';
 import { GenType } from './loot-app/source/DataSource';
 import { numericCommas } from './loot-app/Formatting';
-
-export interface HandlebarsContext {
-    data: Record<string, any> & {
-        root: Record<string, any>;
-    };
-    hash?: Record<string, any>;
-    // contents of block
-    fn?: (context: any) => string;
-    // contents of else block
-    inverse?: () => string;
-    loc?: {
-        start: { line: number; column: number };
-        end: { line: number; column: number };
-    };
-    name?: string;
-}
+import { HandlebarsContext } from '../../FVTT-Common/src/module/Handlebars';
 
 export async function registerHandlebarsTemplates() {
     const templatePath = (path: string) => `modules/${MODULE_NAME}/${path}`;
