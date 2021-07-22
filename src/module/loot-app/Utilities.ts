@@ -114,9 +114,7 @@ export async function getItemFromPack<T = DocumentClassForCompendiumMetadata<Com
     return result as unknown as T;
 }
 
-export interface DrawOptions {
-    displayChat?: boolean;
-}
+export interface DrawOptions {}
 export interface DrawResult {
     itemData: PF2EItem;
     source: DataSource;
@@ -131,9 +129,7 @@ export interface SpellDrawResult extends DrawResult {}
  */
 export async function drawFromSources(count: number, sources: DataSource[], options?: DrawOptions): Promise<DrawResult[]> {
     if (options === undefined) {
-        options = {
-            displayChat: true,
-        };
+        options = {};
     }
 
     if (sources.length === 0) {
@@ -144,6 +140,7 @@ export async function drawFromSources(count: number, sources: DataSource[], opti
     let weightTotal = 0;
     sources.forEach((source) => {
         weightTotal += source.weight;
+        source.weight = weightTotal;
     });
 
     const chooseSource = () => {
@@ -160,12 +157,9 @@ export async function drawFromSources(count: number, sources: DataSource[], opti
     for (let i = 0; i < count; i++) {
         const source = chooseSource();
 
-        // TODO: Something is "weird" with the table weights, seeming to prefer very high level items and large groups
-        //  of the same item are being created, even with all tables enabled and evenly weighted
         let item: PF2EItem | undefined;
         if (isTableSource(source)) {
             const table = await getItemFromPack<RollTable>(source.tableSource.id, source.id);
-            // const table = await getTableFromPack(source.id, source.tableSource.id);
 
             // @ts-ignore
             const draw = await table.roll({ roll: null, recursive: true });
