@@ -126,8 +126,8 @@ export const setup = () => {
             makeDefault: false,
         });
 
-        await game.actors?.getName('Lootboi')?.delete();
-        await Actor.create({ name: 'Lootboi', type: 'loot', ['flags.core.sheetClass']: 'pf2e-lootgen.LootApp' });
-        await game.actors?.getName('Lootboi')?.sheet?.render(true);
+        // await game.actors?.getName('Lootboi')?.delete();
+        // await Actor.create({ name: 'Lootboi', type: 'loot', ['flags.core.sheetClass']: 'pf2e-lootgen.LootApp' });
+        // await game.actors?.getName('Lootboi')?.sheet?.render(true);
     });
 };
