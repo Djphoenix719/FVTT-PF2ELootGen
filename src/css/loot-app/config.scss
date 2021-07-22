@@ -15,16 +15,6 @@
  */
 
 form.loot-app .loot-app-tab {
-    h3 {
-        text-align: center;
-
-        border-top: 1px solid var(--primary);
-        border-bottom: 1px solid var(--primary);
-
-        margin-top: 0.25em;
-        margin-bottom: 0.25em;
-    }
-
     .sources .form-group,
     .filters .form-group {
         margin: 0;
@@ -75,6 +65,16 @@ form.loot-app .loot-app-tab {
         }
         button.roll {
             flex: 4;
+        }
+
+        h3 {
+            text-align: center;
+
+            border-top: 1px solid var(--primary);
+            border-bottom: 1px solid var(--primary);
+
+            margin-top: 0.25em;
+            margin-bottom: 0.25em;
         }
     }
 }
