@@ -19,7 +19,7 @@ import { consumableSources } from './source/Consumable';
 import { isTreasureSource, TreasureSource, treasureSources } from './source/Treasure';
 import { scrollTemplateIds, SpellItemType, spellSources, TEMPLATE_PACK_ID, wandTemplateIds } from './source/Spells';
 import { DataSource, GenType, getPack, isPackSource, isPoolSource, isTableSource } from './source/DataSource';
-import { AppFilter, FilterType, spellLevelFilters, spellSchoolFilters, spellTraditionFilters } from './Filters';
+import { AppFilter, FilterType, spellLevelFilters, spellRarityFilters, spellSchoolFilters, spellTraditionFilters } from './Filters';
 import {
     ConsumableItem,
     EquipmentItem,
@@ -91,6 +91,8 @@ export function filtersOfType(type: FilterType): Record<string, AppFilter> {
             return spellLevelFilters;
         case FilterType.SpellTradition:
             return spellTraditionFilters;
+        case FilterType.SpellRarity:
+            return spellRarityFilters;
     }
 }
 

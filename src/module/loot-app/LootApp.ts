@@ -37,7 +37,7 @@ import {
 import { SpellItemType, spellSources } from './source/Spells';
 import { BasePriceData, CREATE_KEY_NONE, getValidMaterialGrades, getValidMaterials, ItemMaterials } from './data/Materials';
 import { ITEM_ID_LENGTH, MODULE_NAME, PF2E_LOOT_SHEET_NAME, QUICK_MYSTIFY, TOOLBOX_NAME } from '../Constants';
-import { AppFilter, FilterType, spellLevelFilters, spellSchoolFilters, spellTraditionFilters } from './Filters';
+import { AppFilter, FilterType, spellLevelFilters, spellRarityFilters, spellSchoolFilters, spellTraditionFilters } from './Filters';
 import { NumberFilter } from '../filter/Operation/NumberFilter';
 import { ArrayIncludesFilter } from '../filter/Operation/ArrayIncludesFilter';
 import { StringFilter } from '../filter/Operation/StringFilter';
@@ -429,6 +429,7 @@ export const extendLootSheet = () => {
                     school: Object.values(spellSchoolFilters).map(getFilter),
                     level: Object.values(spellLevelFilters).map(getFilter),
                     tradition: Object.values(spellTraditionFilters).map(getFilter),
+                    rarity: Object.values(spellRarityFilters).map(getFilter),
                 },
             };
 
@@ -646,12 +647,17 @@ export const extendLootSheet = () => {
                     .map((filter) => getFilterSettings(this.actor, filter))
                     .filter((filter) => filter.enabled)
                     .map((filter) => new ArrayIncludesFilter('data.traditions.value', filter.desiredValue as string, filter.weight));
+                const rarityFilters = Object.values(spellRarityFilters)
+                    .map((filter) => getFilterSettings(this.actor, filter))
+                    .filter((filter) => filter.enabled)
+                    .map((filter) => new StringFilter('data.traits.rarity.value', filter.desiredValue as string, filter.weight));
 
                 const isLevel = new OrGroup([...levelFilters]);
                 const isSchool = new OrGroup([...schoolFilters]);
                 const isTradition = new OrGroup([...traditionFilters]);
-                const isEnabled = new AndGroup([isLevel, isSchool, isTradition]);
-                const filters: WeightedFilter<number | string>[] = [...levelFilters, ...schoolFilters, ...traditionFilters];
+                const isRarity = new OrGroup([...rarityFilters]);
+                const isEnabled = new AndGroup([isLevel, isSchool, isTradition, isRarity]);
+                const filters: WeightedFilter<number | string>[] = [...levelFilters, ...schoolFilters, ...traditionFilters, ...rarityFilters];
 
                 let spells = (await Promise.all(promises)).flat().map((spell) => spell.data) as unknown as PF2EItem[];
                 spells = spells.filter((spell) => isEnabled.isSatisfiedBy(spell));

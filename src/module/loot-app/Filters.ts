@@ -17,11 +17,13 @@
 import { SpellSchool, SpellTradition } from './source/Spells';
 import { IEnabled, INamed, IWeighted } from './source/Mixins';
 import { GenType, ordinalNumber } from './source/DataSource';
+import { Rarity } from '../../types/PF2E';
 
 export enum FilterType {
     SpellSchool = 'school',
     SpellLevel = 'level',
     SpellTradition = 'tradition',
+    SpellRarity = 'rarity',
 }
 
 export interface AppFilter extends IWeighted, IEnabled, INamed {
@@ -82,6 +84,22 @@ const traditionFilter = (tradition: SpellTradition): SpellFilter => {
     };
 };
 
+const rarityFilterId = (rarity: Rarity) => `${rarity}`;
+const rarityFilter = (rarity: Rarity): SpellFilter => {
+    return {
+        id: rarityFilterId(rarity),
+        name: rarity.capitalize(),
+
+        filterType: FilterType.SpellRarity,
+        filterCategory: GenType.Spell,
+
+        desiredValue: rarity,
+
+        weight: 1,
+        enabled: true,
+    };
+};
+
 export const spellLevelFilters: Record<string, AppFilter> = Array.fromRange(10).reduce(
     (prev, curr) =>
         mergeObject(prev, {
@@ -105,5 +123,12 @@ export const spellTraditionFilters: Record<string, AppFilter> = Object.values(Sp
         }),
     {},
 );
+export const spellRarityFilters: Record<string, AppFilter> = Object.values(Rarity).reduce(
+    (prev, curr) =>
+        mergeObject(prev, {
+            [rarityFilterId(curr)]: rarityFilter(curr),
+        }),
+    {},
+);
 
-export const spellFilters = { ...spellLevelFilters, ...spellSchoolFilters, ...spellTraditionFilters };
+export const spellFilters = { ...spellLevelFilters, ...spellSchoolFilters, ...spellTraditionFilters, ...spellRarityFilters };

@@ -18,6 +18,13 @@
     {{> collapsible title="Data Sources" id="spell-data-sources" }}
 
     {{#set-block "collapse-content"}}
+        {{#each @root.filters.spell.rarity as |filter|}}
+            {{> weight-range key=(filter-flag filter) }}
+        {{/each}}
+    {{/set-block}}
+    {{> collapsible title="Rarity Filters" id="spell-rarity-filters" }}
+
+    {{#set-block "collapse-content"}}
         {{#each @root.filters.spell.tradition as |filter|}}
             {{> weight-range key=(filter-flag filter) }}
         {{/each}}
