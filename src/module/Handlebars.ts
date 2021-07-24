@@ -75,10 +75,6 @@ export function registerHandlebarsHelpers() {
     Handlebars.registerHelper('default', (value: any, defaultValue: any) => {
         return value === undefined || value === null ? defaultValue : value;
     });
-    // concat strings together with a separator
-    Handlebars.registerHelper('concat', (a: string, b: string, separator: string) => {
-        return a.toString() + separator.toString() + b.toString();
-    });
     // separate hundreds groups in numbers with commas
     Handlebars.registerHelper('numeric-commas', (a: string | number | undefined) => {
         if (!a) return undefined;
