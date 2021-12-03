@@ -132,9 +132,10 @@ async function copyAssets() {
     gulp.src('module.json').pipe(gulp.dest(destFolder));
     gulp.src('src/external/**/*').pipe(gulp.dest(path.resolve(destFolder, 'external')));
     gulp.src('src/templates/**/*').pipe(gulp.dest(path.resolve(destFolder, 'templates')));
-    gulp.src('FVTT-Common/src/templates/**/*').pipe(gulp.dest(path.resolve(destFolder, 'templates')));
     gulp.src('src/packs/**/*').pipe(gulp.dest(path.resolve(destFolder, 'packs')));
     gulp.src('LICENSE').pipe(gulp.dest(destFolder));
+
+    gulp.src('FVTT-Common/src/templates/**/*').pipe(gulp.dest(path.resolve(destFolder, 'templates')));
 }
 
 /**
@@ -148,11 +149,12 @@ async function watch() {
 
     watch('module.json', '');
     watch('src/templates/**/*', 'templates');
-    watch('FVTT-Common/src/templates/**/*', 'templates');
     watch('src/packs/**/*', 'packs');
     watch('LICENSE', '');
 
     gulp.watch('src/css/**/*.scss').on('change', async () => await buildSass());
+
+    watch('FVTT-Common/src/templates/**/*', 'templates');
     gulp.watch('FVTT-Common/src/css/**/*.scss').on('change', async () => await buildSass());
 
     // Watchify setup
