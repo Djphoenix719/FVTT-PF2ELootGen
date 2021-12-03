@@ -415,7 +415,7 @@ export const extendLootSheet = () => {
         }
 
         public async getData(options?: Application.RenderOptions) {
-            const data = super.getData(options) as Record<string, any>;
+            const data = (await super.getData(options)) as Record<string, any>;
 
             data['constants'] = {
                 rangeMin: 1,
