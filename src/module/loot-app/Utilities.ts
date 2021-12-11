@@ -164,8 +164,8 @@ export async function drawFromSources(count: number, sources: DataSource[], opti
             const table = await getItemFromPack<RollTable>(source.tableSource.id, source.id);
 
             // @ts-ignore
-            const draw = await table.roll({ roll: null, recursive: true });
-            const [result]: [TableResult] = draw.results;
+            const draw: any = await table.roll({ roll: null, recursive: true });
+            const [result]: [LootTableResult] = draw.results;
 
             if (result.data.resultId) {
                 item = await getItemFromPack(result.data.collection, result.data.resultId);

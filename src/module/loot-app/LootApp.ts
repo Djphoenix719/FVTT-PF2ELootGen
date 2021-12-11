@@ -156,6 +156,7 @@ export const extendLootSheet = () => {
 
             // @ts-ignore
             const item: Item = new (game.items as Items).documentClass(value);
+            // @ts-ignore
             game.items?.set(value._id, item);
             this._createBaseItem = value;
         }
@@ -414,7 +415,7 @@ export const extendLootSheet = () => {
             return dataUpdates;
         }
 
-        public async getData(options?: Application.RenderOptions) {
+        public async getData(options?: ActorSheet.Options) {
             const data = (await super.getData(options)) as Record<string, any>;
 
             data['constants'] = {

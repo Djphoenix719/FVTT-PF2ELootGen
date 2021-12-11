@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-declare interface TableResult {
-    data: TableResultData;
+declare interface LootTableResult {
+    data: LootTableResultData;
     parent: RollTable;
 }
 
-declare interface TableResultData {
+declare interface LootTableResultData {
     collection: string;
     drawn: boolean;
     flags: object;
