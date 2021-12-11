@@ -15,200 +15,136 @@
  */
 
 'use strict';
-const fs = require('fs');
-const path = require('path');
-const del = require('del');
-const chalk = require('chalk');
-const assign = require('lodash.assign');
 
-// Browserify
-const browserify = require('browserify');
-const watchify = require('watchify');
-const tsify = require('tsify');
-const babelify = require('babelify');
-
-// Sass
-const gulpsass = require('gulp-sass');
-gulpsass.compiler = require('node-sass');
-
-// Gulp
-const gulp = require('gulp');
-const source = require('vinyl-source-stream');
-const buffer = require('vinyl-buffer');
-const logger = require('gulplog');
-const sourcemaps = require('gulp-sourcemaps');
-
-let foundryConfig;
-if (fs.existsSync('./foundryconfig.json')) {
-    foundryConfig = JSON.parse(fs.readFileSync('./foundryconfig.json'));
-} else {
-    foundryConfig = {
-        dataPath: '',
-    };
-}
-
-// Config
-const distName = 'pf2e-lootgen';
-const destFolder = path.resolve(foundryConfig['dataPath'], distName);
-const jsBundle = 'bundle.js';
-
-logger.info(`Writing to ${destFolder}`);
-
-const baseArgs = {
-    entries: ['./src/module/Main.ts'],
+const BASE_BUILD_ARGUMENTS = {
     sourceType: 'module',
     debug: true,
-    standalone: 'PF2E-LootGen',
+};
+
+const loadFoundryConfig = async (fs) => {
+    let configPath = './foundryconfig.json';
+    if (!fs.existsSync(configPath)) {
+        configPath = './foundryconfig.default.json';
+    }
+
+    const config = JSON.parse(fs.readFileSync(configPath));
+    if (!fs.existsSync(config.path.modules)) {
+        throw new Error(`Path ${config.path.modules} does not exist. Did you set your config?`);
+    }
+
+    config.path.output = `${config.path.modules}/${config.dist.name}`;
+
+    return config;
+};
+
+const loadBabelConfig = async (fs) => {
+    return JSON.parse(fs.readFileSync('./.babelrc'));
+};
+
+const clean = () => {
+    return new Promise(async (resolve, reject) => {
+        const fs = await import('fs');
+        const path = await import('path');
+        const del = await import('del');
+        const foundryConfig = await loadFoundryConfig(fs);
+        const outputPath = foundryConfig['path']['output'];
+
+        const files = fs.readdirSync(outputPath);
+        for (const file of files) {
+            del.sync(path.resolve(outputPath, file), { force: true });
+        }
+        resolve();
+    });
 };
 
 /**
- * UTILITIES
+ * @param watch {boolean}
+ * @return {Promise<void>}
  */
-function getBabelConfig() {
-    return JSON.parse(fs.readFileSync('.babelrc').toString());
-}
+const executeBuild = (watch) => {
+    return new Promise(async (resolve, reject) => {
+        const fs = await import('fs');
+        const path = await import('path');
+        const foundryConfig = await loadFoundryConfig(fs);
+        const babelConfig = await loadBabelConfig(fs);
 
-function gettsConfig() {
-    return JSON.parse(fs.readFileSync('tsconfig.json').toString());
-}
+        const browserify = (await import('browserify')).default;
+        const babelify = await import('babelify');
+        const tsify = (await import('tsify')).default;
+        const logger = await import('gulplog');
+        const sass = require('gulp-sass')(require('sass'));
 
-function resolveRequires() {
-    const tsconfig = gettsConfig();
-    const root = tsconfig['compilerOptions']['baseUrl'];
-    const paths = tsconfig['compilerOptions']['paths'];
+        const gulp = await import('gulp');
+        const buffer = (await import('vinyl-buffer')).default;
+        const source = (await import('vinyl-source-stream')).default;
+        const sourcemaps = await import('gulp-sourcemaps');
 
-    const requires = [];
-    for (const [key, relatives] of Object.entries(paths)) {
-        for (const relative of relatives) {
-            requires.push([key, path.resolve(root, relative)]);
+        const entry = foundryConfig.path.entry;
+
+        const babel = babelify.configure(babelConfig);
+        const buildArguments = {
+            ...BASE_BUILD_ARGUMENTS,
+            entries: [entry.script],
+            transform: babel,
+            plugin: [tsify],
+        };
+
+        if (watch) {
+            const watchify = (await import('watchify')).default;
+            buildArguments['plugin'].push(watchify);
+            buildArguments['cache'] = {};
+            buildArguments['packageCache'] = {};
         }
-    }
-    return requires;
-}
 
-/**
- * CLEAN
- * Removes all files from the dist folder
- */
-async function cleanDist() {
-    const files = fs.readdirSync(destFolder);
-    for (const file of files) {
-        await del(path.resolve(destFolder, file), { force: true });
-    }
-}
+        let compiler = browserify(buildArguments);
+        compiler.on('log', logger.info);
+        compiler.on('error', (message) => {
+            logger.error(message);
+            reject(message);
+        });
 
-/**
- * BUILD
- */
-async function buildJS() {
-    const babel = babelify.configure(getBabelConfig());
+        const outputPath = foundryConfig['path']['output'];
 
-    const buildArgs = assign({}, baseArgs, {
-        transform: babel,
-        plugin: tsify,
-    });
+        const bundle = () => {
+            for (let [src, dst] of foundryConfig.path.assets) {
+                dst = path.resolve(outputPath, dst);
+                gulp.src(src).pipe(gulp.dest(dst));
+            }
 
-    const b = browserify(buildArgs);
+            gulp.src('src/css/bundle.scss')
+                .pipe(sass.sync().on('error', sass.logError))
+                .pipe(sourcemaps.init({ loadMaps: true }))
+                .pipe(sourcemaps.write('./', {}))
+                .pipe(gulp.dest(outputPath));
 
-    for (const [expose, path] of resolveRequires()) {
-        b.require(path, { expose });
-    }
-
-    return b
-        .bundle()
-        .on('log', logger.info)
-        .on('error', logger.error)
-        .pipe(source(jsBundle))
-        .pipe(buffer())
-        .pipe(sourcemaps.init({ loadMaps: true }))
-        .pipe(sourcemaps.write('./'))
-        .pipe(gulp.dest(destFolder));
-}
-
-/**
- * COPY ASSETS
- */
-async function copyAssets() {
-    gulp.src('module.json').pipe(gulp.dest(destFolder));
-    gulp.src('src/external/**/*').pipe(gulp.dest(path.resolve(destFolder, 'external')));
-    gulp.src('src/templates/**/*').pipe(gulp.dest(path.resolve(destFolder, 'templates')));
-    gulp.src('src/packs/**/*').pipe(gulp.dest(path.resolve(destFolder, 'packs')));
-    gulp.src('LICENSE').pipe(gulp.dest(destFolder));
-
-    gulp.src('FVTT-Common/src/templates/**/*').pipe(gulp.dest(path.resolve(destFolder, 'templates')));
-}
-
-/**
- * WATCH
- */
-async function watch() {
-    // Helper - watch the pattern, copy the output on change
-    function watch(pattern, out) {
-        gulp.watch(pattern).on('change', () => gulp.src(pattern).pipe(gulp.dest(path.resolve(destFolder, out))));
-    }
-
-    watch('module.json', '');
-    watch('src/templates/**/*', 'templates');
-    watch('src/packs/**/*', 'packs');
-    watch('LICENSE', '');
-
-    gulp.watch('src/css/**/*.scss').on('change', async () => await buildSass());
-
-    watch('FVTT-Common/src/templates/**/*', 'templates');
-    gulp.watch('FVTT-Common/src/css/**/*.scss').on('change', async () => await buildSass());
-
-    // Watchify setup
-    const watchArgs = assign({}, watchify.args, baseArgs);
-    const watcher = watchify(browserify(watchArgs));
-    watcher.plugin(tsify);
-    watcher.transform(babelify);
-    watcher.on('log', logger.info);
-
-    for (const [expose, path] of resolveRequires()) {
-        watcher.require(path, { expose });
-    }
-
-    function bundle() {
-        return (
-            watcher
+            compiler
                 .bundle()
-                // log errors if they happen
-                .on('error', logger.error.bind(logger, chalk.red('Browserify Error')))
-                .pipe(source(jsBundle))
+                .pipe(source(foundryConfig['dist']['bundle']))
                 .pipe(buffer())
                 .pipe(sourcemaps.init({ loadMaps: true }))
-                .pipe(sourcemaps.write('./'))
-                .pipe(gulp.dest(destFolder))
-        );
-    }
+                .pipe(sourcemaps.write('./', {}))
+                .pipe(gulp.dest(outputPath));
+        };
 
-    watcher.on('update', bundle);
+        if (watch) {
+            compiler.on('update', bundle);
+            for (let [src, dst] of foundryConfig.path.assets) {
+                dst = path.resolve(outputPath, dst);
+                gulp.watch(src).on('change', bundle);
+            }
+        } else {
+            compiler.on('bundle', resolve);
+        }
 
-    bundle();
-}
+        bundle();
+    });
+};
 
-/**
- * SASS
- */
-async function buildSass() {
-    return gulp
-        .src('src/css/bundle.scss')
-        .on('error', function (error) {
-            console.log(error.toString());
+const watch = () => executeBuild(true);
+const build = () => executeBuild(false);
 
-            this.emit('end');
-        })
-        .pipe(gulpsass().on('error', gulpsass.logError))
-        .pipe(sourcemaps.init({ loadMaps: true }))
-        .pipe(sourcemaps.write('./'))
-        .pipe(gulp.dest(destFolder));
-}
-
-exports.clean = cleanDist;
-exports.assets = copyAssets;
-exports.sass = buildSass;
-exports.build = gulp.series(copyAssets, buildSass, buildJS);
-exports.rebuild = gulp.series(cleanDist, exports.build);
-
-exports.watch = gulp.series(exports.build, watch);
-exports.rewatch = gulp.series(cleanDist, exports.watch);
+module.exports = {
+    build,
+    watch,
+    clean,
+};
